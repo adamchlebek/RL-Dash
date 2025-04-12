@@ -1,6 +1,7 @@
+import { LucideIcon } from 'lucide-react'
 import { ReactNode } from 'react'
 
-type TeamStatCardProps = {
+interface TeamStatCardProps {
   label: string
   value: string
   players: string[]
@@ -8,7 +9,7 @@ type TeamStatCardProps = {
   isWorst?: boolean
 }
 
-export function TeamStatCard({ label, value, players, icon, isWorst }: TeamStatCardProps) {
+export const TeamStatCard = ({ label, value, players, icon, isWorst }: TeamStatCardProps) => {
   const [wins, losses] = value.split('/')
   
   return (

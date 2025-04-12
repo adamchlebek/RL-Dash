@@ -5,8 +5,9 @@ import { TeamStatCard } from '../components/TeamStatCard'
 import { MatchupStatCard } from '../components/MatchupStatCard'
 import { PlayerStatCard } from '../components/PlayerStatCard'
 import { PlayerTable } from '../components/PlayerTable'
-import { dummyPlayers, dummyStats, statIcons } from '../data/dummyData'
-import { Trophy, User, Users } from 'lucide-react'
+import GameHistoryTable from '../components/GameHistoryTable'
+import { dummyPlayers, dummyStats, statIcons, gameHistory } from '../data/dummyData'
+import { Trophy, User, Users, History } from 'lucide-react'
 
 export default function Home() {
   const [players] = useState(dummyPlayers)
@@ -31,45 +32,45 @@ export default function Home() {
               label="Best 3s Team" 
               value={stats.best3sTeam.value}
               players={stats.best3sTeam.players}
-              icon={statIcons.best3sTeam}
+              icon={<statIcons.best3sTeam className="w-6 h-6" />}
             />
             <TeamStatCard 
               label="Best 2s Team" 
               value={stats.best2sTeam.value}
               players={stats.best2sTeam.players}
-              icon={statIcons.best2sTeam}
+              icon={<statIcons.best2sTeam className="w-6 h-6" />}
             />
             <TeamStatCard 
               label="Worst 3s Team" 
               value={stats.worst3sTeam.value}
               players={stats.worst3sTeam.players}
-              icon={statIcons.worst3sTeam}
+              icon={<statIcons.worst3sTeam className="w-6 h-6" />}
               isWorst
             />
             <TeamStatCard 
               label="Worst 2s Team" 
               value={stats.worst2sTeam.value}
               players={stats.worst2sTeam.players}
-              icon={statIcons.worst2sTeam}
+              icon={<statIcons.worst2sTeam className="w-6 h-6" />}
               isWorst
             />
             <MatchupStatCard 
               label="Longest Game" 
               value={stats.longestGame.value}
               teams={stats.longestGame.players as [string, string]}
-              icon={statIcons.longestGame}
+              icon={<statIcons.longestGame className="w-6 h-6" />}
             />
             <MatchupStatCard 
               label="Highest Scoring Game" 
               value={stats.highestScoringGame.value}
               teams={stats.highestScoringGame.players as [string, string]}
-              icon={statIcons.highestScoringGame}
+              icon={<statIcons.highestScoringGame className="w-6 h-6" />}
             />
             <MatchupStatCard 
               label="Biggest Win Deficit" 
               value={stats.biggestWinDeficit.value}
               teams={stats.biggestWinDeficit.players as [string, string]}
-              icon={statIcons.biggestWinDeficit}
+              icon={<statIcons.biggestWinDeficit className="w-6 h-6" />}
             />
           </div>
         </div>
@@ -77,42 +78,42 @@ export default function Home() {
         <div>
           <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2">
             <Users className="w-6 h-6 text-blue-400" />
-            Individual Achievements (in a game)
+            Individual Achievements
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <PlayerStatCard 
               label="Fastest Goal" 
               value={stats.fastestGoal.value}
               player={stats.fastestGoal.players[0]}
-              icon={statIcons.fastestGoal}
+              icon={<statIcons.fastestGoal className="w-6 h-6" />}
               color="orange"
             />
             <PlayerStatCard 
               label="Slowest Goal" 
               value={stats.slowestGoal.value}
               player={stats.slowestGoal.players[0]}
-              icon={statIcons.slowestGoal}
+              icon={<statIcons.slowestGoal className="w-6 h-6" />}
               color="pink"
             />
             <PlayerStatCard 
               label="Highest Points" 
               value={stats.highestPoints.value}
               player={stats.highestPoints.players[0]}
-              icon={statIcons.highestPoints}
+              icon={<statIcons.highestPoints className="w-6 h-6" />}
               color="yellow"
             />
             <PlayerStatCard 
               label="Lowest Points" 
               value={stats.lowestPoints.value}
               player={stats.lowestPoints.players[0]}
-              icon={statIcons.lowestPoints}
+              icon={<statIcons.lowestPoints className="w-6 h-6" />}
               color="red"
             />
             <PlayerStatCard 
               label="Most Demos" 
               value={stats.mostDemos.value}
               player={stats.mostDemos.players[0]}
-              icon={statIcons.mostDemos}
+              icon={<statIcons.mostDemos className="w-6 h-6" />}
               color="green"
             />
           </div>
@@ -124,6 +125,14 @@ export default function Home() {
             Player Stats
           </h2>
           <PlayerTable players={players} />
+        </div>
+
+        <div>
+          <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2">
+            <History className="w-6 h-6 text-blue-400" />
+            Game History
+          </h2>
+          <GameHistoryTable games={gameHistory} />
         </div>
       </div>
     </div>

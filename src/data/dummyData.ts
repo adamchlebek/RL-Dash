@@ -37,4 +37,38 @@ export const statIcons: Record<keyof Stats, LucideIcon> = {
   highestPoints: TrendingUp,
   lowestPoints: TrendingDown,
   mostDemos: Bomb,
-} 
+}
+
+export interface GameHistory {
+  date: string
+  score: string
+  winningTeam: string[]
+  losingTeam: string[]
+}
+
+export const gameHistory: GameHistory[] = [
+  {
+    date: '2024-03-15',
+    score: '5-3',
+    winningTeam: ['Adam', 'Mark'],
+    losingTeam: ['John', 'Mike']
+  },
+  {
+    date: '2024-03-14',
+    score: '4-2',
+    winningTeam: ['Adam', 'Mark', 'John'],
+    losingTeam: ['Mike', 'John', 'Mark']
+  },
+  {
+    date: '2024-03-13',
+    score: '3-1',
+    winningTeam: ['Mike', 'John'],
+    losingTeam: ['Adam', 'Mark']
+  },
+  {
+    date: '2024-03-12',
+    score: '6-4',
+    winningTeam: ['Adam', 'Mark', 'John'],
+    losingTeam: ['Mike', 'John', 'Mark']
+  }
+] 

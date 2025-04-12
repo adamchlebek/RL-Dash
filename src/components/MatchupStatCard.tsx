@@ -1,14 +1,14 @@
 import { ReactNode } from 'react'
 import { Crown } from 'lucide-react'
 
-type MatchupStatCardProps = {
+interface MatchupStatCardProps {
   label: string
   value: string
-  teams: string[]
+  teams: [string, string]
   icon: ReactNode
 }
 
-export function MatchupStatCard({ label, value, teams, icon }: MatchupStatCardProps) {
+export const MatchupStatCard = ({ label, value, teams, icon }: MatchupStatCardProps) => {
   const [team1, team2] = [
     teams.slice(0, teams.length / 2),
     teams.slice(teams.length / 2)

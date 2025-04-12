@@ -1,12 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { Game } from '../models/game'
+import { GameHistory } from '../data/dummyData'
 import { Crown } from 'lucide-react'
-import Link from 'next/link'
 
-type GameHistoryTableProps = {
-  games: Game[]
+interface GameHistoryTableProps {
+  games: GameHistory[]
 }
 
 export default function GameHistoryTable({ games }: GameHistoryTableProps) {
@@ -20,32 +19,30 @@ export default function GameHistoryTable({ games }: GameHistoryTableProps) {
   )
 
   return (
-    <div className="space-y-4">
+    <div className="bg-zinc-800/50 backdrop-blur-sm rounded-xl p-6 border border-zinc-700/50">
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full">
           <thead>
-            <tr className="border-b border-zinc-700 text-zinc-400">
-              <th className="text-left py-3 px-4">Date</th>
-              <th className="text-center py-3 px-4">Score</th>
-              <th className="text-left py-3 px-4">Matchup</th>
+            <tr className="text-left border-b border-zinc-700">
+              <th className="pb-4 font-medium text-zinc-300">Date</th>
+              <th className="pb-4 font-medium text-zinc-300">Score</th>
+              <th className="pb-4 font-medium text-zinc-300">Matchup</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-700">
-            {currentGames.map((game) => (
-              <tr key={game.id} className="hover:bg-zinc-800/50">
-                <td className="py-3 px-4">
-                  <Link href={`/game/${game.id}`} className="hover:text-blue-400">
-                    {new Date(game.date).toLocaleDateString()}
-                  </Link>
+          <tbody>
+            {currentGames.map((game, index) => (
+              <tr key={index} className="border-b border-zinc-700 last:border-0 hover:bg-zinc-700/50 transition-colors">
+                <td className="py-4">
+                  {new Date(game.date).toLocaleDateString()}
                 </td>
-                <td className="py-3 px-4 text-center font-mono">{game.score}</td>
-                <td className="py-3 px-4">
+                <td className="py-4 font-mono">{game.score}</td>
+                <td className="py-4">
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1">
-                      {game.winner === 1 && <Crown className="w-3 h-3 text-yellow-400" />}
                       <div className="flex gap-1">
-                        {game.team1.players.map((player) => (
-                          <span key={player} className="bg-blue-500/20 px-2 py-0.5 rounded-full text-blue-300 text-xs">
+                        {game.winningTeam.map((player) => (
+                          <span key={player} className="flex items-center gap-1 bg-green-900/50 px-2 py-1 rounded-full text-sm">
+                            <Crown className="w-3 h-3" />
                             {player}
                           </span>
                         ))}
@@ -53,10 +50,9 @@ export default function GameHistoryTable({ games }: GameHistoryTableProps) {
                     </div>
                     <span className="text-zinc-500">vs</span>
                     <div className="flex items-center gap-1">
-                      {game.winner === 2 && <Crown className="w-3 h-3 text-yellow-400" />}
                       <div className="flex gap-1">
-                        {game.team2.players.map((player) => (
-                          <span key={player} className="bg-blue-500/20 px-2 py-0.5 rounded-full text-blue-300 text-xs">
+                        {game.losingTeam.map((player) => (
+                          <span key={player} className="bg-red-900/50 px-2 py-1 rounded-full text-sm">
                             {player}
                           </span>
                         ))}
@@ -71,7 +67,7 @@ export default function GameHistoryTable({ games }: GameHistoryTableProps) {
       </div>
 
       {totalPages > 1 && (
-        <div className="flex justify-center gap-2">
+        <div className="flex justify-center gap-2 mt-4">
           <button
             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
             disabled={currentPage === 1}

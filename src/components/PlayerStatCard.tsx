@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 
-type PlayerStatCardProps = {
+interface PlayerStatCardProps {
   label: string
   value: string
   player: string
@@ -8,7 +8,7 @@ type PlayerStatCardProps = {
   color?: 'orange' | 'pink' | 'yellow' | 'red' | 'green'
 }
 
-export function PlayerStatCard({ label, value, player, icon, color = 'orange' }: PlayerStatCardProps) {
+export const PlayerStatCard = ({ label, value, player, icon, color = 'orange' }: PlayerStatCardProps) => {
   const colorClasses = {
     orange: 'border-orange-500/50 bg-orange-500/20 text-orange-300',
     pink: 'border-pink-500/50 bg-pink-500/20 text-pink-300',
