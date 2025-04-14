@@ -6,6 +6,7 @@ export interface Player {
   assists: number
   shots: number
   demos: number
+  gamesPlayed: number
 }
 
 export interface StatValue {

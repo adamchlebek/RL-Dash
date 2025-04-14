@@ -1,5 +1,5 @@
 import { Player } from '../models/player'
-import { Goal, Trophy, Crosshair, Target, Bomb, Users } from 'lucide-react'
+import { Goal, Trophy, Crosshair, Target, Bomb, Gamepad2 } from 'lucide-react'
 
 type PlayerTableProps = {
   players: Player[]
@@ -15,14 +15,20 @@ export function PlayerTable({ players }: PlayerTableProps) {
               <th className="pb-4 font-medium text-zinc-300">Player</th>
               <th className="pb-4 font-medium text-zinc-300">
                 <div className="flex items-center gap-1">
-                  <Goal className="w-4 h-4" />
-                  <span>Goals</span>
+                  <Gamepad2 className="w-4 h-4" />
+                  <span>Games</span>
                 </div>
               </th>
               <th className="pb-4 font-medium text-zinc-300">
                 <div className="flex items-center gap-1">
                   <Trophy className="w-4 h-4" />
                   <span>W/L</span>
+                </div>
+              </th>
+              <th className="pb-4 font-medium text-zinc-300">
+                <div className="flex items-center gap-1">
+                  <Goal className="w-4 h-4" />
+                  <span>Goals</span>
                 </div>
               </th>
               <th className="pb-4 font-medium text-zinc-300">
@@ -49,12 +55,13 @@ export function PlayerTable({ players }: PlayerTableProps) {
             {players.map((player) => (
               <tr key={player.name} className="border-b border-zinc-700 last:border-0 hover:bg-zinc-700/50 transition-colors">
                 <td className="py-4 font-medium">{player.name}</td>
-                <td className="py-4">{player.goals}</td>
+                <td className="py-4">{player.gamesPlayed}</td>
                 <td className="py-4">
                   <span className="text-green-400">{player.wins}</span>
                   <span className="text-zinc-500 mx-1">/</span>
                   <span className="text-red-400">{player.losses}</span>
                 </td>
+                <td className="py-4">{player.goals}</td>
                 <td className="py-4">{player.assists}</td>
                 <td className="py-4">{player.shots}</td>
                 <td className="py-4">{player.demos}</td>

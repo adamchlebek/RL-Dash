@@ -27,7 +27,7 @@ export default function Home() {
             <Trophy className="w-6 h-6 text-yellow-400" />
             Team Stats
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             <TeamStatCard 
               label="Best 3s Team" 
               value={stats.best3sTeam.value}
@@ -54,6 +54,14 @@ export default function Home() {
               icon={<statIcons.worst2sTeam className="w-6 h-6" />}
               isWorst
             />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <MatchupStatCard 
+              label="Biggest Win Deficit" 
+              value={stats.biggestWinDeficit.value}
+              teams={stats.biggestWinDeficit.players as [string, string]}
+              icon={<statIcons.biggestWinDeficit className="w-6 h-6" />}
+            />
             <MatchupStatCard 
               label="Longest Game" 
               value={stats.longestGame.value}
@@ -65,12 +73,6 @@ export default function Home() {
               value={stats.highestScoringGame.value}
               teams={stats.highestScoringGame.players as [string, string]}
               icon={<statIcons.highestScoringGame className="w-6 h-6" />}
-            />
-            <MatchupStatCard 
-              label="Biggest Win Deficit" 
-              value={stats.biggestWinDeficit.value}
-              teams={stats.biggestWinDeficit.players as [string, string]}
-              icon={<statIcons.biggestWinDeficit className="w-6 h-6" />}
             />
           </div>
         </div>
