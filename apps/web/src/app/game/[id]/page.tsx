@@ -1,16 +1,14 @@
+'use client'
+
 import { gameData } from '@/data/dummyData'
-import { notFound } from 'next/navigation'
+import { notFound, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
-interface GamePageProps {
-  params: {
-    id: string
-  }
-}
+export default function GamePage() {
+	const { id } = useParams<{ id: string }>();
 
-export default function GamePage({ params }: GamePageProps) {
-  const game = gameData[params.id]
+  const game = gameData[id as string]
 
   if (!game) {
     notFound()

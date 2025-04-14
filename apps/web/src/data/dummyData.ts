@@ -1,6 +1,6 @@
 import { LucideIcon } from 'lucide-react'
-import { Trophy, Users, Clock, Target, Award, Skull, Timer, Zap, TrendingUp, TrendingDown, Bomb } from 'lucide-react'
-import { Player, Stats, StatValue } from '../models/player'
+import { Trophy, Clock, Target, Award, Skull, Timer, Zap, TrendingUp, TrendingDown, Bomb } from 'lucide-react'
+import { Player, Stats } from '../models/player'
 
 export const dummyPlayers: Player[] = [
   { name: 'Adam', goals: 15, wins: 8, losses: 2, assists: 12, shots: 30, demos: 5, gamesPlayed: 10 },
