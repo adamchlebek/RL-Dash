@@ -17,9 +17,9 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 text-white p-8">
       <div className="max-w-7xl mx-auto space-y-12">
         <div>
-          <h1 className="text-5xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-            Rocket League Stats
-          </h1>
+        <h1 className="text-4xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+          Status
+        </h1>
         </div>
 
         <div>
