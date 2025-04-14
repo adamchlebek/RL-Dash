@@ -41,3 +41,8 @@ apps/web/.env*
 next-env.d.ts
 
 .env
+
+# Server
+apps/server/target/
+
+example.json

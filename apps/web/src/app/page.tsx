@@ -84,20 +84,6 @@ export default function Home() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <PlayerStatCard 
-              label="Fastest Goal" 
-              value={stats.fastestGoal.value}
-              player={stats.fastestGoal.players[0]}
-              icon={<statIcons.fastestGoal className="w-6 h-6" />}
-              color="orange"
-            />
-            <PlayerStatCard 
-              label="Slowest Goal" 
-              value={stats.slowestGoal.value}
-              player={stats.slowestGoal.players[0]}
-              icon={<statIcons.slowestGoal className="w-6 h-6" />}
-              color="pink"
-            />
-            <PlayerStatCard 
               label="Highest Points" 
               value={stats.highestPoints.value}
               player={stats.highestPoints.players[0]}
