@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { supabase } from "./supabaseClient";
+import { supabase } from "./supabase";
 
 export const useReplaySubscription = (
   onComplete: () => Promise<void>,

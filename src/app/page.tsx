@@ -10,7 +10,7 @@ import { statIcons } from "../data/dummyData";
 import { Trophy, User, Users, History, RefreshCw } from "lucide-react";
 import { Stats } from "../models/player";
 import { GameHistory } from "../models/game";
-import { useReplaySubscription } from "../../lib/useReplaySubscription";
+import { useReplaySubscription } from "@/lib/useReplaySubscription";
 
 type PlayerStatsType = {
   id: string;
