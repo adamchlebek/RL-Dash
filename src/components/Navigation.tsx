@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Home, Users, Upload } from "lucide-react";
+import { Home, Users } from "lucide-react";
 
 export function Navigation(): React.ReactElement {
   return (
@@ -29,13 +29,6 @@ export function Navigation(): React.ReactElement {
               >
                 <Users className="w-4 h-4 mr-2" />
                 Players
-              </Link>
-              <Link
-                href="/replay"
-                className="inline-flex items-center px-1 pt-1 text-sm font-medium text-zinc-300 hover:text-white transition-colors"
-              >
-                <Upload className="w-4 h-4 mr-2" />
-                Upload Replay
               </Link>
             </div>
           </div>

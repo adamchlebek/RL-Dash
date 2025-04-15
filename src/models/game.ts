@@ -1,22 +1,29 @@
-export interface Game {
+export interface GameHistory {
   id: string;
   date: string;
   score: string;
-  duration: string;
-  team1: {
-    players: string[];
-    score: number;
+  winningTeam: string[];
+  losingTeam: string[];
+  teamSize?: number;
+  duration?: number;
+  overtime?: boolean;
+  overtimeSeconds?: number;
+  blueTeam?: {
+    goals: number;
+    players: {
+      name: string;
+      globalPlayer?: {
+        name: string | null;
+      } | null;
+    }[];
   };
-  team2: {
-    players: string[];
-    score: number;
-  };
-  winner: 1 | 2;
-  stats: {
-    goals: Record<string, number>;
-    assists: Record<string, number>;
-    saves: Record<string, number>;
-    shots: Record<string, number>;
-    demos: Record<string, number>;
+  orangeTeam?: {
+    goals: number;
+    players: {
+      name: string;
+      globalPlayer?: {
+        name: string | null;
+      } | null;
+    }[];
   };
 }

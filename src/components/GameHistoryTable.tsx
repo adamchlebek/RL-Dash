@@ -52,17 +52,17 @@ const GameHistoryTable: FC<GameHistoryTableProps> = ({ games }) => {
                 key={game.id}
                 className="border-b border-zinc-700 last:border-0 hover:bg-zinc-700/50 transition-colors"
               >
-                <td className="py-4 text-zinc-300">
+                <td className="py-4 px-4 text-zinc-300">
                   {new Date(game.date).toLocaleDateString()}
                 </td>
-                <td className="py-4">
+                <td className="py-4 px-4">
                   <Link href={`/game/${game.id}`} className="block">
                     <span className="font-mono text-zinc-300">
                       {game.score}
                     </span>
                   </Link>
                 </td>
-                <td className="py-4">
+                <td className="py-4 px-4">
                   <Link href={`/game/${game.id}`} className="block">
                     <div className="flex items-center gap-2">
                       {game.winningTeam.map((player) => (

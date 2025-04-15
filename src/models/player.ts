@@ -1,4 +1,5 @@
 export interface Player {
+  id?: string;
   name: string;
   goals: number;
   wins: number;
@@ -7,6 +8,30 @@ export interface Player {
   shots: number;
   demos: number;
   gamesPlayed: number;
+  totalGoals?: number;
+  totalAssists?: number;
+  totalSaves?: number;
+  totalShots?: number;
+  totalDemos?: number;
+  totalScore?: number;
+  avgBoost?: number;
+  shootingPercentage?: number;
+  stats?: {
+    core?: {
+      shots: number;
+      goals: number;
+      saves: number;
+      assists: number;
+      score: number;
+    };
+    boost?: {
+      avg_amount: number;
+    };
+    demo?: {
+      inflicted: number;
+      taken: number;
+    };
+  };
 }
 
 export interface StatValue {

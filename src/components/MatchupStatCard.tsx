@@ -14,10 +14,9 @@ export const MatchupStatCard = ({
   teams,
   icon,
 }: MatchupStatCardProps) => {
-  const [team1, team2] = [
-    teams.slice(0, teams.length / 2),
-    teams.slice(teams.length / 2),
-  ];
+  // Process teams - each team is a string that may contain multiple players
+  const team1Players = teams[0].split(/[,&\s]+/).filter(Boolean);
+  const team2Players = teams[1].split(/[,&\s]+/).filter(Boolean);
 
   // Parse score to determine winner
   const isScoreFormat = value.includes("-");
@@ -40,7 +39,7 @@ export const MatchupStatCard = ({
             <Crown className="w-4 h-4 text-yellow-400" />
           )}
           <div className="flex flex-wrap gap-2 justify-center">
-            {team1.map((player, index) => (
+            {team1Players.map((player, index) => (
               <span
                 key={index}
                 className="text-sm bg-blue-500/20 px-3 py-1.5 rounded-full text-blue-300"
@@ -63,7 +62,7 @@ export const MatchupStatCard = ({
             <Crown className="w-4 h-4 text-yellow-400" />
           )}
           <div className="flex flex-wrap gap-2 justify-center">
-            {team2.map((player, index) => (
+            {team2Players.map((player, index) => (
               <span
                 key={index}
                 className="text-sm bg-blue-500/20 px-3 py-1.5 rounded-full text-blue-300"

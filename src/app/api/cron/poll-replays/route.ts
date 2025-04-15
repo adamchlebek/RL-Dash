@@ -2,17 +2,10 @@ import { NextResponse } from "next/server";
 import { checkReplayStatus, fetchFullReplayData } from "@/lib/ballchasing";
 import { prisma, withRetry, checkDatabaseConnection } from "@/lib/prisma";
 import { createOrUpdateTeam } from "@/lib/teams";
-import type { TeamData, PlayerData } from "@/models/ballchaser";
+import { TeamData, PlayerData, ProcessingResult } from "@/models/ballchaser";
 import { createOrUpdateGroup } from "@/lib/groups";
 import { createOrUpdateUploader } from "@/lib/uploaders";
 import { createPlayerFromData } from "@/lib/players";
-
-interface ProcessingResult {
-  id: string;
-  ballchasingId: string;
-  status: "processing" | "completed" | "failed";
-  message?: string;
-}
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -67,14 +60,14 @@ export async function GET(): Promise<NextResponse> {
 
               // Process Blue Team
               const blueTeam = await createOrUpdateTeam(
-                fullReplayData.blue as TeamData,
+                fullReplayData.blue as unknown as TeamData,
                 "blue",
                 isReprocessing,
               );
 
               // Process Orange Team
               const orangeTeam = await createOrUpdateTeam(
-                fullReplayData.orange as TeamData,
+                fullReplayData.orange as unknown as TeamData,
                 "orange",
                 isReprocessing,
               );

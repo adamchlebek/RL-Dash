@@ -107,6 +107,8 @@ export async function createPlayerFromData(
         boostStats.amount_used_while_supersonic as number,
       boostTimeZeroBoost: boostStats.time_zero_boost as number,
       boostTimeFullBoost: boostStats.time_full_boost as number,
+      boostPercentZeroBoost: boostStats.percent_zero_boost as number,
+      boostPercentFullBoost: boostStats.percent_full_boost as number,
       boostTimeBoost0_25: boostStats.time_boost_0_25 as number,
       boostTimeBoost25_50: boostStats.time_boost_25_50 as number,
       boostTimeBoost50_75: boostStats.time_boost_50_75 as number,

@@ -81,6 +81,12 @@ export async function createOrUpdateTeam(
             boostTimeFullBoost: teamData.stats?.boost?.time_full_boost as
               | number
               | null,
+            boostPercentZeroBoost: teamData.stats?.boost?.percent_zero_boost as
+              | number
+              | null,
+            boostPercentFullBoost: teamData.stats?.boost?.percent_full_boost as
+              | number
+              | null,
             boostTimeBoost0_25: teamData.stats?.boost?.time_boost_0_25 as
               | number
               | null,
@@ -284,6 +290,12 @@ export async function createOrUpdateTeam(
           | number
           | null,
         boostTimeFullBoost: teamData.stats?.boost?.time_full_boost as
+          | number
+          | null,
+        boostPercentZeroBoost: teamData.stats?.boost?.percent_zero_boost as
+          | number
+          | null,
+        boostPercentFullBoost: teamData.stats?.boost?.percent_full_boost as
           | number
           | null,
         boostTimeBoost0_25: teamData.stats?.boost?.time_boost_0_25 as

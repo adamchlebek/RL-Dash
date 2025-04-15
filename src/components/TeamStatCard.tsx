@@ -26,14 +26,18 @@ export const TeamStatCard = ({
         <p className="text-sm text-zinc-400">{label}</p>
       </div>
       <div className="flex flex-wrap gap-2 justify-center mb-4">
-        {players.map((player, index) => (
-          <span
-            key={index}
-            className={`text-base font-medium px-3 py-1.5 rounded-full ${isWorst ? "bg-red-500/20 text-red-300" : "bg-yellow-500/20 text-yellow-300"}`}
-          >
-            {player}
-          </span>
-        ))}
+        {players.length > 0 ? (
+          players.map((player, index) => (
+            <span
+              key={index}
+              className={`text-base font-medium px-3 py-1.5 rounded-full ${isWorst ? "bg-red-500/20 text-red-300" : "bg-yellow-500/20 text-yellow-300"}`}
+            >
+              {player}
+            </span>
+          ))
+        ) : (
+          <span className="text-zinc-400">N/A</span>
+        )}
       </div>
       <div className="flex items-center gap-2 text-sm justify-center">
         <span className="text-green-400">{wins}</span>

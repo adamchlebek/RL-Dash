@@ -120,6 +120,8 @@ model Team {
   boostAmountUsedWhileSupersonic Int?   @map("boost_amount_used_while_supersonic")
   boostTimeZeroBoost           Float?  @map("boost_time_zero_boost")
   boostTimeFullBoost           Float?  @map("boost_time_full_boost")
+  boostPercentZeroBoost        Float?  @map("boost_percent_zero_boost")
+  boostPercentFullBoost        Float?  @map("boost_percent_full_boost")
   boostTimeBoost0_25           Float?  @map("boost_time_boost_0_25")
   boostTimeBoost25_50          Float?  @map("boost_time_boost_25_50")
   boostTimeBoost50_75          Float?  @map("boost_time_boost_50_75")
