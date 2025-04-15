@@ -1,4 +1,4 @@
-import ReplayUpload from './upload';
+import ReplayUpload from "./upload";
 
 export default function ReplayPage(): React.ReactElement {
   return (
@@ -17,4 +17,4 @@ export default function ReplayPage(): React.ReactElement {
       </div>
     </div>
   );
-} 
+}

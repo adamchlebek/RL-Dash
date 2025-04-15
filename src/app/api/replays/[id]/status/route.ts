@@ -1,115 +1,121 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { checkReplayStatus, fetchFullReplayData } from '@/lib/ballchasing';
-import { prisma, checkDatabaseConnection } from '@/lib/prisma';
-import axios from 'axios';
-import { BallchasingReplayResponse, Group } from '@/types/ballchasing';
-import { ReplayStatus } from '@/types';
+import { NextRequest, NextResponse } from "next/server";
+import { checkReplayStatus, fetchFullReplayData } from "@/lib/ballchasing";
+import { prisma, checkDatabaseConnection } from "@/lib/prisma";
+import type { ReplayStatus } from "@/types";
+import { createOrUpdateTeam } from "@/lib/teams";
 
-// Helper functions to create or update related entities
-async function createOrUpdateTeam(teamData: any, color: string) {
-  if (!teamData) return null;
+// Define proper types instead of using any
+interface PlayerIdData {
+  platform: string;
+  id: string;
+}
+
+interface CameraSettings {
+  fov: number;
+  height: number;
+  pitch: number;
+  distance: number;
+  stiffness: number;
+  swivel_speed: number;
+  transition_speed: number;
+}
+
+interface PlayerStats {
+  core?: Record<string, number>;
+  boost?: Record<string, number>;
+  movement?: Record<string, number>;
+  positioning?: Record<string, number>;
+  demo?: Record<string, number>;
+}
+
+interface PlayerData {
+  id?: PlayerIdData;
+  name?: string;
+  car_name?: string;
+  car_id?: number;
+  start_time?: number;
+  end_time?: number;
+  steering_sensitivity?: number;
+  mvp?: boolean;
+  camera?: CameraSettings;
+  stats?: PlayerStats;
+}
+
+interface TeamStats {
+  core?: Record<string, number>;
+  boost?: Record<string, number>;
+  movement?: Record<string, number>;
+  positioning?: Record<string, number>;
+  demo?: Record<string, number>;
+  ball?: Record<string, number>;
+}
+
+interface TeamData {
+  name?: string;
+  players?: any[];
+  stats?: TeamStats;
+}
+
+interface GroupData {
+  id: string;
+  name?: string;
+  link?: string;
+}
+
+interface UploaderData {
+  steam_id: string;
+  name: string;
+  profile_url?: string;
+  avatar?: string;
+}
+
+// Helper function to create or update GlobalPlayer and connect to Player
+async function createOrUpdateGlobalPlayer(playerData: PlayerData) {
+  if (!playerData.id?.platform || !playerData.id?.id) return null;
 
   try {
-    // Create a unique identifier for the team based on the replay and color
-    const teamId = `${teamData.name || color}-${new Date().getTime()}`;
-    
-    // Core stats extraction
-    const coreStats = teamData.stats?.core || {};
-    const boostStats = teamData.stats?.boost || {};
-    const movementStats = teamData.stats?.movement || {};
-    const positioningStats = teamData.stats?.positioning || {};
-    const demoStats = teamData.stats?.demo || {};
-    const ballStats = teamData.stats?.ball || {};
-
-    // Create the team
-    const team = await prisma.team.create({
-      data: {
-        color: color,
-        name: teamData.name || color,
-        
-        // Stats
-        possessionTime: ballStats?.possession_time,
-        timeInSide: ballStats?.time_in_side,
-        
-        // Core stats
-        shots: coreStats?.shots,
-        shotsAgainst: coreStats?.shots_against,
-        goals: coreStats?.goals,
-        goalsAgainst: coreStats?.goals_against,
-        saves: coreStats?.saves,
-        assists: coreStats?.assists,
-        score: coreStats?.score,
-        shootingPercentage: coreStats?.shooting_percentage,
-      }
+    // Check if global player already exists
+    const existingPlayer = await prisma.globalPlayer.findUnique({
+      where: {
+        platform_platformId: {
+          platform: playerData.id.platform,
+          platformId: playerData.id.id,
+        },
+      },
     });
 
-    // Create players for the team if they exist
-    if (teamData.players && teamData.players.length > 0) {
-      await Promise.all(
-        teamData.players.map(async (playerData: any) => {
-          // Create the camera first if it exists
-          let cameraId = null;
-          if (playerData.camera) {
-            const camera = await prisma.camera.create({
-              data: {
-                fov: playerData.camera.fov,
-                height: playerData.camera.height,
-                pitch: playerData.camera.pitch,
-                distance: playerData.camera.distance,
-                stiffness: playerData.camera.stiffness,
-                swivelSpeed: playerData.camera.swivel_speed,
-                transitionSpeed: playerData.camera.transition_speed
-              }
-            });
-            cameraId = camera.id;
-          }
-
-          // Player core stats extraction
-          const coreStats = playerData.stats?.core || {};
-
-          // Create the player
-          await prisma.player.create({
-            data: {
-              platform: playerData.id?.platform,
-              platformId: playerData.id?.id,
-              name: playerData.name,
-              startTime: playerData.start_time,
-              endTime: playerData.end_time,
-              carId: playerData.car_id,
-              carName: playerData.car_name,
-              steeringSensitivity: playerData.steering_sensitivity,
-              mvp: playerData.mvp || false,
-              
-              // Connect to team and camera
-              team: { connect: { id: team.id } },
-              camera: cameraId ? { connect: { id: cameraId } } : undefined,
-              
-              // Player core stats
-              coreShots: coreStats?.shots,
-              coreGoals: coreStats?.goals,
-              coreSaves: coreStats?.saves,
-              coreAssists: coreStats?.assists,
-              coreScore: coreStats?.score,
-            }
-          });
-        })
-      );
+    if (existingPlayer) {
+      // Update existing global player with latest name
+      return await prisma.globalPlayer.update({
+        where: { id: existingPlayer.id },
+        data: {
+          name: playerData.name || existingPlayer.name,
+          updatedAt: new Date(),
+        },
+      });
+    } else {
+      // Create new global player
+      return await prisma.globalPlayer.create({
+        data: {
+          platform: playerData.id.platform,
+          platformId: playerData.id.id,
+          name: playerData.name || "Unnamed Player",
+        },
+      });
     }
-
-    return team;
   } catch (error) {
-    console.error('Error creating team:', error);
+    console.error("Error creating/updating global player:", error);
     return null;
   }
 }
 
-async function createOrUpdateUploader(uploaderData: any) {
+async function createOrUpdateUploader(uploaderData: UploaderData) {
   if (!uploaderData) return null;
 
   try {
     // Check if uploader already exists by steamId
     const existingUploader = await prisma.uploader.findFirst({
-      where: { steamId: uploaderData.steam_id }
+      where: { steamId: uploaderData.steam_id },
     });
 
     if (existingUploader) {
@@ -120,7 +126,7 @@ async function createOrUpdateUploader(uploaderData: any) {
           name: uploaderData.name || existingUploader.name,
           profileUrl: uploaderData.profile_url || existingUploader.profileUrl,
           avatar: uploaderData.avatar || existingUploader.avatar,
-        }
+        },
       });
     } else {
       // Create new uploader
@@ -130,22 +136,22 @@ async function createOrUpdateUploader(uploaderData: any) {
           name: uploaderData.name,
           profileUrl: uploaderData.profile_url,
           avatar: uploaderData.avatar,
-        }
+        },
       });
     }
   } catch (error) {
-    console.error('Error creating/updating uploader:', error);
+    console.error("Error creating/updating uploader:", error);
     return null;
   }
 }
 
-async function createOrUpdateGroup(groupData: Group) {
+async function createOrUpdateGroup(groupData: GroupData) {
   if (!groupData) return null;
 
   try {
     // Check if group already exists by ballchasingId
     const existingGroup = await prisma.replayGroup.findUnique({
-      where: { ballchasingId: groupData.id }
+      where: { ballchasingId: groupData.id },
     });
 
     if (existingGroup) {
@@ -156,112 +162,130 @@ async function createOrUpdateGroup(groupData: Group) {
       return await prisma.replayGroup.create({
         data: {
           ballchasingId: groupData.id,
-          name: groupData.name,
+          name: groupData.name || groupData.id, // Ensure name is always a string
           link: groupData.link,
-        }
+        },
       });
     }
   } catch (error) {
-    console.error('Error creating/updating group:', error);
+    console.error("Error creating/updating group:", error);
     return null;
   }
 }
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-): Promise<NextResponse> {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   // Extract the URL and parameters
   const url = new URL(request.url);
-  const pathParts = url.pathname.split('/');
+  const pathParts = url.pathname.split("/");
   const replayId = pathParts[pathParts.length - 2]; // Extract ID from URL path
-  const ballchasingId = url.searchParams.get('ballchasingId'); // Get ballchasingId from query
-  
+  const ballchasingId = url.searchParams.get("ballchasingId"); // Get ballchasingId from query
+
   if (!replayId && !ballchasingId) {
     return NextResponse.json(
-      { error: 'No replay ID or ballchasingId provided' },
-      { status: 400 }
+      { error: "No replay ID or ballchasingId provided" },
+      { status: 400 },
     );
   }
-  
+
   try {
     // Check database connection
     const isDbConnected = await checkDatabaseConnection();
-    
+
     // If database is not accessible but we have ballchasingId, use that
     if (!isDbConnected) {
       if (!ballchasingId) {
         return NextResponse.json(
-          { error: 'Database unavailable and no ballchasingId provided' },
-          { status: 400 }
+          { error: "Database unavailable and no ballchasingId provided" },
+          { status: 400 },
         );
       }
-      
+
       const status = await checkReplayStatus(ballchasingId);
-      return NextResponse.json({ 
-        status: status === 'ok' ? 'completed' : status === 'pending' ? 'processing' : status 
+      return NextResponse.json({
+        status:
+          status === "ok"
+            ? "completed"
+            : status === "pending"
+              ? "processing"
+              : status,
       });
     }
-    
+
     // Database is available, check if the replay exists
     const replay = await prisma.replay.findUnique({
       where: { id: replayId },
     });
-    
+
     if (!replay) {
-      return NextResponse.json({ error: 'Replay not found' }, { status: 404 });
+      return NextResponse.json({ error: "Replay not found" }, { status: 404 });
     }
-    
+
     // If status is already final, return it
-    if (replay.status === 'completed' || replay.status === 'failed') {
+    if (replay.status === "completed" || replay.status === "failed") {
       return NextResponse.json({ status: replay.status });
     }
-    
+
     // Check with Ballchasing API - now using the rate limited version
     let status: ReplayStatus;
     try {
       const ballchasingStatus = await checkReplayStatus(replay.ballchasingId);
-      status = ballchasingStatus === 'ok' ? 'completed' : 
-               ballchasingStatus === 'pending' ? 'processing' : 'failed';
+      status =
+        ballchasingStatus === "ok"
+          ? "completed"
+          : ballchasingStatus === "pending"
+            ? "processing"
+            : "failed";
     } catch (error) {
       // If rate limited, keep as processing
-      if (error instanceof Error && error.message.includes('429')) {
-        console.warn(`Rate limit hit for replay ${replayId}, keeping as processing`);
-        return NextResponse.json({ 
-          status: 'processing',
-          message: 'Rate limit exceeded, will retry later' 
+      if (error instanceof Error && error.message.includes("429")) {
+        console.warn(
+          `Rate limit hit for replay ${replayId}, keeping as processing`,
+        );
+        return NextResponse.json({
+          status: "processing",
+          message: "Rate limit exceeded, will retry later",
         });
       }
       throw error; // Re-throw other errors
     }
-    
-    if (status === 'completed') {
+
+    if (status === "completed") {
       try {
         // Fetch the complete replay data from Ballchasing API - now using the rate limited version
         const fullReplayData = await fetchFullReplayData(replay.ballchasingId);
-        
+
         // Create teams, players, cameras, and uploader if they don't exist
         // Process Blue Team
-        const blueTeam = await createOrUpdateTeam(fullReplayData.blue, 'blue');
-        
+        const blueTeam = await createOrUpdateTeam(
+          fullReplayData.blue as TeamData,
+          "blue",
+          false,
+          undefined
+        );
+
         // Process Orange Team
-        const orangeTeam = await createOrUpdateTeam(fullReplayData.orange, 'orange');
-        
+        const orangeTeam = await createOrUpdateTeam(
+          fullReplayData.orange as TeamData,
+          "orange",
+          false,
+          undefined
+        );
+
         // Process Uploader
         const uploader = await createOrUpdateUploader(fullReplayData.uploader);
-        
+
         // Process Groups
         const groups = await Promise.all(
-          (fullReplayData.groups || []).map(async (group: Group) => {
+          (fullReplayData.groups || []).map(async (group) => {
             return await createOrUpdateGroup(group);
-          })
+          }),
         );
-        
+
         // Update the replay with all of the data and relationships
         await prisma.replay.update({
           where: { id: replayId },
           data: {
-            status: 'completed',
+            status: "completed",
             processedAt: new Date(),
             // Extract relevant fields from the full data
             rocketLeagueId: fullReplayData.rocket_league_id,
@@ -282,66 +306,75 @@ export async function GET(
             dateHasTimezone: fullReplayData.date_has_timezone,
             visibility: fullReplayData.visibility,
             link: fullReplayData.link,
+            created: fullReplayData.created
+              ? new Date(fullReplayData.created)
+              : undefined,
             // Connect relationships
             uploader: uploader ? { connect: { id: uploader.id } } : undefined,
             blueTeam: blueTeam ? { connect: { id: blueTeam.id } } : undefined,
-            orangeTeam: orangeTeam ? { connect: { id: orangeTeam.id } } : undefined,
+            orangeTeam: orangeTeam
+              ? { connect: { id: orangeTeam.id } }
+              : undefined,
             groups: {
-              connect: groups.filter(g => g !== null).map(g => ({ id: g!.id }))
-            }
+              connect: groups
+                .filter((g) => g !== null)
+                .map((g) => ({ id: g!.id })),
+            },
           },
         });
-        
-        return NextResponse.json({ status: 'completed' });
+
+        return NextResponse.json({ status: "completed" });
       } catch (error) {
         console.error(`Error processing completed replay ${replayId}:`, error);
-        
+
         // Check if the error is due to rate limiting
-        if (error instanceof Error && error.message.includes('429')) {
-          console.warn(`Rate limit hit during data fetch for replay ${replayId}, keeping as processing`);
-          return NextResponse.json({ 
-            status: 'processing',
-            message: 'Rate limit exceeded during data fetch, will retry later' 
+        if (error instanceof Error && error.message.includes("429")) {
+          console.warn(
+            `Rate limit hit during data fetch for replay ${replayId}, keeping as processing`,
+          );
+          return NextResponse.json({
+            status: "processing",
+            message: "Rate limit exceeded during data fetch, will retry later",
           });
         }
-        
+
         // For other errors, still mark as completed
         await prisma.replay.update({
           where: { id: replayId },
           data: {
-            status: 'completed',
-            processedAt: new Date()
-          }
+            status: "completed",
+            processedAt: new Date(),
+          },
         });
-        
-        return NextResponse.json({ 
-          status: 'completed',
-          message: 'Marked as completed despite processing error' 
+
+        return NextResponse.json({
+          status: "completed",
+          message: "Marked as completed despite processing error",
         });
       }
-    } else if (status === 'failed') {
+    } else if (status === "failed") {
       // Update to failed
       await prisma.replay.update({
         where: { id: replayId },
         data: {
-          status: 'failed',
+          status: "failed",
           processedAt: null,
         },
       });
-      
-      return NextResponse.json({ status: 'failed' });
+
+      return NextResponse.json({ status: "failed" });
     }
-    
+
     // Still processing
-    return NextResponse.json({ status: 'processing' });
+    return NextResponse.json({ status: "processing" });
   } catch (error) {
-    console.error('Error checking replay status:', error);
+    console.error("Error checking replay status:", error);
     return NextResponse.json(
-      { 
-        error: 'Failed to check replay status', 
-        details: error instanceof Error ? error.message : 'Unknown error' 
+      {
+        error: "Failed to check replay status",
+        details: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
-} 
+}

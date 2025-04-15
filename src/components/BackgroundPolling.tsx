@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useRef } from 'react';
-import { setupReplayPolling, stopReplayPolling } from '@/lib/cron';
+import { useEffect, useRef } from "react";
+import { setupReplayPolling, stopReplayPolling } from "@/lib/cron";
 
 export function BackgroundPolling(): null {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -20,4 +20,4 @@ export function BackgroundPolling(): null {
 
   // This component doesn't render anything
   return null;
-} 
+}

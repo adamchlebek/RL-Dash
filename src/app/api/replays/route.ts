@@ -1,44 +1,46 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { uploadReplay } from '@/lib/ballchasing';
-import { prisma, checkDatabaseConnection } from '@/lib/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import { uploadReplay } from "@/lib/ballchasing";
+import { prisma, checkDatabaseConnection } from "@/lib/prisma";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const formData = await request.formData();
-    const file = formData.get('file') as File;
-    
+    const file = formData.get("file") as File;
+
     if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+      return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
     // Read file as buffer
     const buffer = Buffer.from(await file.arrayBuffer());
-    
+
     // Upload to Ballchasing API
     const ballchasingResponse = await uploadReplay(buffer, file.name);
-    
+
     // Check database connection
     const isDbConnected = await checkDatabaseConnection();
-    
+
     let replayRecord;
-    
+
     if (isDbConnected) {
       // Check if the replay already exists in our database by ballchasingId
       const existingReplay = await prisma.replay.findUnique({
-        where: { ballchasingId: ballchasingResponse.id }
+        where: { ballchasingId: ballchasingResponse.id },
       });
-      
+
       if (existingReplay) {
         // Return the existing replay record
         replayRecord = existingReplay;
-        console.log(`Replay with ballchasingId ${ballchasingResponse.id} already exists in database`);
+        console.log(
+          `Replay with ballchasingId ${ballchasingResponse.id} already exists in database`,
+        );
       } else {
         // Store in database
         replayRecord = await prisma.replay.create({
           data: {
             ballchasingId: ballchasingResponse.id,
             fileName: file.name,
-            status: 'processing',
+            status: "processing",
           },
         });
       }
@@ -48,11 +50,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         id: crypto.randomUUID(),
         ballchasingId: ballchasingResponse.id,
         fileName: file.name,
-        status: 'processing',
+        status: "processing",
         uploadedAt: new Date(),
-        processedAt: null
+        processedAt: null,
       };
-      console.warn('Database connection failed, using in-memory record');
+      console.warn("Database connection failed, using in-memory record");
     }
 
     return NextResponse.json({
@@ -61,13 +63,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       fileName: replayRecord.fileName,
       status: replayRecord.status,
       uploadedAt: replayRecord.uploadedAt,
-      isDuplicate: ballchasingResponse.isDuplicate || false
+      isDuplicate: ballchasingResponse.isDuplicate || false,
     });
   } catch (error) {
-    console.error('Error uploading replay:', error);
+    console.error("Error uploading replay:", error);
     return NextResponse.json(
-      { error: 'Failed to upload replay' },
-      { status: 500 }
+      { error: "Failed to upload replay" },
+      { status: 500 },
     );
   }
-} 
+}

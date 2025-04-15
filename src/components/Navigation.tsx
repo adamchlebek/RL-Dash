@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import { Home, Users, Upload } from 'lucide-react';
+import Link from "next/link";
+import { Home, Users, Upload } from "lucide-react";
 
 export function Navigation(): React.ReactElement {
   return (
@@ -8,20 +8,32 @@ export function Navigation(): React.ReactElement {
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/" className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+              <Link
+                href="/"
+                className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
+              >
                 RL Dash
               </Link>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-              <Link href="/" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-zinc-300 hover:text-white transition-colors">
+              <Link
+                href="/"
+                className="inline-flex items-center px-1 pt-1 text-sm font-medium text-zinc-300 hover:text-white transition-colors"
+              >
                 <Home className="w-4 h-4 mr-2" />
                 Home
               </Link>
-              <Link href="/players" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-zinc-300 hover:text-white transition-colors">
+              <Link
+                href="/players"
+                className="inline-flex items-center px-1 pt-1 text-sm font-medium text-zinc-300 hover:text-white transition-colors"
+              >
                 <Users className="w-4 h-4 mr-2" />
                 Players
               </Link>
-              <Link href="/replay" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-zinc-300 hover:text-white transition-colors">
+              <Link
+                href="/replay"
+                className="inline-flex items-center px-1 pt-1 text-sm font-medium text-zinc-300 hover:text-white transition-colors"
+              >
                 <Upload className="w-4 h-4 mr-2" />
                 Upload Replay
               </Link>
@@ -31,4 +43,4 @@ export function Navigation(): React.ReactElement {
       </div>
     </div>
   );
-} 
+}

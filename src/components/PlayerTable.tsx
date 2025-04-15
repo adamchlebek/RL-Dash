@@ -1,9 +1,9 @@
-import { Player } from '../models/player'
-import { Goal, Trophy, Crosshair, Target, Bomb, Gamepad2 } from 'lucide-react'
+import { Player } from "../models/player";
+import { Goal, Trophy, Crosshair, Target, Bomb, Gamepad2 } from "lucide-react";
 
 type PlayerTableProps = {
-  players: Player[]
-}
+  players: Player[];
+};
 
 export function PlayerTable({ players }: PlayerTableProps) {
   return (
@@ -53,7 +53,10 @@ export function PlayerTable({ players }: PlayerTableProps) {
           </thead>
           <tbody>
             {players.map((player) => (
-              <tr key={player.name} className="border-b border-zinc-700 last:border-0 hover:bg-zinc-700/50 transition-colors">
+              <tr
+                key={player.name}
+                className="border-b border-zinc-700 last:border-0 hover:bg-zinc-700/50 transition-colors"
+              >
                 <td className="py-4 font-medium">{player.name}</td>
                 <td className="py-4">{player.gamesPlayed}</td>
                 <td className="py-4">
@@ -71,5 +74,5 @@ export function PlayerTable({ players }: PlayerTableProps) {
         </table>
       </div>
     </div>
-  )
-} 
+  );
+}

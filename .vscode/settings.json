@@ -1,7 +1,10 @@
 {
-    "cSpell.words": [
-        "ballchasing",
-        "supabase",
-        "Timestamptz"
-    ]
+  "cSpell.words": [
+    "ballchaser",
+    "ballchasing",
+    "bcpm",
+    "supabase",
+    "Timestamptz",
+    "uploaders"
+  ]
 }

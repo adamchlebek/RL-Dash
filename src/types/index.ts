@@ -1,14 +1,14 @@
-export type ReplayStatus = 'processing' | 'completed' | 'failed';
+export type ReplayStatus = "processing" | "completed" | "failed";
 
 // This represents the internal application status for replays
 export interface Replay {
   id: string;
   ballchasingId: string;
-  fileName: string;
+  fileName?: string | null;
   status: string;
   uploadedAt: Date;
   processedAt?: Date | null;
-  
+
   // Added data fields
   rocketLeagueId?: string | null;
   matchGuid?: string | null;
@@ -28,7 +28,8 @@ export interface Replay {
   dateHasTimezone?: boolean | null;
   visibility?: string | null;
   link?: string | null;
-  
+  created?: Date | null;
+
   // Relations
   uploaderId?: string | null;
   blueTeamId?: string | null;
@@ -36,13 +37,13 @@ export interface Replay {
 }
 
 // This represents the status values from the Ballchasing API
-export type BallchasingStatus = 'pending' | 'ok' | 'failed';
+export type BallchasingStatus = "pending" | "ok" | "failed";
 
 export interface Team {
   id: string;
   color: string;
   name?: string | null;
-  
+
   // Core stats
   possessionTime?: number | null;
   timeInSide?: number | null;
@@ -68,7 +69,7 @@ export interface Player {
   carName?: string | null;
   steeringSensitivity?: number | null;
   mvp?: boolean | null;
-  
+
   // Core stats
   coreShots?: number | null;
   coreGoals?: number | null;
@@ -97,29 +98,30 @@ export interface BallchasingReplayResponse {
   date: string;
   date_has_timezone: boolean;
   visibility: string;
-  
+  created: string;
+
   blue: {
     name?: string;
-    players: any[];
-    stats: any;
+    players: unknown[];
+    stats: Record<string, unknown>;
   };
-  
+
   orange: {
     name?: string;
-    players: any[];
-    stats: any;
+    players: unknown[];
+    stats: Record<string, unknown>;
   };
-  
+
   uploader: {
     steam_id: string;
     name: string;
     profile_url?: string;
     avatar?: string;
   };
-  
+
   groups?: {
     id: string;
     name?: string;
     link?: string;
   }[];
-} 
+}

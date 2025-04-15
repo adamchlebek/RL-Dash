@@ -251,4 +251,4 @@ export interface TeamPositioning {
   time_offensive_half: number;
   time_behind_ball: number;
   time_infront_ball: number;
-} 
+}

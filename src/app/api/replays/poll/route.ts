@@ -1,55 +1,22 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { checkReplayStatus } from '@/lib/ballchasing';
-import { prisma } from '@/lib/prisma';
-import { Replay } from '@/types';
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
-export const runtime = 'edge';
-
-export async function GET(request: NextRequest): Promise<NextResponse> {
+// This is a simple endpoint that returns the number of replays that are still processing
+export async function GET(): Promise<NextResponse> {
   try {
-    // Find all replays with 'processing' status
-    const processingReplays = await prisma.replay.findMany({
-      where: { status: 'processing' },
+    const count = await prisma.replay.count({
+      where: { status: "processing" },
     });
-    
-    if (processingReplays.length === 0) {
-      return NextResponse.json({ message: 'No processing replays found' });
-    }
-    
-    const results = await Promise.all(
-      processingReplays.map(async (replay: Replay) => {
-        const status = await checkReplayStatus(replay.ballchasingId);
-        
-        if (status !== 'pending') {
-          await prisma.replay.update({
-            where: { id: replay.id },
-            data: {
-              status: status === 'processed' ? 'completed' : 'failed',
-              processedAt: status === 'processed' ? new Date() : null,
-            },
-          });
-          
-          return {
-            id: replay.id,
-            ballchasingId: replay.ballchasingId,
-            status: status === 'processed' ? 'completed' : 'failed',
-          };
-        }
-        
-        return {
-          id: replay.id,
-          ballchasingId: replay.ballchasingId,
-          status: 'processing',
-        };
-      })
-    );
-    
-    return NextResponse.json({ results });
+
+    return NextResponse.json({ processingCount: count });
   } catch (error) {
-    console.error('Error polling replay status:', error);
+    console.error("Error checking processing replays:", error);
     return NextResponse.json(
-      { error: 'Failed to poll replay status' },
-      { status: 500 }
+      {
+        error: "Failed to check processing replays",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
     );
   }
-} 
+}
