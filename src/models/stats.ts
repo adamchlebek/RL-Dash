@@ -54,6 +54,8 @@ export interface ReplayData {
 }
 
 export interface PlayerStats {
+  id: string;
+  name: string;
   totalGoals: number;
   totalAssists: number;
   totalSaves: number;

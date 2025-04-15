@@ -6,6 +6,24 @@ export const revalidate = 3600; // Revalidate every hour
 async function getGlobalPlayers() {
   return await prisma.globalPlayer.findMany({
     orderBy: { name: "asc" },
+    include: {
+      players: {
+        include: {
+          blueReplays: {
+            select: {
+              id: true,
+              date: true,
+            },
+          },
+          orangeReplays: {
+            select: {
+              id: true,
+              date: true,
+            },
+          },
+        },
+      },
+    },
   });
 }
 
@@ -35,37 +53,65 @@ export default async function PlayersPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-zinc-300 uppercase tracking-wider">
                   First Seen
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-zinc-300 uppercase tracking-wider">
+                  Latest Game
+                </th>
               </tr>
             </thead>
             <tbody className="bg-zinc-800/20 divide-y divide-zinc-700">
-              {players.map((player) => (
-                <tr
-                  key={player.id}
-                  className="hover:bg-zinc-700/30 transition-colors"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <Link
-                      href={`/players/${player.id}`}
-                      className="text-blue-400 hover:text-blue-300 transition-colors"
-                    >
-                      {player.name}
-                    </Link>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">
-                    {player.platform}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">
-                    {player.platformId}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">
-                    {new Date(player.createdAt).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
+              {players.map((player) => {
+                const allGames = [
+                  ...player.players.flatMap((p) => p.blueReplays),
+                  ...player.players.flatMap((p) => p.orangeReplays),
+                ].sort(
+                  (a, b) =>
+                    new Date(b.date || 0).getTime() -
+                    new Date(a.date || 0).getTime(),
+                );
+
+                const latestGame = allGames[0];
+
+                return (
+                  <tr
+                    key={player.id}
+                    className="hover:bg-zinc-700/30 transition-colors"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <Link
+                        href={`/players/${player.id}`}
+                        className="text-blue-400 hover:text-blue-300 transition-colors"
+                      >
+                        {player.name}
+                      </Link>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">
+                      {player.platform}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">
+                      {player.platformId}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">
+                      {new Date(player.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">
+                      {latestGame ? (
+                        <Link
+                          href={`/game/${latestGame.id}`}
+                          className="text-blue-400 hover:text-blue-300 transition-colors"
+                        >
+                          {new Date(latestGame.date || 0).toLocaleDateString()}
+                        </Link>
+                      ) : (
+                        "No games"
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
               {players.length === 0 && (
                 <tr>
                   <td
-                    colSpan={4}
+                    colSpan={5}
                     className="px-6 py-4 text-center text-zinc-400"
                   >
                     No players found. Process some replays to see players here.

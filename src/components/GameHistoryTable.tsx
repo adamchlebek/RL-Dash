@@ -65,23 +65,27 @@ const GameHistoryTable: FC<GameHistoryTableProps> = ({ games }) => {
                 <td className="py-4 px-4">
                   <Link href={`/game/${game.id}`} className="block">
                     <div className="flex items-center gap-2">
-                      {game.winningTeam.map((player) => (
-                        <span
-                          key={player}
-                          className="bg-green-900/50 px-3 py-1 rounded-full text-green-400"
-                        >
-                          {player}
-                        </span>
-                      ))}
+                      {[...game.winningTeam]
+                        .sort((a, b) => a.localeCompare(b))
+                        .map((player) => (
+                          <span
+                            key={player}
+                            className="bg-green-900/50 px-3 py-1 rounded-full text-green-400"
+                          >
+                            {player}
+                          </span>
+                        ))}
                       <span className="text-zinc-500">vs</span>
-                      {game.losingTeam.map((player) => (
-                        <span
-                          key={player}
-                          className="bg-red-900/50 px-3 py-1 rounded-full text-red-400"
-                        >
-                          {player}
-                        </span>
-                      ))}
+                      {[...game.losingTeam]
+                        .sort((a, b) => a.localeCompare(b))
+                        .map((player) => (
+                          <span
+                            key={player}
+                            className="bg-red-900/50 px-3 py-1 rounded-full text-red-400"
+                          >
+                            {player}
+                          </span>
+                        ))}
                     </div>
                   </Link>
                 </td>

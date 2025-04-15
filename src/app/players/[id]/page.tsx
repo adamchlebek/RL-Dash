@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
+import { getGameIdFromInstance } from "@/lib/getGameId";
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -35,14 +36,16 @@ export default async function PlayerDetailPage({
   }
 
   // Map player instances to add a replayId property for display
-  const playerInstances = player.players.map((instance) => {
-    // Determine which replay relation to use
-    const replay = instance.blueReplays[0] || instance.orangeReplays[0];
-    return {
-      ...instance,
-      replayId: replay?.id,
-    };
-  });
+  const playerInstances = await Promise.all(
+    player.players.map(async (instance) => {
+      const replayId = await getGameIdFromInstance(instance.id);
+
+      return {
+        ...instance,
+        replayId,
+      };
+    }),
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 text-white p-8">
@@ -118,7 +121,7 @@ export default async function PlayerDetailPage({
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                           {instance.replayId ? (
                             <Link
-                              href={`/replay/${instance.replayId}`}
+                              href={`/game/${instance.replayId}`}
                               className="text-blue-400 hover:text-blue-300"
                             >
                               {instance.replayId.substring(0, 8)}...

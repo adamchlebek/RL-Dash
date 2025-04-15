@@ -1,15 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { TeamStatCard } from "../components/TeamStatCard";
 import { MatchupStatCard } from "../components/MatchupStatCard";
 import { PlayerStatCard } from "../components/PlayerStatCard";
 import { PlayerTable } from "../components/PlayerTable";
 import GameHistoryTable from "../components/GameHistoryTable";
 import { statIcons } from "../data/dummyData";
-import { Trophy, User, Users, History } from "lucide-react";
+import { Trophy, User, Users, History, RefreshCw } from "lucide-react";
 import { Stats } from "../models/player";
 import { GameHistory } from "../models/game";
+import { useReplaySubscription } from "../../lib/useReplaySubscription";
 
 type PlayerStatsType = {
   id: string;
@@ -33,79 +34,92 @@ export default function Home() {
   const [isLoading, setLoading] = useState<boolean>(true);
   const [isPlayerLoading, setPlayerLoading] = useState<boolean>(true);
   const [isGameHistoryLoading, setGameHistoryLoading] = useState<boolean>(true);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+
+  const fetchStats = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/stats");
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch stats");
+      }
+
+      const statsData = await response.json();
+      setStats(statsData);
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchPlayerStats = useCallback(async () => {
+    try {
+      setPlayerLoading(true);
+      const response = await fetch("/api/stats/players");
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch player stats");
+      }
+
+      const playerData = await response.json();
+      setPlayerStats(playerData);
+    } catch (error) {
+      console.error("Error fetching player stats:", error);
+    } finally {
+      setPlayerLoading(false);
+    }
+  }, []);
+
+  const fetchGameHistory = useCallback(async () => {
+    try {
+      setGameHistoryLoading(true);
+      const response = await fetch("/api/stats/games");
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch game history");
+      }
+
+      const historyData = await response.json();
+      setGameHistory(historyData);
+    } catch (error) {
+      console.error("Error fetching game history:", error);
+    } finally {
+      setGameHistoryLoading(false);
+    }
+  }, []);
+
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+
+    await Promise.all([fetchStats(), fetchPlayerStats(), fetchGameHistory()]);
+
+    setIsRefreshing(false);
+  }, [fetchStats, fetchPlayerStats, fetchGameHistory]);
+
+  useReplaySubscription(handleRefresh);
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch("/api/stats");
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch stats");
-        }
-
-        const statsData = await response.json();
-        setStats(statsData);
-      } catch (error) {
-        console.error("Error fetching stats:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchPlayerStats = async () => {
-      try {
-        setPlayerLoading(true);
-        const response = await fetch("/api/stats/players");
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch player stats");
-        }
-
-        const playerData = await response.json();
-        setPlayerStats(playerData);
-      } catch (error) {
-        console.error("Error fetching player stats:", error);
-      } finally {
-        setPlayerLoading(false);
-      }
-    };
-
-    const fetchGameHistory = async () => {
-      try {
-        setGameHistoryLoading(true);
-        const response = await fetch("/api/stats/games");
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch game history");
-        }
-
-        const historyData = await response.json();
-        setGameHistory(historyData);
-      } catch (error) {
-        console.error("Error fetching game history:", error);
-      } finally {
-        setGameHistoryLoading(false);
-      }
-    };
-
-    fetchStats();
-    fetchPlayerStats();
-    fetchGameHistory();
-  }, []);
+    handleRefresh();
+  }, [handleRefresh]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 text-white p-8">
       <div className="max-w-7xl mx-auto space-y-12">
-        <div>
-          <h1 className="text-4xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+        <div className="flex justify-between items-center">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
             Status
           </h1>
-          {(isLoading || isPlayerLoading) && (
-            <div className="flex justify-center items-center py-8">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-400"></div>
-            </div>
-          )}
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="text-zinc-400 hover:text-white p-2 rounded-full cursor-pointer disabled:opacity-50 transition-all"
+          >
+            <RefreshCw
+              className={`w-6 h-6 ${isRefreshing ? "animate-spin" : ""}`}
+            />
+          </button>
         </div>
 
         {!isLoading && stats && (

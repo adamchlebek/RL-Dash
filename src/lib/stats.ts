@@ -632,40 +632,52 @@ export async function getMostDemos(): Promise<StatValue> {
 
 // Get player statistics across all games
 export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
-  const playerStats = await prisma.globalPlayer.findMany({
+  const replays = await prisma.replay.findMany({
+    where: {
+      status: "completed",
+      AND: [{ blueTeam: { isNot: null } }, { orangeTeam: { isNot: null } }],
+    },
     select: {
       id: true,
-      name: true,
-      players: {
+      ballchasingId: true,
+      blueTeam: {
         select: {
           goals: true,
-          assists: true,
-          saves: true,
-          shots: true,
-          score: true,
-          demoInflicted: true,
-          boostAvgAmount: true,
-          team: {
+          players: {
             select: {
-              color: true,
-              blueReplays: {
+              goals: true,
+              assists: true,
+              saves: true,
+              shots: true,
+              score: true,
+              demoInflicted: true,
+              boostAvgAmount: true,
+              globalPlayer: {
                 select: {
                   id: true,
+                  name: true,
                 },
               },
-              orangeReplays: {
+            },
+          },
+        },
+      },
+      orangeTeam: {
+        select: {
+          goals: true,
+          players: {
+            select: {
+              goals: true,
+              assists: true,
+              saves: true,
+              shots: true,
+              score: true,
+              demoInflicted: true,
+              boostAvgAmount: true,
+              globalPlayer: {
                 select: {
                   id: true,
-                  blueTeam: {
-                    select: {
-                      goals: true,
-                    },
-                  },
-                  orangeTeam: {
-                    select: {
-                      goals: true,
-                    },
-                  },
+                  name: true,
                 },
               },
             },
@@ -675,83 +687,105 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
     },
   });
 
-  return playerStats
-    .map((player) => {
-      const stats = player.players.reduce(
-        (acc: PlayerStats, curr) => {
-          // Track wins and losses
-          const team = curr.team;
-          if (team) {
-            const isBlueTeam = team.color === "blue";
+  // Deduplicate replays based on ballchasing ID
+  const uniqueReplays = Array.from(
+    new Map(replays.map((replay) => [replay.ballchasingId, replay])).values(),
+  );
 
-            // For blue team games
-            team.blueReplays.forEach(() => {
-              acc.gamesPlayed++;
-            });
+  // Initialize stats map for each player
+  const playerStatsMap = new Map<string, PlayerStats>();
 
-            // For orange team games
-            team.orangeReplays.forEach((replay) => {
-              acc.gamesPlayed++;
+  // Process each unique replay
+  uniqueReplays.forEach((replay) => {
+    if (!replay.blueTeam || !replay.orangeTeam) return;
 
-              // Count wins/losses by comparing goals
-              if (replay.blueTeam && replay.orangeTeam) {
-                const blueGoals = replay.blueTeam.goals || 0;
-                const orangeGoals = replay.orangeTeam.goals || 0;
+    const blueWon =
+      (replay.blueTeam.goals || 0) > (replay.orangeTeam.goals || 0);
 
-                if (isBlueTeam) {
-                  if (blueGoals > orangeGoals) acc.wins++;
-                  else acc.losses++;
-                } else {
-                  if (orangeGoals > blueGoals) acc.wins++;
-                  else acc.losses++;
-                }
-              }
-            });
-          }
+    // Process blue team players
+    replay.blueTeam.players.forEach((player) => {
+      if (!player.globalPlayer) return;
 
-          return {
-            totalGoals: acc.totalGoals + (curr.goals || 0),
-            totalAssists: acc.totalAssists + (curr.assists || 0),
-            totalSaves: acc.totalSaves + (curr.saves || 0),
-            totalShots: acc.totalShots + (curr.shots || 0),
-            totalDemos: acc.totalDemos + (curr.demoInflicted || 0),
-            totalScore: acc.totalScore + (curr.score || 0),
-            totalBoost: acc.totalBoost + (curr.boostAvgAmount || 0),
-            gamesPlayed: acc.gamesPlayed,
-            wins: acc.wins,
-            losses: acc.losses,
-          };
-        },
-        {
-          totalGoals: 0,
-          totalAssists: 0,
-          totalSaves: 0,
-          totalShots: 0,
-          totalDemos: 0,
-          totalScore: 0,
-          totalBoost: 0,
-          gamesPlayed: 0,
-          wins: 0,
-          losses: 0,
-        },
-      );
-
-      return {
-        id: player.id,
-        name: player.name,
-        totalGoals: stats.totalGoals,
-        totalAssists: stats.totalAssists,
-        totalSaves: stats.totalSaves,
-        totalShots: stats.totalShots,
-        totalDemos: stats.totalDemos,
-        totalScore: stats.totalScore,
-        avgBoost:
-          stats.gamesPlayed > 0 ? stats.totalBoost / stats.gamesPlayed : 0,
-        gamesPlayed: stats.gamesPlayed,
-        wins: stats.wins,
-        losses: stats.losses,
+      const stats = playerStatsMap.get(player.globalPlayer.id) || {
+        id: player.globalPlayer.id,
+        name: player.globalPlayer.name,
+        totalGoals: 0,
+        totalAssists: 0,
+        totalSaves: 0,
+        totalShots: 0,
+        totalDemos: 0,
+        totalScore: 0,
+        totalBoost: 0,
+        gamesPlayed: 0,
+        wins: 0,
+        losses: 0,
       };
-    })
+
+      stats.gamesPlayed++;
+      stats.totalGoals += player.goals || 0;
+      stats.totalAssists += player.assists || 0;
+      stats.totalSaves += player.saves || 0;
+      stats.totalShots += player.shots || 0;
+      stats.totalDemos += player.demoInflicted || 0;
+      stats.totalScore += player.score || 0;
+      stats.totalBoost += player.boostAvgAmount || 0;
+      if (blueWon) stats.wins++;
+      else stats.losses++;
+
+      playerStatsMap.set(player.globalPlayer.id, stats);
+    });
+
+    // Process orange team players
+    replay.orangeTeam.players.forEach((player) => {
+      if (!player.globalPlayer) return;
+
+      const stats = playerStatsMap.get(player.globalPlayer.id) || {
+        id: player.globalPlayer.id,
+        name: player.globalPlayer.name,
+        totalGoals: 0,
+        totalAssists: 0,
+        totalSaves: 0,
+        totalShots: 0,
+        totalDemos: 0,
+        totalScore: 0,
+        totalBoost: 0,
+        gamesPlayed: 0,
+        wins: 0,
+        losses: 0,
+      };
+
+      stats.gamesPlayed++;
+      stats.totalGoals += player.goals || 0;
+      stats.totalAssists += player.assists || 0;
+      stats.totalSaves += player.saves || 0;
+      stats.totalShots += player.shots || 0;
+      stats.totalDemos += player.demoInflicted || 0;
+      stats.totalScore += player.score || 0;
+      stats.totalBoost += player.boostAvgAmount || 0;
+      if (!blueWon) stats.wins++;
+      else stats.losses++;
+
+      playerStatsMap.set(player.globalPlayer.id, stats);
+    });
+  });
+
+  // Convert map to array and format the results
+  return Array.from(playerStatsMap.values())
+    .map((stats) => ({
+      id: stats.id,
+      name: stats.name,
+      totalGoals: stats.totalGoals,
+      totalAssists: stats.totalAssists,
+      totalSaves: stats.totalSaves,
+      totalShots: stats.totalShots,
+      totalDemos: stats.totalDemos,
+      totalScore: stats.totalScore,
+      avgBoost:
+        stats.gamesPlayed > 0 ? stats.totalBoost / stats.gamesPlayed : 0,
+      gamesPlayed: stats.gamesPlayed,
+      wins: stats.wins,
+      losses: stats.losses,
+    }))
     .sort((a, b) => b.totalScore - a.totalScore);
 }
 
