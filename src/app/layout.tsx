@@ -4,6 +4,7 @@ import "./globals.css";
 import { BackgroundPolling } from "@/components/BackgroundPolling";
 import { Navigation } from "@/components/Navigation";
 import { Analytics } from "@vercel/analytics/react"
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
         {children}
         <BackgroundPolling />
         <Analytics />
+        <Toaster />
       </body>
     </html>
   );

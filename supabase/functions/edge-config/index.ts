@@ -6,15 +6,19 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface RequestBody {
-  action: "get" | "set";
-  key: string;
-  value?: { value: boolean };
+interface EdgeConfigValue<T> {
+  value: T;
 }
 
-interface EdgeConfig {
+interface RequestBody<T> {
+  action: "get" | "set";
   key: string;
-  value: { value: boolean };
+  value?: EdgeConfigValue<T>;
+}
+
+interface EdgeConfig<T> {
+  key: string;
+  value: EdgeConfigValue<T>;
 }
 
 serve(async (req: Request) => {
@@ -39,7 +43,7 @@ serve(async (req: Request) => {
 
     const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
-    const body: RequestBody = await req.json();
+    const body: RequestBody<boolean | number> = await req.json();
     console.log("Request body:", body);
 
     if (!body.action || !body.key) {
@@ -59,7 +63,12 @@ serve(async (req: Request) => {
         throw error;
       }
 
-      const response: EdgeConfig = data ?? { key: body.key, value: { value: true } };
+      const response: EdgeConfig<boolean | number> = data ?? { 
+        key: body.key, 
+        value: { 
+          value: body.key === "polling_enabled" ? true : 30 
+        } 
+      };
       console.log("Get response:", response);
       return new Response(JSON.stringify(response.value), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

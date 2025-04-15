@@ -6,12 +6,17 @@ import { supabase } from "@/lib/supabase";
 
 export function BackgroundPolling() {
   const [isPolling, setIsPolling] = useState<boolean>(true);
+  const [pollingInterval, setPollingInterval] = useState<number>(30);
 
   useEffect(() => {
     const checkPollingStatus = async () => {
       try {
-        const data = await getEdgeConfig("polling_enabled");
-        setIsPolling(data?.value ?? true);
+        const [pollingEnabled, interval] = await Promise.all([
+          getEdgeConfig<boolean>("polling_enabled"),
+          getEdgeConfig<number>("polling_interval"),
+        ]);
+        setIsPolling(pollingEnabled?.value ?? true);
+        setPollingInterval(interval?.value ?? 30);
       } catch (error) {
         console.error("Error checking polling status:", error);
       }
@@ -30,7 +35,9 @@ export function BackgroundPolling() {
         },
         async (payload) => {
           if (payload.new?.key === "polling_enabled") {
-            setIsPolling(payload.new.value.value);
+            setIsPolling(payload.new.value.value ?? true);
+          } else if (payload.new?.key === "polling_interval") {
+            setPollingInterval(payload.new.value.value ?? 30);
           }
         }
       )
@@ -46,14 +53,14 @@ export function BackgroundPolling() {
 
     const interval = setInterval(async () => {
       try {
-        await fetch("/api/poll-replays");
+        await fetch("/api/cron/poll-replays");
       } catch (error) {
         console.error("Error polling replays:", error);
       }
-    }, 30000);
+    }, pollingInterval * 1000);
 
     return () => clearInterval(interval);
-  }, [isPolling]);
+  }, [isPolling, pollingInterval]);
 
   return null;
 }

@@ -4,6 +4,7 @@ import { Switch } from "@/components/ui/switch";
 import { getEdgeConfig, setEdgeConfig } from "@/lib/edgeConfig";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { PollingInterval } from "@/components/PollingInterval";
 
 export default function SettingsPage() {
   const [pollingEnabled, setPollingEnabled] = useState<boolean>(true);
@@ -17,7 +18,7 @@ export default function SettingsPage() {
   const fetchSettings = async () => {
     try {
       const data = await getEdgeConfig("polling_enabled");
-      setPollingEnabled(data?.value ?? true);
+      setPollingEnabled(typeof data?.value === "boolean" ? data.value : true);
     } catch (error) {
       console.error("Error fetching settings:", error);
       toast.error("Failed to load settings");
@@ -49,7 +50,7 @@ export default function SettingsPage() {
           Settings
         </h1>
 
-        <div className="bg-zinc-800/50 backdrop-blur-sm rounded-xl p-6 border border-zinc-700/50">
+        <div className="bg-zinc-800/50 backdrop-blur-sm rounded-xl p-6 border border-zinc-700/50 space-y-6">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-semibold">Background Polling</h2>
@@ -65,6 +66,8 @@ export default function SettingsPage() {
               />
             </div>
           </div>
+
+          <PollingInterval />
         </div>
       </div>
     </div>
