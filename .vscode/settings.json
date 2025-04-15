@@ -1,4 +1,7 @@
 {
+  "[typescript]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  },
   "cSpell.words": [
     "ballchaser",
     "ballchasing",
@@ -6,5 +9,10 @@
     "supabase",
     "Timestamptz",
     "uploaders"
-  ]
+  ],
+  "deno.enablePaths": [
+    "supabase/functions"
+  ],
+  "deno.lint": true,
+  "deno.unstable": true
 }

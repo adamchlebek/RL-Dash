@@ -109,7 +109,7 @@ export default function Home() {
       <div className="max-w-7xl mx-auto space-y-12">
         <div className="flex justify-between items-center">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-            Status
+            Stats
           </h1>
           <button
             onClick={handleRefresh}

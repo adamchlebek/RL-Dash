@@ -1,23 +1,59 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { setupReplayPolling, stopReplayPolling } from "@/lib/cron";
+import { useEffect, useState } from "react";
+import { getEdgeConfig } from "@/lib/edgeConfig";
+import { supabase } from "@/lib/supabase";
 
-export function BackgroundPolling(): null {
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+export function BackgroundPolling() {
+  const [isPolling, setIsPolling] = useState<boolean>(true);
 
   useEffect(() => {
-    // Set up polling on client-side only
-    intervalRef.current = setupReplayPolling();
-
-    // Clean up on unmount
-    return () => {
-      if (intervalRef.current) {
-        stopReplayPolling(intervalRef.current);
+    const checkPollingStatus = async () => {
+      try {
+        const data = await getEdgeConfig("polling_enabled");
+        setIsPolling(data?.value ?? true);
+      } catch (error) {
+        console.error("Error checking polling status:", error);
       }
+    };
+
+    checkPollingStatus();
+
+    const channel = supabase
+      .channel("edge-config-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "EdgeConfig",
+        },
+        async (payload) => {
+          if (payload.new?.key === "polling_enabled") {
+            setIsPolling(payload.new.value.value);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
     };
   }, []);
 
-  // This component doesn't render anything
+  useEffect(() => {
+    if (!isPolling) return;
+
+    const interval = setInterval(async () => {
+      try {
+        await fetch("/api/poll-replays");
+      } catch (error) {
+        console.error("Error polling replays:", error);
+      }
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [isPolling]);
+
   return null;
 }

@@ -315,3 +315,8 @@ model Player {
   demoInflicted                Int?    @map("demo_inflicted")
   demoTaken                    Int?    @map("demo_taken")
 }
+
+model EdgeConfig {
+  key   String @id
+  value Json
+}

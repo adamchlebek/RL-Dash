@@ -6,16 +6,21 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy:edge-config": "supabase functions deploy edge-config"
   },
   "dependencies": {
     "@prisma/client": "^6.6.0",
+    "@radix-ui/react-switch": "^1.1.4",
     "@supabase/supabase-js": "^2.49.4",
+    "@types/lodash": "^4.17.16",
     "@types/multer": "^1.4.12",
     "@types/uuid": "^10.0.0",
     "@vercel/analytics": "^1.5.0",
     "axios": "^1.8.4",
+    "clsx": "^2.1.1",
     "form-data": "^4.0.2",
+    "lodash": "^4.17.21",
     "lucide-react": "^0.487.0",
     "multer": "^1.4.5-lts.2",
     "next": "15.3.0",
@@ -25,6 +30,8 @@
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.8",
     "react-hot-toast": "^2.5.2",
+    "sonner": "^2.0.3",
+    "tailwind-merge": "^3.2.0",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
