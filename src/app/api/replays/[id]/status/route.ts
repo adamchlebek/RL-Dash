@@ -52,7 +52,7 @@ interface TeamStats {
 
 interface TeamData {
   name?: string;
-  players?: any[];
+  players?: PlayerData[];
   stats?: TeamStats;
 }
 
@@ -67,46 +67,6 @@ interface UploaderData {
   name: string;
   profile_url?: string;
   avatar?: string;
-}
-
-// Helper function to create or update GlobalPlayer and connect to Player
-async function createOrUpdateGlobalPlayer(playerData: PlayerData) {
-  if (!playerData.id?.platform || !playerData.id?.id) return null;
-
-  try {
-    // Check if global player already exists
-    const existingPlayer = await prisma.globalPlayer.findUnique({
-      where: {
-        platform_platformId: {
-          platform: playerData.id.platform,
-          platformId: playerData.id.id,
-        },
-      },
-    });
-
-    if (existingPlayer) {
-      // Update existing global player with latest name
-      return await prisma.globalPlayer.update({
-        where: { id: existingPlayer.id },
-        data: {
-          name: playerData.name || existingPlayer.name,
-          updatedAt: new Date(),
-        },
-      });
-    } else {
-      // Create new global player
-      return await prisma.globalPlayer.create({
-        data: {
-          platform: playerData.id.platform,
-          platformId: playerData.id.id,
-          name: playerData.name || "Unnamed Player",
-        },
-      });
-    }
-  } catch (error) {
-    console.error("Error creating/updating global player:", error);
-    return null;
-  }
 }
 
 async function createOrUpdateUploader(uploaderData: UploaderData) {
@@ -260,7 +220,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           fullReplayData.blue as TeamData,
           "blue",
           false,
-          undefined
+          undefined,
         );
 
         // Process Orange Team
@@ -268,7 +228,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           fullReplayData.orange as TeamData,
           "orange",
           false,
-          undefined
+          undefined,
         );
 
         // Process Uploader

@@ -5,12 +5,6 @@ import { notFound } from "next/navigation";
 
 export const revalidate = 3600; // Revalidate every hour
 
-interface Props {
-  params: {
-    id: string;
-  };
-}
-
 async function getPlayerData(id: string) {
   const player = await prisma.globalPlayer.findUnique({
     where: { id },
@@ -28,7 +22,11 @@ async function getPlayerData(id: string) {
   return player;
 }
 
-export default async function PlayerDetailPage({ params }: Props) {
+export default async function PlayerDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   const player = await getPlayerData(id);
 

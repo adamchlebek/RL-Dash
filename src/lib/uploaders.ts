@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { Uploader } from "@prisma/client";
 
 export interface UploaderData {
   id: string;
@@ -8,7 +9,9 @@ export interface UploaderData {
   avatar?: string;
 }
 
-export async function createOrUpdateUploader(uploaderData: UploaderData): Promise<any> {
+export async function createOrUpdateUploader(
+  uploaderData: UploaderData,
+): Promise<Uploader | null> {
   if (!uploaderData) return null;
 
   try {
@@ -42,4 +45,4 @@ export async function createOrUpdateUploader(uploaderData: UploaderData): Promis
     console.error("Error creating/updating uploader:", error);
     return null;
   }
-} 
+}

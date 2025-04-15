@@ -3,7 +3,6 @@ import { checkReplayStatus, fetchFullReplayData } from "@/lib/ballchasing";
 import { prisma, withRetry, checkDatabaseConnection } from "@/lib/prisma";
 import { createOrUpdateTeam } from "@/lib/teams";
 import type { TeamData, PlayerData } from "@/models/ballchaser";
-import type { Replay, Team, Player } from "@prisma/client";
 import { createOrUpdateGroup } from "@/lib/groups";
 import { createOrUpdateUploader } from "@/lib/uploaders";
 import { createPlayerFromData } from "@/lib/players";
@@ -42,8 +41,8 @@ export async function GET(): Promise<NextResponse> {
     // Find all replays with 'processing' status
     const processingReplays = await withRetry(() =>
       prisma.replay.findMany({
-        where: { 
-          status: "processing"
+        where: {
+          status: "processing",
         },
       }),
     );
@@ -61,14 +60,24 @@ export async function GET(): Promise<NextResponse> {
           // Keep as "processing" if the status is "pending"
           if (status === "ok") {
             try {
-              const fullReplayData = await fetchFullReplayData(replay.ballchasingId);
+              const fullReplayData = await fetchFullReplayData(
+                replay.ballchasingId,
+              );
               const isReprocessing = false; // Never reprocessing in this route
 
               // Process Blue Team
-              const blueTeam = await createOrUpdateTeam(fullReplayData.blue as TeamData, "blue", isReprocessing);
+              const blueTeam = await createOrUpdateTeam(
+                fullReplayData.blue as TeamData,
+                "blue",
+                isReprocessing,
+              );
 
               // Process Orange Team
-              const orangeTeam = await createOrUpdateTeam(fullReplayData.orange as TeamData, "orange", isReprocessing);
+              const orangeTeam = await createOrUpdateTeam(
+                fullReplayData.orange as TeamData,
+                "orange",
+                isReprocessing,
+              );
 
               // Process Uploader
               const uploader = await createOrUpdateUploader({
@@ -76,17 +85,21 @@ export async function GET(): Promise<NextResponse> {
                 name: fullReplayData.uploader.name,
                 steamId: fullReplayData.uploader.steam_id,
                 profileUrl: fullReplayData.uploader.profile_url,
-                avatar: fullReplayData.uploader.avatar
+                avatar: fullReplayData.uploader.avatar,
               });
 
               // Create blue team players
               if (blueTeam && fullReplayData.blue?.players) {
                 console.log(`Creating players for blue team`);
-                for (const playerData of fullReplayData.blue.players as PlayerData[]) {
+                for (const playerData of fullReplayData.blue
+                  .players as PlayerData[]) {
                   try {
                     await createPlayerFromData(playerData, blueTeam);
                   } catch (error) {
-                    console.error(`Error creating blue team player ${playerData.name}:`, error);
+                    console.error(
+                      `Error creating blue team player ${playerData.name}:`,
+                      error,
+                    );
                   }
                 }
               }
@@ -94,11 +107,15 @@ export async function GET(): Promise<NextResponse> {
               // Create orange team players (similar to blue team)
               if (orangeTeam && fullReplayData.orange?.players) {
                 console.log(`Creating players for orange team`);
-                for (const playerData of fullReplayData.orange.players as PlayerData[]) {
+                for (const playerData of fullReplayData.orange
+                  .players as PlayerData[]) {
                   try {
                     await createPlayerFromData(playerData, orangeTeam);
                   } catch (error) {
-                    console.error(`Error creating orange team player ${playerData.name}:`, error);
+                    console.error(
+                      `Error creating orange team player ${playerData.name}:`,
+                      error,
+                    );
                   }
                 }
               }
@@ -136,13 +153,23 @@ export async function GET(): Promise<NextResponse> {
                   dateHasTimezone: fullReplayData.date_has_timezone,
                   visibility: fullReplayData.visibility,
                   link: fullReplayData.link,
-                  created: fullReplayData.created ? new Date(fullReplayData.created) : undefined,
+                  created: fullReplayData.created
+                    ? new Date(fullReplayData.created)
+                    : undefined,
                   // Connect relationships
-                  uploader: uploader ? { connect: { id: uploader.id } } : undefined,
-                  blueTeam: blueTeam ? { connect: { id: blueTeam.id } } : undefined,
-                  orangeTeam: orangeTeam ? { connect: { id: orangeTeam.id } } : undefined,
+                  uploader: uploader
+                    ? { connect: { id: uploader.id } }
+                    : undefined,
+                  blueTeam: blueTeam
+                    ? { connect: { id: blueTeam.id } }
+                    : undefined,
+                  orangeTeam: orangeTeam
+                    ? { connect: { id: orangeTeam.id } }
+                    : undefined,
                   groups: {
-                    connect: groups.filter((g) => g !== null).map((g) => ({ id: g!.id })),
+                    connect: groups
+                      .filter((g) => g !== null)
+                      .map((g) => ({ id: g!.id })),
                   },
                 },
               });
@@ -150,8 +177,8 @@ export async function GET(): Promise<NextResponse> {
               // Cleanup orphaned players
               await prisma.player.deleteMany({
                 where: {
-                  teamId: null
-                }
+                  teamId: null,
+                },
               });
 
               return {
@@ -160,11 +187,16 @@ export async function GET(): Promise<NextResponse> {
                 status: "completed",
               };
             } catch (error) {
-              console.error(`Error processing completed replay ${replay.id}:`, error);
+              console.error(
+                `Error processing completed replay ${replay.id}:`,
+                error,
+              );
 
               // Check if the error is a rate limit error
               if (error instanceof Error && error.message.includes("429")) {
-                console.warn(`Rate limit hit for replay ${replay.id}, keeping as processing`);
+                console.warn(
+                  `Rate limit hit for replay ${replay.id}, keeping as processing`,
+                );
 
                 return {
                   id: replay.id,
@@ -217,7 +249,9 @@ export async function GET(): Promise<NextResponse> {
 
           // If error was due to rate limiting, keep as processing
           if (error instanceof Error && error.message.includes("429")) {
-            console.warn(`Rate limit hit for replay ${replay.id}, keeping as processing`);
+            console.warn(
+              `Rate limit hit for replay ${replay.id}, keeping as processing`,
+            );
 
             return {
               id: replay.id,
@@ -246,8 +280,12 @@ export async function GET(): Promise<NextResponse> {
       }),
     );
 
-    const processed = results.filter((r: ProcessingResult) => r.status !== "processing").length;
-    const rateLimited = results.filter((r: ProcessingResult) => r.message?.includes("Rate limit")).length;
+    const processed = results.filter(
+      (r: ProcessingResult) => r.status !== "processing",
+    ).length;
+    const rateLimited = results.filter((r: ProcessingResult) =>
+      r.message?.includes("Rate limit"),
+    ).length;
 
     return NextResponse.json({
       processed,

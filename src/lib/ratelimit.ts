@@ -27,7 +27,7 @@ class BallchasingRateLimiter {
   private lastRefill: number;
   private hourlyTokens: number;
   private hourlyLastRefill: number;
-  private queue: Array<QueuedRequest<any>>;
+  private queue: Array<QueuedRequest<unknown>>;
   private processing: boolean;
   private totalProcessed: number;
   private totalWaitTime: number;
@@ -168,7 +168,7 @@ class BallchasingRateLimiter {
       // Add request to queue
       this.queue.push({
         ballchasingId,
-        resolve,
+        resolve: (value: unknown) => resolve(value as T),
         reject,
         executeRequest: requestFn,
         queuedAt: Date.now(),

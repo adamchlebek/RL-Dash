@@ -47,18 +47,18 @@ export async function withRetry<T>(
   maxRetries = 3,
   delay = 1000,
 ): Promise<T> {
-  let lastError: any;
+  let lastError: unknown;
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       return await operation();
-    } catch (error: any) {
+    } catch (error: unknown) {
       lastError = error;
 
       // Check if this is a Supabase permission error
       const isPermissionError =
-        error?.code === "42501" ||
-        (error?.message &&
+        (error instanceof Error && "code" in error && error.code === "42501") ||
+        (error instanceof Error &&
           error.message.includes("permission denied for schema public"));
 
       if (!isPermissionError || attempt === maxRetries) {

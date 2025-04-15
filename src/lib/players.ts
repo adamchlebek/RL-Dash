@@ -2,7 +2,10 @@ import { prisma } from "@/lib/prisma";
 import { PlayerData } from "@/models/ballchaser";
 import { Player, Team, Prisma } from "@prisma/client";
 
-export async function createPlayerFromData(playerData: PlayerData, team: Team): Promise<Player | null> {
+export async function createPlayerFromData(
+  playerData: PlayerData,
+  team: Team,
+): Promise<Player | null> {
   if (!playerData || !team) return null;
 
   try {
@@ -47,7 +50,10 @@ export async function createPlayerFromData(playerData: PlayerData, team: Team): 
     })();
 
     if (!globalPlayer) {
-      console.error("Failed to create or find global player for:", playerData.name);
+      console.error(
+        "Failed to create or find global player for:",
+        playerData.name,
+      );
       return null;
     }
 
@@ -97,7 +103,8 @@ export async function createPlayerFromData(playerData: PlayerData, team: Team): 
       boostCountStolenSmall: boostStats.count_stolen_small as number,
       boostAmountOverfill: boostStats.amount_overfill as number,
       boostAmountOverfillStolen: boostStats.amount_overfill_stolen as number,
-      boostAmountUsedWhileSupersonic: boostStats.amount_used_while_supersonic as number,
+      boostAmountUsedWhileSupersonic:
+        boostStats.amount_used_while_supersonic as number,
       boostTimeZeroBoost: boostStats.time_zero_boost as number,
       boostTimeFullBoost: boostStats.time_full_boost as number,
       boostTimeBoost0_25: boostStats.time_boost_0_25 as number,
@@ -112,7 +119,8 @@ export async function createPlayerFromData(playerData: PlayerData, team: Team): 
       // Movement stats
       movementAvgSpeed: movementStats.avg_speed as number,
       movementTotalDistance: movementStats.total_distance as number,
-      movementTimeSupersonicSpeed: movementStats.time_supersonic_speed as number,
+      movementTimeSupersonicSpeed:
+        movementStats.time_supersonic_speed as number,
       movementTimeBoostSpeed: movementStats.time_boost_speed as number,
       movementTimeSlowSpeed: movementStats.time_slow_speed as number,
       movementTimeGround: movementStats.time_ground as number,
@@ -120,43 +128,67 @@ export async function createPlayerFromData(playerData: PlayerData, team: Team): 
       movementTimeHighAir: movementStats.time_high_air as number,
       movementTimePowerslide: movementStats.time_powerslide as number,
       movementCountPowerslide: movementStats.count_powerslide as number,
-      movementAvgPowerslideDuration: movementStats.avg_powerslide_duration as number,
+      movementAvgPowerslideDuration:
+        movementStats.avg_powerslide_duration as number,
       movementAvgSpeedPercentage: movementStats.avg_speed_percentage as number,
       movementPercentSlowSpeed: movementStats.percent_slow_speed as number,
       movementPercentBoostSpeed: movementStats.percent_boost_speed as number,
-      movementPercentSupersonicSpeed: movementStats.percent_supersonic_speed as number,
+      movementPercentSupersonicSpeed:
+        movementStats.percent_supersonic_speed as number,
       movementPercentGround: movementStats.percent_ground as number,
       movementPercentLowAir: movementStats.percent_low_air as number,
       movementPercentHighAir: movementStats.percent_high_air as number,
 
       // Positioning stats
-      positioningAvgDistanceToBall: positioningStats.avg_distance_to_ball as number,
-      positioningAvgDistanceToBallPossession: positioningStats.avg_distance_to_ball_possession as number,
-      positioningAvgDistanceToBallNoPossession: positioningStats.avg_distance_to_ball_no_possession as number,
-      positioningAvgDistanceToMates: positioningStats.avg_distance_to_mates as number,
-      positioningTimeDefensiveThird: positioningStats.time_defensive_third as number,
-      positioningTimeNeutralThird: positioningStats.time_neutral_third as number,
-      positioningTimeOffensiveThird: positioningStats.time_offensive_third as number,
-      positioningTimeDefensiveHalf: positioningStats.time_defensive_half as number,
-      positioningTimeOffensiveHalf: positioningStats.time_offensive_half as number,
+      positioningAvgDistanceToBall:
+        positioningStats.avg_distance_to_ball as number,
+      positioningAvgDistanceToBallPossession:
+        positioningStats.avg_distance_to_ball_possession as number,
+      positioningAvgDistanceToBallNoPossession:
+        positioningStats.avg_distance_to_ball_no_possession as number,
+      positioningAvgDistanceToMates:
+        positioningStats.avg_distance_to_mates as number,
+      positioningTimeDefensiveThird:
+        positioningStats.time_defensive_third as number,
+      positioningTimeNeutralThird:
+        positioningStats.time_neutral_third as number,
+      positioningTimeOffensiveThird:
+        positioningStats.time_offensive_third as number,
+      positioningTimeDefensiveHalf:
+        positioningStats.time_defensive_half as number,
+      positioningTimeOffensiveHalf:
+        positioningStats.time_offensive_half as number,
       positioningTimeBehindBall: positioningStats.time_behind_ball as number,
       positioningTimeInfrontBall: positioningStats.time_infront_ball as number,
       positioningTimeMostBack: positioningStats.time_most_back as number,
       positioningTimeMostForward: positioningStats.time_most_forward as number,
-      positioningTimeClosestToBall: positioningStats.time_closest_to_ball as number,
-      positioningTimeFarthestFromBall: positioningStats.time_farthest_from_ball as number,
-      positioningPercentDefensiveThird: positioningStats.percent_defensive_third as number,
-      positioningPercentOffensiveThird: positioningStats.percent_offensive_third as number,
-      positioningPercentNeutralThird: positioningStats.percent_neutral_third as number,
-      positioningPercentDefensiveHalf: positioningStats.percent_defensive_half as number,
-      positioningPercentOffensiveHalf: positioningStats.percent_offensive_half as number,
-      positioningPercentBehindBall: positioningStats.percent_behind_ball as number,
-      positioningPercentInfrontBall: positioningStats.percent_infront_ball as number,
+      positioningTimeClosestToBall:
+        positioningStats.time_closest_to_ball as number,
+      positioningTimeFarthestFromBall:
+        positioningStats.time_farthest_from_ball as number,
+      positioningPercentDefensiveThird:
+        positioningStats.percent_defensive_third as number,
+      positioningPercentOffensiveThird:
+        positioningStats.percent_offensive_third as number,
+      positioningPercentNeutralThird:
+        positioningStats.percent_neutral_third as number,
+      positioningPercentDefensiveHalf:
+        positioningStats.percent_defensive_half as number,
+      positioningPercentOffensiveHalf:
+        positioningStats.percent_offensive_half as number,
+      positioningPercentBehindBall:
+        positioningStats.percent_behind_ball as number,
+      positioningPercentInfrontBall:
+        positioningStats.percent_infront_ball as number,
       positioningPercentMostBack: positioningStats.percent_most_back as number,
-      positioningPercentMostForward: positioningStats.percent_most_forward as number,
-      positioningPercentClosestToBall: positioningStats.percent_closest_to_ball as number,
-      positioningPercentFarthestFromBall: positioningStats.percent_farthest_from_ball as number,
-      goalsAgainstWhileLastDefender: positioningStats.goals_against_while_last_defender as number,
+      positioningPercentMostForward:
+        positioningStats.percent_most_forward as number,
+      positioningPercentClosestToBall:
+        positioningStats.percent_closest_to_ball as number,
+      positioningPercentFarthestFromBall:
+        positioningStats.percent_farthest_from_ball as number,
+      goalsAgainstWhileLastDefender:
+        positioningStats.goals_against_while_last_defender as number,
 
       // Demo stats
       demoInflicted: demoStats.inflicted as number,
@@ -172,4 +204,4 @@ export async function createPlayerFromData(playerData: PlayerData, team: Team): 
     console.error("Error creating player:", error);
     return null;
   }
-} 
+}

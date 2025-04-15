@@ -8,7 +8,6 @@ import {
   XCircle,
   Clock,
   RefreshCw,
-  Clock10,
   LucideAlarmClock,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -94,7 +93,7 @@ export default function ReplayUpload(): React.ReactElement {
         () => {
           // Refresh the list when any change happens
           fetchRecentReplays();
-        }
+        },
       )
       .subscribe();
 
@@ -143,6 +142,50 @@ export default function ReplayUpload(): React.ReactElement {
       return updatedList;
     });
   };
+
+  const pollReplayStatus = useCallback(
+    async (replayId: string, ballchasingId: string): Promise<void> => {
+      const poll = async (): Promise<void> => {
+        try {
+          const response = await fetch(
+            `/api/replays/${replayId}/status?ballchasingId=${ballchasingId}`,
+          );
+
+          if (!response.ok) {
+            console.error("Error polling status:", await response.text());
+            return;
+          }
+
+          const data = await response.json();
+
+          setUploads((prevUploads) =>
+            prevUploads.map((upload) =>
+              upload.id === replayId
+                ? { ...upload, status: data.status }
+                : upload,
+            ),
+          );
+
+          setRecentReplays((prevReplays) =>
+            prevReplays.map((replay) =>
+              replay.id === replayId
+                ? { ...replay, status: data.status }
+                : replay,
+            ),
+          );
+
+          if (data.status === "processing") {
+            setTimeout(poll, 15000);
+          }
+        } catch (error) {
+          console.error("Error polling replay status:", error);
+        }
+      };
+
+      poll();
+    },
+    [],
+  );
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -219,56 +262,8 @@ export default function ReplayUpload(): React.ReactElement {
         setUploading(false);
       }
     },
-    [fetchRecentReplays],
+    [pollReplayStatus, fetchRecentReplays],
   );
-
-  const pollReplayStatus = async (
-    replayId: string,
-    ballchasingId: string,
-  ): Promise<void> => {
-    const poll = async (): Promise<void> => {
-      try {
-        // Include ballchasingId in query params for fallback if DB is unavailable
-        const response = await fetch(
-          `/api/replays/${replayId}/status?ballchasingId=${ballchasingId}`,
-        );
-
-        if (!response.ok) {
-          console.error("Error polling status:", await response.text());
-          return;
-        }
-
-        const data = await response.json();
-
-        setUploads((prevUploads) =>
-          prevUploads.map((upload) =>
-            upload.id === replayId
-              ? { ...upload, status: data.status }
-              : upload,
-          ),
-        );
-
-        // Update in the recent replays list too
-        setRecentReplays((prevReplays) =>
-          prevReplays.map((replay) =>
-            replay.id === replayId
-              ? { ...replay, status: data.status }
-              : replay,
-          ),
-        );
-
-        // Continue polling if not completed or failed
-        if (data.status === "processing") {
-          setTimeout(poll, 15000); // Poll every 15 seconds
-        }
-      } catch (error) {
-        console.error("Error polling replay status:", error);
-      }
-    };
-
-    // Start polling
-    poll();
-  };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -303,14 +298,6 @@ export default function ReplayUpload(): React.ReactElement {
       (dbReplay) => !uploads.some((upload) => upload.id === dbReplay.id),
     ),
   ].slice(0, 10);
-
-  const handleUploadSuccess = useCallback(async () => {
-    setUploading(false);
-    setUploads([]);
-    setError(null);
-    setIsRefreshing(true);
-    await fetchRecentReplays();
-  }, [fetchRecentReplays, setUploads, setError, setIsRefreshing]);
 
   // First, let's add a function to handle reprocessing a replay
   const reprocessReplay = useCallback(

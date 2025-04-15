@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma, withRetry } from "@/lib/prisma";
 
 export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } },
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
-  const { id } = await params;
+  const { id } = await context.params;
 
   try {
     // First, confirm the replay exists
@@ -135,8 +135,8 @@ export async function POST(
     // Cleanup orphaned players
     await prisma.player.deleteMany({
       where: {
-        teamId: null
-      }
+        teamId: null,
+      },
     });
 
     return NextResponse.json({
