@@ -14,6 +14,29 @@ export default function ReplayUpload({
   const [uploading, setUploading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  const checkMatchType = async (file: File): Promise<boolean> => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("https://boxcar.chlebek.us/parse", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to check match type");
+      }
+
+      const data = await response.json();
+
+      return data.match_type === "Private";
+    } catch (err) {
+      console.error("Error checking match type:", err);
+      return false;
+    }
+  };
+
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       if (acceptedFiles.length === 0) return;
@@ -22,9 +45,17 @@ export default function ReplayUpload({
       setError(null);
 
       const duplicates: string[] = [];
+      const invalidMatches: string[] = [];
 
       try {
         for (const file of acceptedFiles) {
+          const isPrivate = await checkMatchType(file);
+          if (!isPrivate) {
+            invalidMatches.push(file.name);
+
+            continue;
+          }
+
           const formData = new FormData();
           formData.append("file", file);
 
@@ -61,6 +92,15 @@ export default function ReplayUpload({
           );
         }
 
+        if (invalidMatches.length > 0) {
+          const pluralText =
+            invalidMatches.length === 1 ? "file is" : "files are";
+          setError(
+            (prev) =>
+              `${prev ? prev + "\n" : ""}${invalidMatches.length} ${pluralText} is not a private match: ${invalidMatches.join(", ")}`,
+          );
+        }
+
         await onUploadComplete();
       } catch (err) {
         setError(
@@ -78,7 +118,7 @@ export default function ReplayUpload({
     accept: {
       "application/octet-stream": [".replay"],
     },
-    maxFiles: 10,
+    maxFiles: 100,
     disabled: uploading,
   });
 
@@ -100,7 +140,7 @@ export default function ReplayUpload({
             : "Drag & drop replay files here, or click to select"}
         </p>
         <p className="text-xs text-zinc-500">
-          Upload up to 10 .replay files at once
+          Upload up to 100 .replay files at once
         </p>
         {uploading && (
           <div className="mt-4">
