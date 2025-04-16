@@ -15,7 +15,8 @@ use std::net::SocketAddr;
 async fn main() {
     let app: Router = Router::new().route("/parse", post(handle_parse));
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], 3030));
+    let port = std::env::var("PORT").unwrap_or_else(|_| "3030".to_string());
+    let addr = SocketAddr::from(([0, 0, 0, 0], port.parse().unwrap()));
     println!("🚀 Listening on http://{}", addr);
 
     let listener = TcpListener::bind(addr).await.unwrap();
