@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { ArrowUpCircle } from "lucide-react";
+import { getEdgeConfig } from "@/lib/edgeConfig";
 
 interface Props {
   onUploadComplete: () => Promise<void>;
@@ -48,12 +49,16 @@ export default function ReplayUpload({
       const invalidMatches: string[] = [];
 
       try {
-        for (const file of acceptedFiles) {
-          const isPrivate = await checkMatchType(file);
-          if (!isPrivate) {
-            invalidMatches.push(file.name);
+        const checkPrivateMatches = await getEdgeConfig("check_private_matches");
+        const shouldCheckPrivateMatches = checkPrivateMatches?.value ?? true;
 
-            continue;
+        for (const file of acceptedFiles) {
+          if (shouldCheckPrivateMatches) {
+            const isPrivate = await checkMatchType(file);
+            if (!isPrivate) {
+              invalidMatches.push(file.name);
+              continue;
+            }
           }
 
           const formData = new FormData();

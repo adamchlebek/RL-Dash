@@ -8,6 +8,7 @@ import { PollingInterval } from "@/components/PollingInterval";
 
 export default function SettingsPage() {
   const [pollingEnabled, setPollingEnabled] = useState<boolean>(true);
+  const [checkPrivateMatches, setCheckPrivateMatches] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
 
@@ -17,8 +18,12 @@ export default function SettingsPage() {
 
   const fetchSettings = async () => {
     try {
-      const data = await getEdgeConfig("polling_enabled");
-      setPollingEnabled(typeof data?.value === "boolean" ? data.value : true);
+      const [pollingData, privateMatchesData] = await Promise.all([
+        getEdgeConfig("polling_enabled"),
+        getEdgeConfig("check_private_matches")
+      ]);
+      setPollingEnabled(typeof pollingData?.value === "boolean" ? pollingData.value : true);
+      setCheckPrivateMatches(typeof privateMatchesData?.value === "boolean" ? privateMatchesData.value : true);
     } catch (error) {
       console.error("Error fetching settings:", error);
       toast.error("Failed to load settings");
@@ -37,6 +42,22 @@ export default function SettingsPage() {
     } catch (error) {
       console.error("Error updating settings:", error);
       setPollingEnabled(!newValue);
+      toast.error("Failed to update settings");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handlePrivateMatchesToggle = async (newValue: boolean) => {
+    setIsUpdating(true);
+    setCheckPrivateMatches(newValue);
+
+    try {
+      await setEdgeConfig("check_private_matches", { value: newValue });
+      toast.success(`Private match checking ${newValue ? "enabled" : "disabled"}`);
+    } catch (error) {
+      console.error("Error updating settings:", error);
+      setCheckPrivateMatches(!newValue);
       toast.error("Failed to update settings");
     } finally {
       setIsUpdating(false);
@@ -68,6 +89,24 @@ export default function SettingsPage() {
           </div>
 
           <PollingInterval />
+        </div>
+
+        <div className="bg-zinc-800/50 backdrop-blur-sm rounded-xl p-6 border border-zinc-700/50 space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-semibold">Check Private Matches</h2>
+              <p className="text-zinc-400 mt-1">
+                Verify if uploaded replays are from private matches
+              </p>
+            </div>
+            <div className="cursor-pointer">
+              <Switch
+                checked={checkPrivateMatches}
+                onCheckedChange={handlePrivateMatchesToggle}
+                disabled={isLoading || isUpdating}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>
