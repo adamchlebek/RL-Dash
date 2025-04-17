@@ -1,17 +1,25 @@
 use crate::helpers::{get_f32, get_i32, get_overtime_seconds, is_overtime};
 use crate::types::ballchasing::PlayerId as BallchasingPlayerId;
+use crate::types::cars::get_car_map;
 use crate::types::{
     BallchasingPlayer, BallchasingReplay, BallchasingTeam, BallchasingTeamStats, BoostStats,
     CoreStats, DemoStats, PlayerStats,
 };
 
-use boxcars::{HeaderProp, Replay};
+use boxcars::{Attribute, Frame, HeaderProp, Replay};
 use chrono::Utc;
+use std::collections::HashMap;
 use uuid::Uuid;
 
 /// Parse the replay into a Ballchasing-style object
 pub fn parse_to_ballchasing(replay: &Replay) -> BallchasingReplay {
     let props = &replay.properties;
+    let frames = replay
+        .network_frames
+        .as_ref()
+        .map(|nf| nf.frames.as_slice())
+        .unwrap_or(&[]);
+    let car_id_map = get_car_ids_by_name(frames);
 
     let get = |key: &str| {
         props
@@ -28,7 +36,7 @@ pub fn parse_to_ballchasing(replay: &Replay) -> BallchasingReplay {
     let overtime = is_overtime(props);
     let overtime_seconds = get_overtime_seconds(duration, overtime);
 
-    let all_players = parse_players(props);
+    let all_players = parse_players(props, &car_id_map);
 
     BallchasingReplay {
         id,
@@ -53,7 +61,10 @@ pub fn parse_to_ballchasing(replay: &Replay) -> BallchasingReplay {
 }
 
 /// Parse all players from PlayerStats and mark global MVP
-fn parse_players(props: &[(String, HeaderProp)]) -> Vec<(i32, i32, BallchasingPlayer)> {
+fn parse_players(
+    props: &[(String, HeaderProp)],
+    car_ids: &HashMap<String, (u32, String)>,
+) -> Vec<(i32, i32, BallchasingPlayer)> {
     let binding = vec![];
     let players_raw = props
         .iter()
@@ -71,10 +82,10 @@ fn parse_players(props: &[(String, HeaderProp)]) -> Vec<(i32, i32, BallchasingPl
             .and_then(|v| v.as_string())
             .unwrap_or("Unknown")
             .to_string();
+
         let (platform, platform_id) = get("PlayerID")
             .and_then(|v| match v {
                 HeaderProp::Struct { fields, .. } => {
-                    // Extract UID (QWord)
                     let uid = fields
                         .iter()
                         .find(|(k, _)| k == "Uid")
@@ -83,7 +94,6 @@ fn parse_players(props: &[(String, HeaderProp)]) -> Vec<(i32, i32, BallchasingPl
                             _ => None,
                         });
 
-                    // Extract Platform (Byte with string value)
                     let platform_raw =
                         fields
                             .iter()
@@ -96,15 +106,16 @@ fn parse_players(props: &[(String, HeaderProp)]) -> Vec<(i32, i32, BallchasingPl
                             });
 
                     let platform = match platform_raw.as_deref() {
-                        Some("OnlinePlatform_Steam") => "steam".to_string(),
-                        Some("OnlinePlatform_Epic") => "epic".to_string(),
-                        Some("OnlinePlatform_PS4") => "ps4".to_string(),
-                        Some("OnlinePlatform_PS5") => "ps5".to_string(),
-                        Some("OnlinePlatform_Xbox") => "xbox".to_string(),
-                        Some("OnlinePlatform_Switch") => "switch".to_string(),
-                        Some(p) => p.to_string(),
-                        None => "unknown".to_string(),
-                    };
+                        Some("OnlinePlatform_Steam") => "steam",
+                        Some("OnlinePlatform_Epic") => "epic",
+                        Some("OnlinePlatform_PS4") => "ps4",
+                        Some("OnlinePlatform_PS5") => "ps5",
+                        Some("OnlinePlatform_Xbox") => "xbox",
+                        Some("OnlinePlatform_Switch") => "switch",
+                        Some(other) => other,
+                        None => "unknown",
+                    }
+                    .to_string();
 
                     Some((platform, uid.unwrap_or_else(|| "unknown".to_string())))
                 }
@@ -124,14 +135,19 @@ fn parse_players(props: &[(String, HeaderProp)]) -> Vec<(i32, i32, BallchasingPl
             0
         };
 
+        let (car_id, car_name) = car_ids
+            .get(&name)
+            .cloned()
+            .unwrap_or_else(|| (0, "Unknown".to_string()));
+
         let player = BallchasingPlayer {
             name,
             id: BallchasingPlayerId {
-                platform: platform.into(),
+                platform,
                 id: platform_id,
             },
-            car_id: 0,
-            car_name: "Octane".into(),
+            car_id,
+            car_name,
             stats: PlayerStats {
                 core: CoreStats {
                     shots: shots as u32,
@@ -139,7 +155,7 @@ fn parse_players(props: &[(String, HeaderProp)]) -> Vec<(i32, i32, BallchasingPl
                     saves: saves as u32,
                     assists: assists as u32,
                     score: score as u32,
-                    mvp: false, // will update below
+                    mvp: false,
                     shooting_percentage,
                 },
                 boost: BoostStats { bpm: 0 },
@@ -153,7 +169,6 @@ fn parse_players(props: &[(String, HeaderProp)]) -> Vec<(i32, i32, BallchasingPl
         players.push((score, team, player));
     }
 
-    // Mark the global MVP (highest score)
     if let Some(index) = players
         .iter()
         .enumerate()
@@ -198,4 +213,33 @@ fn build_team(
             },
         },
     }
+}
+
+/// Match car ID by player name from TeamLoadout attribute
+pub fn get_car_ids_by_name(frames: &[Frame]) -> HashMap<String, (u32, String)> {
+    let mut car_ids: HashMap<String, (u32, String)> = HashMap::new();
+    let car_map = get_car_map();
+
+    for frame in frames {
+        for actor in &frame.updated_actors {
+            if let Attribute::TeamLoadout(loadout) = &actor.attribute {
+                // Try to find the corresponding name from the same actor
+                let name_attr = frame.updated_actors.iter().find(|a| {
+                    a.actor_id == actor.actor_id && matches!(&a.attribute, Attribute::String(_))
+                });
+
+                if let Some(Attribute::String(player_name)) = name_attr.map(|a| &a.attribute) {
+                    let body_id = loadout.blue.body; // you can also choose orange if needed
+                    let car_name = car_map
+                        .get(&(body_id as u32))
+                        .unwrap_or(&"Unknown")
+                        .to_string();
+
+                    car_ids.insert(player_name.clone(), (body_id as u32, car_name));
+                }
+            }
+        }
+    }
+
+    car_ids
 }

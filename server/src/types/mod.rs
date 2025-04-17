@@ -13,3 +13,4 @@ pub use common::*;
 pub use frames::*;
 pub use player::PlayerStat;
 pub use properties::*;
+pub mod cars;

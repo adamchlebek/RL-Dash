@@ -35,7 +35,9 @@ export async function GET(): Promise<NextResponse> {
         const processingReplays = await withRetry(() =>
             prisma.replay.findMany({
                 where: {
-                    status: 'processing'
+                    status: {
+                        in: ['processing', 'reprocessing']
+                    }
                 }
             })
         );

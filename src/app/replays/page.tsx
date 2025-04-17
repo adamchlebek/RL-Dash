@@ -5,6 +5,8 @@ import ReplayUpload from './upload';
 import { useReplaySubscription } from '@/lib/useReplaySubscription';
 import type { Replay } from '@prisma/client';
 import { ReplayList } from './components/ReplayList';
+import { Settings } from 'lucide-react';
+import Link from 'next/link';
 
 export default function ReplayPage(): React.ReactElement {
     const [replays, setReplays] = useState<Replay[]>([]);
@@ -53,13 +55,18 @@ export default function ReplayPage(): React.ReactElement {
     return (
         <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 p-8 text-white">
             <div className="mx-auto max-w-7xl space-y-8">
-                <div>
-                    <h1 className="mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-4xl font-bold text-transparent">
-                        Upload Replays
-                    </h1>
-                    <p className="text-zinc-400">
-                        Upload your Rocket League replay files to analyze your performance
-                    </p>
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h1 className="mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-4xl font-bold text-transparent">
+                            Upload Replays
+                        </h1>
+                        <p className="text-zinc-400">
+                            Upload your Rocket League replay files to analyze your performance
+                        </p>
+                    </div>
+                    <Link href="/settings" className="p-2 hover:bg-zinc-700 rounded-full transition-colors">
+                        <Settings className="w-6 h-6" />
+                    </Link>
                 </div>
 
                 <ReplayUpload onUploadComplete={fetchReplays} />
