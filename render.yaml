@@ -1,14 +1,14 @@
 services:
-  - type: web
-    name: rl-dash-web
-    rootDir: apps/web
-    buildCommand: npm install && npm run build
-    startCommand: npm run start
-    env: node
+    - type: web
+      name: rl-dash-web
+      rootDir: apps/web
+      buildCommand: npm install && npm run build
+      startCommand: npm run start
+      env: node
 
-  - type: web
-    name: rl-dash-server
-    rootDir: apps/server
-    buildCommand: cargo build --release
-    startCommand: ./target/release/server
-    env: rust
+    - type: web
+      name: rl-dash-server
+      rootDir: apps/server
+      buildCommand: cargo build --release
+      startCommand: ./target/release/server
+      env: rust

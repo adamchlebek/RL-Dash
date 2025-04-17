@@ -1,18 +1,9 @@
 {
-  "[typescript]": {
-    "editor.defaultFormatter": "denoland.vscode-deno"
-  },
-  "cSpell.words": [
-    "ballchaser",
-    "ballchasing",
-    "bcpm",
-    "supabase",
-    "Timestamptz",
-    "uploaders"
-  ],
-  "deno.enablePaths": [
-    "supabase/functions"
-  ],
-  "deno.lint": true,
-  "deno.unstable": true
+    "[typescript]": {
+        "editor.defaultFormatter": "denoland.vscode-deno"
+    },
+    "cSpell.words": ["ballchaser", "ballchasing", "bcpm", "supabase", "Timestamptz", "uploaders"],
+    "deno.enablePaths": ["supabase/functions"],
+    "deno.lint": true,
+    "deno.unstable": true
 }

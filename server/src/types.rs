@@ -1,8 +1,8 @@
+use boxcars::{HeaderProp, Replay};
+use chrono::Utc;
 use serde::Serialize;
 use serde_json::Number;
-use boxcars::{Replay, HeaderProp};
 use uuid::Uuid;
-use chrono::Utc;
 
 #[derive(Debug, Serialize)]
 pub enum ReplayStatus {
@@ -93,7 +93,9 @@ impl<'a> ReplayWrapper<'a> {
         match parts[0] {
             "properties" => {
                 let key = parts[1];
-                self.replay.properties.iter()
+                self.replay
+                    .properties
+                    .iter()
                     .find(|(k, _)| k == key)
                     .and_then(|(_, v)| match v {
                         HeaderProp::Str(s) => Some(s.clone()),
@@ -101,26 +103,33 @@ impl<'a> ReplayWrapper<'a> {
                         HeaderProp::Float(f) => Some(f.to_string()),
                         HeaderProp::Bool(b) => Some(b.to_string()),
                         HeaderProp::Name(n) => Some(n.to_string()),
-                        _ => None
+                        _ => None,
                     })
-            },
+            }
             "header" => {
                 let key = parts[1];
                 match key {
-                    "version" => Some(format!("{}.{}", self.replay.major_version, self.replay.minor_version)),
+                    "version" => Some(format!(
+                        "{}.{}",
+                        self.replay.major_version, self.replay.minor_version
+                    )),
                     "length" => Some(self.replay.header_size.to_string()),
                     "crc" => Some(self.replay.header_crc.to_string()),
-                    _ => None
+                    _ => None,
                 }
-            },
+            }
             "network_frames" => {
                 let key = parts[1];
                 match key {
-                    "count" => self.replay.network_frames.as_ref().map(|f| f.frames.len().to_string()),
-                    _ => None
+                    "count" => self
+                        .replay
+                        .network_frames
+                        .as_ref()
+                        .map(|f| f.frames.len().to_string()),
+                    _ => None,
                 }
-            },
-            _ => None
+            }
+            _ => None,
         }
     }
 
@@ -134,13 +143,21 @@ impl<'a> ReplayWrapper<'a> {
                 match_guid: self.get("properties.MatchGuid"),
                 date: self.get("properties.Date"),
                 playlist_id: self.get("properties.MatchType"),
-                duration: self.get("properties.TotalSecondsPlayed").and_then(|s| s.parse::<f64>().ok()).map(Number::from_f64).flatten(),
+                duration: self
+                    .get("properties.TotalSecondsPlayed")
+                    .and_then(|s| s.parse::<f64>().ok())
+                    .map(Number::from_f64)
+                    .flatten(),
                 title: self.get("properties.ReplayName"),
                 map_code: self.get("properties.MapName"),
-                team_size: self.get("properties.TeamSize").and_then(|s| s.parse::<f64>().ok()).map(Number::from_f64).flatten(),
+                team_size: self
+                    .get("properties.TeamSize")
+                    .and_then(|s| s.parse::<f64>().ok())
+                    .map(Number::from_f64)
+                    .flatten(),
                 blue: None,
                 orange: None,
             }
-        }
+        };
     }
-} 
+}
