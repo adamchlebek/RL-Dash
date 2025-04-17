@@ -20,7 +20,7 @@ export default function ReplayUpload({
     formData.append("file", file);
 
     try {
-      const response = await fetch("https://boxcar.chlebek.us/parse", {
+      const response = await fetch("https://rl-dash.onrender.com/parse/basic", {
         method: "POST",
         body: formData,
       });
