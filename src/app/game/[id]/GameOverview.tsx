@@ -111,6 +111,7 @@ export default function GameOverview({ gameId }: Props) {
                     <div>
                         <h3 className="mb-2 text-lg font-semibold">Game Info</h3>
                         <div className="space-y-1 text-sm">
+                            <p>File Name: {gameDetails.fileName}</p>
                             <p>Map: {gameDetails.map}</p>
                             <p>Duration: {gameDetails.duration}</p>
                             <p>

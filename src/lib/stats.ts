@@ -120,7 +120,9 @@ function getBestTeam(teamStats: Map<string, TeamStat>): TeamResult {
         if (
             stats.wins > bestTeam.wins ||
             (stats.wins === bestTeam.wins && stats.losses < bestTeam.losses) ||
-            (stats.wins === bestTeam.wins && stats.losses === bestTeam.losses && goalDiff > bestTeam.goalDiff)
+            (stats.wins === bestTeam.wins &&
+                stats.losses === bestTeam.losses &&
+                goalDiff > bestTeam.goalDiff)
         ) {
             bestTeam = {
                 key,
@@ -153,7 +155,9 @@ function getWorstTeam(teamStats: Map<string, TeamStat>): TeamResult {
         if (
             stats.wins < worstTeam.wins ||
             (stats.wins === worstTeam.wins && stats.losses > worstTeam.losses) ||
-            (stats.wins === worstTeam.wins && stats.losses === worstTeam.losses && goalDiff < worstTeam.goalDiff)
+            (stats.wins === worstTeam.wins &&
+                stats.losses === worstTeam.losses &&
+                goalDiff < worstTeam.goalDiff)
         ) {
             worstTeam = {
                 key,

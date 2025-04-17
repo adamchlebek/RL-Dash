@@ -12,12 +12,6 @@ export const revalidate = 0;
 
 export async function GET(): Promise<NextResponse> {
     try {
-        // Verify authorization (optional - you can add a token check here)
-        // const authHeader = request.headers.get('authorization');
-        // if (!authHeader || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-        //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        // }
-
         // Check database connection
         const isDbConnected = await checkDatabaseConnection();
 
@@ -36,7 +30,7 @@ export async function GET(): Promise<NextResponse> {
             prisma.replay.findMany({
                 where: {
                     status: {
-                        in: ['processing', 'reprocessing']
+                        in: ['processing']
                     }
                 }
             })
@@ -56,20 +50,17 @@ export async function GET(): Promise<NextResponse> {
                     if (status === 'ok') {
                         try {
                             const fullReplayData = await fetchFullReplayData(replay.ballchasingId);
-                            const isReprocessing = false; // Never reprocessing in this route
 
                             // Process Blue Team
                             const blueTeam = await createOrUpdateTeam(
                                 fullReplayData.blue as unknown as TeamData,
-                                'blue',
-                                isReprocessing
+                                'blue'
                             );
 
                             // Process Orange Team
                             const orangeTeam = await createOrUpdateTeam(
                                 fullReplayData.orange as unknown as TeamData,
-                                'orange',
-                                isReprocessing
+                                'orange'
                             );
 
                             // Process Uploader

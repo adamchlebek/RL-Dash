@@ -26,17 +26,7 @@ export async function POST(
                 where: { id },
                 select: {
                     blueTeamId: true,
-                    orangeTeamId: true,
-                    bluePlayers: {
-                        select: {
-                            id: true
-                        }
-                    },
-                    orangePlayers: {
-                        select: {
-                            id: true
-                        }
-                    }
+                    orangeTeamId: true
                 }
             });
         });
@@ -48,39 +38,46 @@ export async function POST(
             );
         }
 
+        const blueTeam = await withRetry(async () => {
+            return prisma.player.findMany({
+                where: { teamId: relatedEntities.blueTeamId }
+            });
+        });
+
+        const orangeTeam = await withRetry(async () => {
+            return prisma.player.findMany({
+                where: { teamId: relatedEntities.orangeTeamId }
+            });
+        });
+
         console.log(`Reprocessing replay ${id} | Title: ${replayExists.title}`);
         console.log(
             `Found related entities: ${JSON.stringify({
                 blueTeamId: relatedEntities.blueTeamId,
                 orangeTeamId: relatedEntities.orangeTeamId,
-                bluePlayers: relatedEntities.bluePlayers.length,
-                orangePlayers: relatedEntities.orangePlayers.length
+                bluePlayers: blueTeam.length,
+                orangePlayers: orangeTeam.length
             })}`
         );
 
-        // Step 1: Disconnect players from the replay (without deleting replay)
+        // // Step 1: Disconnect players from the replay (without deleting replay)
         console.log(`Step 1: Disconnecting players from replay ${id}`);
         await withRetry(async () => {
             return prisma.replay.update({
                 where: { id },
                 data: {
                     bluePlayers: {
-                        disconnect: relatedEntities.bluePlayers.map((p) => ({ id: p.id }))
+                        disconnect: blueTeam.map((p) => ({ id: p.id }))
                     },
                     orangePlayers: {
-                        disconnect: relatedEntities.orangePlayers.map((p) => ({
-                            id: p.id
-                        }))
+                        disconnect: orangeTeam.map((p) => ({ id: p.id }))
                     }
                 }
             });
         });
 
-        // Step 2: Collect all player IDs and camera IDs
-        const playerIds = [
-            ...relatedEntities.bluePlayers.map((p) => p.id),
-            ...relatedEntities.orangePlayers.map((p) => p.id)
-        ];
+        // Step 2: Collect all player IDs
+        const playerIds = [...blueTeam.map((p) => p.id), ...orangeTeam.map((p) => p.id)];
 
         // Step 3: Delete players
         if (playerIds.length > 0) {
@@ -94,13 +91,20 @@ export async function POST(
             });
         }
 
-        // Step 5: Handle teams - try to delete but continue if they're referenced elsewhere
+        // Step 4: Handle teams - try to delete but continue if they're referenced elsewhere
         const teamsToDelete = [];
-        if (relatedEntities.blueTeamId) teamsToDelete.push(relatedEntities.blueTeamId);
-        if (relatedEntities.orangeTeamId) teamsToDelete.push(relatedEntities.orangeTeamId);
+
+        if (relatedEntities.blueTeamId) {
+            teamsToDelete.push(relatedEntities.blueTeamId);
+        }
+
+        if (relatedEntities.orangeTeamId) {
+            teamsToDelete.push(relatedEntities.orangeTeamId);
+        }
 
         if (teamsToDelete.length > 0) {
-            console.log(`Step 5: Attempting to delete ${teamsToDelete.length} teams`);
+            console.log(`Step 4: Attempting to delete ${teamsToDelete.length} teams`);
+
             for (const teamId of teamsToDelete) {
                 try {
                     await prisma.team.delete({
@@ -110,18 +114,17 @@ export async function POST(
                     console.log(
                         `Could not delete team ${teamId}, may be referenced by other replays: ${e}`
                     );
-                    // Continue execution even if team deletion fails
                 }
             }
         }
 
-        // Step 6: Reset the replay status and nullify team references
-        console.log(`Step 6: Resetting replay status to 'reprocessing'`);
+        // Step 5: Reset the replay status and nullify team references
+        console.log(`Step 5: Resetting replay status to 'processing'`);
         await withRetry(async () => {
             return prisma.replay.update({
                 where: { id },
                 data: {
-                    status: 'reprocessing',
+                    status: 'processing',
                     processedAt: null,
                     title: replayExists.title,
                     blueTeamId: null,

@@ -55,7 +55,7 @@ export default function ReplayPage(): React.ReactElement {
     return (
         <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 p-8 text-white">
             <div className="mx-auto max-w-7xl space-y-8">
-                <div className="flex justify-between items-center">
+                <div className="flex items-center justify-between">
                     <div>
                         <h1 className="mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-4xl font-bold text-transparent">
                             Upload Replays
@@ -64,8 +64,11 @@ export default function ReplayPage(): React.ReactElement {
                             Upload your Rocket League replay files to analyze your performance
                         </p>
                     </div>
-                    <Link href="/settings" className="p-2 hover:bg-zinc-700 rounded-full transition-colors">
-                        <Settings className="w-6 h-6" />
+                    <Link
+                        href="/settings"
+                        className="rounded-full p-2 transition-colors hover:bg-zinc-700"
+                    >
+                        <Settings className="h-6 w-6" />
                     </Link>
                 </div>
 

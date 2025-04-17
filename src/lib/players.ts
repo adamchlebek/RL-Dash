@@ -6,7 +6,11 @@ export async function createPlayerFromData(
     playerData: PlayerData,
     team: Team
 ): Promise<Player | null> {
-    if (!playerData || !team) return null;
+    if (!playerData || !team) {
+        return null;
+    }
+
+    console.log(`Creating player ${playerData.name} for team ${team.id}`);
 
     try {
         // First, find or create the GlobalPlayer record
@@ -175,6 +179,8 @@ export async function createPlayerFromData(
         const player = await prisma.player.create({
             data: playerCreateInput
         });
+
+        console.log(`Player ${playerData.name} created for team ${team.name}`);
 
         return player;
     } catch (error) {

@@ -5,6 +5,7 @@ type GameDetailsResult = {
     date: string;
     map: string;
     duration: string;
+    fileName: string;
     teamSize: number;
     overtime: boolean;
     overtimeSeconds: number;
@@ -290,6 +291,7 @@ export async function getGameDetails(gameId: string): Promise<GameDetailsResult>
         date: game.date?.toISOString() || new Date().toISOString(),
         map: game.mapName || 'Unknown Map',
         duration: formatDuration(game.duration || 0),
+        fileName: game.fileName || 'Unknown File',
         teamSize: game.teamSize || 0,
         overtime: game.overtime || false,
         overtimeSeconds: game.overtimeSeconds || 0,
