@@ -10,6 +10,10 @@ interface GameDetailsModalProps {
     onClose: () => void
 }
 
+interface StatsTableProps {
+    players: GameDetailsResult['teams']['blue']['players']
+}
+
 const formatDate = (dateString: string): { date: string; time: string } => {
     const date = new Date(dateString)
     return {
@@ -26,7 +30,7 @@ const formatDate = (dateString: string): { date: string; time: string } => {
     }
 }
 
-export const GameDetailsModal = ({ gameId, isOpen, onClose }: GameDetailsModalProps): JSX.Element => {
+export const GameDetailsModal = ({ gameId, isOpen, onClose }: GameDetailsModalProps) => {
     const [gameDetails, setGameDetails] = useState<GameDetailsResult | null>(null)
     const [isLoading, setIsLoading] = useState(false)
     const router = useRouter()
@@ -42,7 +46,7 @@ export const GameDetailsModal = ({ gameId, isOpen, onClose }: GameDetailsModalPr
         }
     }, [isOpen, gameId])
 
-    const StatsTable = ({ players }: { players: typeof gameDetails.teams.blue.players }): JSX.Element => {
+    const StatsTable = ({ players }: StatsTableProps) => {
         return (
             <div className="overflow-x-auto">
                 <table className="w-full text-sm">

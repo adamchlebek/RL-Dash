@@ -1,6 +1,6 @@
 import { prisma } from './prisma';
 
-type GameDetailsResult = {
+export type GameDetailsResult = {
     id: string;
     date: string;
     map: string;

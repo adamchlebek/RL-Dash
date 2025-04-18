@@ -27,7 +27,7 @@ export const StatCard = ({
     isWorst = false,
     isTeam = false,
     isMatchup = false
-}: StatCardProps): JSX.Element => {
+}: StatCardProps): React.ReactNode => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const getBorderColor = () => {
