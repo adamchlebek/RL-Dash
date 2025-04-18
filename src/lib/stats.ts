@@ -271,6 +271,7 @@ export async function getBiggestWinDeficit(): Promise<StatValue> {
     });
 
     let biggestDeficit = {
+        id: '',
         value: 0,
         winnerGoals: 0,
         loserGoals: 0,
@@ -288,13 +289,13 @@ export async function getBiggestWinDeficit(): Promise<StatValue> {
         if (diff > biggestDeficit.value) {
             const blueWon = blueGoals > orangeGoals;
 
-            // Get player names
             const bluePlayers = match.blueTeam.players.map((p) => p.globalPlayer?.name || p.name);
             const orangePlayers = match.orangeTeam.players.map(
                 (p) => p.globalPlayer?.name || p.name
             );
 
             biggestDeficit = {
+                id: match.id,
                 value: diff,
                 winnerGoals: blueWon ? blueGoals : orangeGoals,
                 loserGoals: blueWon ? orangeGoals : blueGoals,
@@ -304,11 +305,11 @@ export async function getBiggestWinDeficit(): Promise<StatValue> {
         }
     }
 
-    // Format the output for display
     const winningTeamDisplay = biggestDeficit.winningTeam.join(' & ');
     const losingTeamDisplay = biggestDeficit.losingTeam.join(' & ');
 
     return {
+        gameId: biggestDeficit.id,
         value: `${biggestDeficit.winnerGoals}-${biggestDeficit.loserGoals}`,
         players: [winningTeamDisplay, losingTeamDisplay],
         winningTeam: 0,
@@ -387,6 +388,7 @@ export async function getLongestGame(): Promise<StatValue> {
     const winningTeam = blueGoals > orangeGoals ? 0 : 1;
 
     return {
+        gameId: longestMatch.id,
         value: formattedDuration,
         players: [blueTeamDisplay, orangeTeamDisplay],
         winningTeam,
@@ -395,9 +397,6 @@ export async function getLongestGame(): Promise<StatValue> {
 }
 
 export async function getHighestScoringGame(): Promise<StatValue> {
-    // Get matches with the highest combined scores
-    // To calculate this in the database, we'd need raw SQL, but we can
-    // optimize by at least selecting only what we need
     const matches = await prisma.replay.findMany({
         select: {
             id: true,
@@ -436,10 +435,10 @@ export async function getHighestScoringGame(): Promise<StatValue> {
             blueTeam: { isNot: null },
             orangeTeam: { isNot: null }
         }
-        // Can't order by combined goals in Prisma directly, so we'll process in memory
     });
 
     let highestScoring = {
+        id: '',
         totalGoals: 0,
         blueGoals: 0,
         orangeGoals: 0,
@@ -463,6 +462,7 @@ export async function getHighestScoringGame(): Promise<StatValue> {
             );
 
             highestScoring = {
+                id: match.id,
                 totalGoals,
                 blueGoals,
                 orangeGoals,
@@ -477,6 +477,7 @@ export async function getHighestScoringGame(): Promise<StatValue> {
     const winningTeam = highestScoring.blueGoals > highestScoring.orangeGoals ? 0 : 1;
 
     return {
+        gameId: highestScoring.id,
         value: `${highestScoring.blueGoals}-${highestScoring.orangeGoals}`,
         players: [blueTeamDisplay, orangeTeamDisplay],
         winningTeam,
@@ -486,7 +487,7 @@ export async function getHighestScoringGame(): Promise<StatValue> {
 
 // Individual Stats
 export async function getHighestPoints(): Promise<StatValue> {
-    const players = await prisma.player.findMany({
+    const player = await prisma.player.findFirst({
         select: {
             name: true,
             score: true,
@@ -494,7 +495,8 @@ export async function getHighestPoints(): Promise<StatValue> {
                 select: {
                     name: true
                 }
-            }
+            },
+            teamId: true
         },
         where: {
             score: {
@@ -507,7 +509,7 @@ export async function getHighestPoints(): Promise<StatValue> {
         take: 10
     });
 
-    if (players.length === 0) {
+    if (!player) {
         return {
             value: '0',
             players: ['Unknown'],
@@ -515,21 +517,30 @@ export async function getHighestPoints(): Promise<StatValue> {
         };
     }
 
-    const maxScore = players[0].score || 0;
-    const topScorePlayers = players.filter((player) => player.score === maxScore);
-    const playerNames = [
-        ...new Set(topScorePlayers.map((player) => player.globalPlayer?.name || player.name))
-    ];
+    const replay = await prisma.replay.findFirst({
+        where: {
+            OR: [
+                { blueTeamId: player.teamId },
+                { orangeTeamId: player.teamId }
+            ]
+        },
+        select: {
+            id: true
+        }
+    });
+
+    const playerName = player.globalPlayer?.name || player.name;
 
     return {
-        value: String(maxScore),
-        players: playerNames,
+        gameId: replay?.id,
+        value: String(player.score),
+        players: [playerName],
         isTeamVsTeam: false
     };
 }
 
 export async function getLowestPoints(): Promise<StatValue> {
-    const players = await prisma.player.findMany({
+    const player = await prisma.player.findFirst({
         select: {
             name: true,
             score: true,
@@ -537,7 +548,8 @@ export async function getLowestPoints(): Promise<StatValue> {
                 select: {
                     name: true
                 }
-            }
+            },
+            teamId: true
         },
         where: {
             score: {
@@ -550,7 +562,7 @@ export async function getLowestPoints(): Promise<StatValue> {
         take: 10
     });
 
-    if (players.length === 0) {
+    if (!player) {
         return {
             value: '0',
             players: ['Unknown'],
@@ -558,21 +570,30 @@ export async function getLowestPoints(): Promise<StatValue> {
         };
     }
 
-    const minScore = players[0].score || 0;
-    const bottomScorePlayers = players.filter((player) => player.score === minScore);
-    const playerNames = [
-        ...new Set(bottomScorePlayers.map((player) => player.globalPlayer?.name || player.name))
-    ];
+    const replay = await prisma.replay.findFirst({
+        where: {
+            OR: [
+                { blueTeamId: player.teamId },
+                { orangeTeamId: player.teamId }
+            ]
+        },
+        select: {
+            id: true
+        }
+    });
+
+    const playerName = player.globalPlayer?.name || player.name;
 
     return {
-        value: String(minScore),
-        players: playerNames,
+        gameId: replay?.id,
+        value: String(player.score),
+        players: [playerName],
         isTeamVsTeam: false
     };
 }
 
 export async function getMostDemos(): Promise<StatValue> {
-    const players = await prisma.player.findMany({
+    const player = await prisma.player.findFirst({
         select: {
             name: true,
             demoInflicted: true,
@@ -580,7 +601,8 @@ export async function getMostDemos(): Promise<StatValue> {
                 select: {
                     name: true
                 }
-            }
+            },
+            teamId: true
         },
         where: {
             demoInflicted: {
@@ -593,7 +615,7 @@ export async function getMostDemos(): Promise<StatValue> {
         take: 10
     });
 
-    if (players.length === 0) {
+    if (!player) {
         return {
             value: '0',
             players: ['Unknown'],
@@ -601,15 +623,24 @@ export async function getMostDemos(): Promise<StatValue> {
         };
     }
 
-    const maxDemos = players[0].demoInflicted || 0;
-    const topDemoPlayers = players.filter((player) => player.demoInflicted === maxDemos);
-    const playerNames = [
-        ...new Set(topDemoPlayers.map((player) => player.globalPlayer?.name || player.name))
-    ];
+    const replay = await prisma.replay.findFirst({
+        where: {
+            OR: [
+                { blueTeamId: player.teamId },
+                { orangeTeamId: player.teamId }
+            ]
+        },
+        select: {
+            id: true
+        }
+    });
+
+    const playerName = player.globalPlayer?.name || player.name;
 
     return {
-        value: String(maxDemos),
-        players: playerNames,
+        gameId: replay?.id,
+        value: String(player.demoInflicted),
+        players: [playerName],
         isTeamVsTeam: false
     };
 }

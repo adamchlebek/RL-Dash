@@ -1,4 +1,5 @@
 export type StatValue = {
+    gameId?: string;
     value: string;
     players: string[];
     winningTeam?: 0 | 1;

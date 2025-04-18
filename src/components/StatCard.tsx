@@ -1,8 +1,10 @@
 import { ReactNode } from 'react';
 import { Crown } from 'lucide-react';
 import { Badge } from './ui/badge';
+import { useRouter } from 'next/navigation';
 
 interface StatCardProps {
+    gameId?: string;
     label: string;
     value: string;
     players: string[];
@@ -15,6 +17,7 @@ interface StatCardProps {
 }
 
 export const StatCard = ({
+    gameId,
     label,
     value,
     players,
@@ -25,6 +28,8 @@ export const StatCard = ({
     isTeam = false,
     isMatchup = false
 }: StatCardProps) => {
+    const router = useRouter();
+
     const getBorderColor = () => {
         if (isTeam) {
             return isWorst ? 'border-red-500/50' : 'border-yellow-500/50';
@@ -33,6 +38,12 @@ export const StatCard = ({
             return 'border-blue-500/50';
         }
         return `border-${color}-500/50`;
+    };
+
+    const handleGameIdClick = () => {
+        if (gameId) {
+            router.push(`/game/${gameId}`);
+        }
     };
 
     if (isMatchup) {
@@ -44,7 +55,8 @@ export const StatCard = ({
 
         return (
             <div
-                className={`rounded-xl border bg-zinc-800/50 p-6 backdrop-blur-sm ${getBorderColor()} transition-all duration-300 hover:scale-[1.02] hover:bg-zinc-700/50`}
+                className={`rounded-xl border bg-zinc-800/50 p-6 backdrop-blur-sm ${getBorderColor()} transition-all duration-300 hover:scale-[1.02] hover:bg-zinc-700/50 ${gameId ? 'cursor-pointer' : ''}`}
+                onClick={handleGameIdClick}
             >
                 <div className="mb-4 flex items-center justify-center gap-3">
                     {icon}
@@ -83,10 +95,10 @@ export const StatCard = ({
             </div>
         );
     }
-
     return (
         <div
-            className={`rounded-xl border bg-zinc-800/50 p-6 backdrop-blur-sm ${getBorderColor()} transition-all duration-300 hover:scale-[1.02] hover:bg-zinc-700/50`}
+            className={`rounded-xl border bg-zinc-800/50 p-6 backdrop-blur-sm ${getBorderColor()} transition-all duration-300 hover:scale-[1.02] hover:bg-zinc-700/50 ${gameId ? 'cursor-pointer' : ''}`}
+            onClick={handleGameIdClick}
         >
             <div className={`mb-4 flex items-center ${isTeam ? 'justify-center' : ''} gap-3`}>
                 {icon}
@@ -130,3 +142,4 @@ export const StatCard = ({
         </div>
     );
 };
+

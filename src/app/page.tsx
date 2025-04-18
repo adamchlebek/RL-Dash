@@ -5,7 +5,7 @@ import { StatCard } from '../components/StatCard';
 import { PlayerTable } from '../components/PlayerTable';
 import GameHistoryTable from '../components/GameHistoryTable';
 import { statIcons } from '../data/dummyData';
-import { Trophy, User, Users, History, RefreshCw } from 'lucide-react';
+import { Trophy, User, Users, History, RefreshCw, Computer } from 'lucide-react';
 import { Stats } from '../models/player';
 import { GameHistory } from '../models/game';
 import { useReplaySubscription } from '@/lib/useReplaySubscription';
@@ -162,9 +162,17 @@ export default function Home() {
                                     isWorst
                                 />
                             </div>
+                        </div>
+
+                        <div>
+                            <h2 className="mb-6 flex items-center gap-2 text-2xl font-semibold">
+                                <Computer className="h-6 w-6 text-yellow-400" />
+                              Game Stats
+                            </h2>
                             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                                 <StatCard
                                     label="Biggest Win Deficit"
+                                    gameId={stats.biggestWinDeficit.gameId}
                                     value={stats.biggestWinDeficit.value}
                                     players={stats.biggestWinDeficit.players}
                                     winningTeam={stats.biggestWinDeficit.winningTeam}
@@ -173,6 +181,7 @@ export default function Home() {
                                 />
                                 <StatCard
                                     label="Longest Game"
+                                    gameId={stats.longestGame.gameId}
                                     value={stats.longestGame.value}
                                     players={stats.longestGame.players}
                                     winningTeam={stats.longestGame.winningTeam}
@@ -181,6 +190,7 @@ export default function Home() {
                                 />
                                 <StatCard
                                     label="Highest Scoring Game"
+                                    gameId={stats.highestScoringGame.gameId}
                                     value={stats.highestScoringGame.value}
                                     players={stats.highestScoringGame.players}
                                     winningTeam={stats.highestScoringGame.winningTeam}
@@ -198,6 +208,7 @@ export default function Home() {
                             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                                 <StatCard
                                     label="Highest Points"
+                                    gameId={stats.highestPoints.gameId}
                                     value={Number(stats.highestPoints.value).toLocaleString()}
                                     players={stats.highestPoints.players}
                                     icon={<statIcons.highestPoints className="h-6 w-6" />}
@@ -205,6 +216,7 @@ export default function Home() {
                                 />
                                 <StatCard
                                     label="Lowest Points"
+                                    gameId={stats.lowestPoints.gameId}
                                     value={Number(stats.lowestPoints.value).toLocaleString()}
                                     players={stats.lowestPoints.players}
                                     icon={<statIcons.lowestPoints className="h-6 w-6" />}
@@ -212,6 +224,7 @@ export default function Home() {
                                 />
                                 <StatCard
                                     label="Most Demos (single game)"
+                                    gameId={stats.mostDemos.gameId}
                                     value={Number(stats.mostDemos.value).toLocaleString()}
                                     players={stats.mostDemos.players}
                                     icon={<statIcons.mostDemos className="h-6 w-6" />}
