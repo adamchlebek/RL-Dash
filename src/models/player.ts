@@ -1,3 +1,5 @@
+import { StatValue } from "./stats";
+
 export interface Player {
     id?: string;
     name: string;
@@ -32,12 +34,6 @@ export interface Player {
             taken: number;
         };
     };
-}
-
-export interface StatValue {
-    value: string;
-    players: string[];
-    isTeamVsTeam?: boolean;
 }
 
 export interface Stats {

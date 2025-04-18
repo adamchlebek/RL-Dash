@@ -1,6 +1,7 @@
 export type StatValue = {
     value: string;
     players: string[];
+    winningTeam?: 0 | 1;
     isTeamVsTeam?: boolean;
 };
 

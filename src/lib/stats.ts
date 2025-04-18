@@ -265,13 +265,11 @@ export async function getBiggestWinDeficit(): Promise<StatValue> {
         },
         orderBy: [
             {
-                // We'll calculate abs(blueGoals - orangeGoals) in memory
-                id: 'asc' // Just to have a deterministic order
+                id: 'asc'
             }
         ]
     });
 
-    // Process in memory to find the biggest deficit
     let biggestDeficit = {
         value: 0,
         winnerGoals: 0,
@@ -313,20 +311,19 @@ export async function getBiggestWinDeficit(): Promise<StatValue> {
     return {
         value: `${biggestDeficit.winnerGoals}-${biggestDeficit.loserGoals}`,
         players: [winningTeamDisplay, losingTeamDisplay],
+        winningTeam: 0,
         isTeamVsTeam: true
     };
 }
 
 export async function getLongestGame(): Promise<StatValue> {
-    // First find the match with the longest duration
-    const longestMatches = await prisma.replay.findMany({
+    const longestMatch = await prisma.replay.findFirst({
         select: {
             id: true,
             duration: true,
-            overtime: true,
-            overtimeSeconds: true,
             blueTeam: {
                 select: {
+                    goals: true,
                     players: {
                         select: {
                             name: true,
@@ -341,6 +338,7 @@ export async function getLongestGame(): Promise<StatValue> {
             },
             orangeTeam: {
                 select: {
+                    goals: true,
                     players: {
                         select: {
                             name: true,
@@ -356,61 +354,40 @@ export async function getLongestGame(): Promise<StatValue> {
         },
         where: {
             blueTeam: { isNot: null },
-            orangeTeam: { isNot: null }
+            orangeTeam: { isNot: null },
+            duration: { not: null }
         },
-        orderBy: [
-            {
-                duration: 'desc' // Order by duration first
-            },
-            {
-                overtimeSeconds: 'desc' // Then by overtime seconds
-            }
-        ],
-        take: 10 // Get top 10 longest matches to process
+        orderBy: {
+            duration: 'desc'
+        }
     });
 
-    let longestMatch = {
-        duration: 0,
-        overtime: false,
-        overtimeSeconds: 0,
-        bluePlayers: [] as string[],
-        orangePlayers: [] as string[]
-    };
-
-    for (const match of longestMatches) {
-        if (!match.blueTeam || !match.orangeTeam) continue;
-
-        const totalDuration =
-            (match.duration || 0) + (match.overtime ? match.overtimeSeconds || 0 : 0);
-
-        if (totalDuration > longestMatch.duration) {
-            // Get player names
-            const bluePlayers = match.blueTeam.players.map((p) => p.globalPlayer?.name || p.name);
-            const orangePlayers = match.orangeTeam.players.map(
-                (p) => p.globalPlayer?.name || p.name
-            );
-
-            longestMatch = {
-                duration: totalDuration,
-                overtime: match.overtime || false,
-                overtimeSeconds: match.overtimeSeconds || 0,
-                bluePlayers,
-                orangePlayers
-            };
-        }
+    if (!longestMatch || !longestMatch.duration) {
+        return {
+            value: '0:00',
+            players: ['N/A', 'N/A'],
+            isTeamVsTeam: true
+        };
     }
 
-    // Convert duration (seconds) to mm:ss format
     const minutes = Math.floor(longestMatch.duration / 60);
     const seconds = longestMatch.duration % 60;
     const formattedDuration = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
-    const blueTeamDisplay = longestMatch.bluePlayers.join(' & ');
-    const orangeTeamDisplay = longestMatch.orangePlayers.join(' & ');
+    const bluePlayers = longestMatch.blueTeam?.players.map((p) => p.globalPlayer?.name || p.name) || [];
+    const orangePlayers = longestMatch.orangeTeam?.players.map((p) => p.globalPlayer?.name || p.name) || [];
+
+    const blueTeamDisplay = bluePlayers.join(' & ');
+    const orangeTeamDisplay = orangePlayers.join(' & ');
+
+    const blueGoals = longestMatch.blueTeam?.goals || 0;
+    const orangeGoals = longestMatch.orangeTeam?.goals || 0;
+    const winningTeam = blueGoals > orangeGoals ? 0 : 1;
 
     return {
         value: formattedDuration,
         players: [blueTeamDisplay, orangeTeamDisplay],
+        winningTeam,
         isTeamVsTeam: true
     };
 }
@@ -495,10 +472,12 @@ export async function getHighestScoringGame(): Promise<StatValue> {
 
     const blueTeamDisplay = highestScoring.bluePlayers.join(' & ');
     const orangeTeamDisplay = highestScoring.orangePlayers.join(' & ');
+    const winningTeam = highestScoring.blueGoals > highestScoring.orangeGoals ? 0 : 1;
 
     return {
         value: `${highestScoring.blueGoals}-${highestScoring.orangeGoals}`,
         players: [blueTeamDisplay, orangeTeamDisplay],
+        winningTeam,
         isTeamVsTeam: true
     };
 }
@@ -523,7 +502,7 @@ export async function getHighestPoints(): Promise<StatValue> {
         orderBy: {
             score: 'desc'
         },
-        take: 1
+        take: 10
     });
 
     if (players.length === 0) {
@@ -534,12 +513,13 @@ export async function getHighestPoints(): Promise<StatValue> {
         };
     }
 
-    const topPlayer = players[0];
-    const playerName = topPlayer.globalPlayer?.name || topPlayer.name;
+    const maxScore = players[0].score || 0;
+    const topScorePlayers = players.filter(player => player.score === maxScore);
+    const playerNames = [...new Set(topScorePlayers.map(player => player.globalPlayer?.name || player.name))];
 
     return {
-        value: String(topPlayer.score || 0),
-        players: [playerName],
+        value: String(maxScore),
+        players: playerNames,
         isTeamVsTeam: false
     };
 }
@@ -563,7 +543,7 @@ export async function getLowestPoints(): Promise<StatValue> {
         orderBy: {
             score: 'asc'
         },
-        take: 1
+        take: 10
     });
 
     if (players.length === 0) {
@@ -574,12 +554,13 @@ export async function getLowestPoints(): Promise<StatValue> {
         };
     }
 
-    const bottomPlayer = players[0];
-    const playerName = bottomPlayer.globalPlayer?.name || bottomPlayer.name;
+    const minScore = players[0].score || 0;
+    const bottomScorePlayers = players.filter(player => player.score === minScore);
+    const playerNames = [...new Set(bottomScorePlayers.map(player => player.globalPlayer?.name || player.name))];
 
     return {
-        value: String(bottomPlayer.score || 0),
-        players: [playerName],
+        value: String(minScore),
+        players: playerNames,
         isTeamVsTeam: false
     };
 }
@@ -603,7 +584,7 @@ export async function getMostDemos(): Promise<StatValue> {
         orderBy: {
             demoInflicted: 'desc'
         },
-        take: 1
+        take: 10
     });
 
     if (players.length === 0) {
@@ -614,12 +595,13 @@ export async function getMostDemos(): Promise<StatValue> {
         };
     }
 
-    const topDemoPlayer = players[0];
-    const playerName = topDemoPlayer.globalPlayer?.name || topDemoPlayer.name;
+    const maxDemos = players[0].demoInflicted || 0;
+    const topDemoPlayers = players.filter(player => player.demoInflicted === maxDemos);
+    const playerNames = [...new Set(topDemoPlayers.map(player => player.globalPlayer?.name || player.name))];
 
     return {
-        value: String(topDemoPlayer.demoInflicted || 0),
-        players: [playerName],
+        value: String(maxDemos),
+        players: playerNames,
         isTeamVsTeam: false
     };
 }

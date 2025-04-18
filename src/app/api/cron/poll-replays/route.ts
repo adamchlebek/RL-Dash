@@ -2,10 +2,9 @@ import { NextResponse } from 'next/server';
 import { checkReplayStatus, fetchFullReplayData } from '@/lib/ballchasing';
 import { prisma, withRetry, checkDatabaseConnection } from '@/lib/prisma';
 import { createOrUpdateTeam } from '@/lib/teams';
-import { TeamData, PlayerData, ProcessingResult } from '@/models/ballchaser';
+import { TeamData, ProcessingResult } from '@/models/ballchaser';
 import { createOrUpdateGroup } from '@/lib/groups';
 import { createOrUpdateUploader } from '@/lib/uploaders';
-import { createPlayerFromData } from '@/lib/players';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -71,38 +70,6 @@ export async function GET(): Promise<NextResponse> {
                                 profileUrl: fullReplayData.uploader.profile_url,
                                 avatar: fullReplayData.uploader.avatar
                             });
-
-                            // Create blue team players
-                            if (blueTeam && fullReplayData.blue?.players) {
-                                console.log(`Creating players for blue team`);
-                                for (const playerData of fullReplayData.blue
-                                    .players as PlayerData[]) {
-                                    try {
-                                        await createPlayerFromData(playerData, blueTeam);
-                                    } catch (error) {
-                                        console.error(
-                                            `Error creating blue team player ${playerData.name}:`,
-                                            error
-                                        );
-                                    }
-                                }
-                            }
-
-                            // Create orange team players (similar to blue team)
-                            if (orangeTeam && fullReplayData.orange?.players) {
-                                console.log(`Creating players for orange team`);
-                                for (const playerData of fullReplayData.orange
-                                    .players as PlayerData[]) {
-                                    try {
-                                        await createPlayerFromData(playerData, orangeTeam);
-                                    } catch (error) {
-                                        console.error(
-                                            `Error creating orange team player ${playerData.name}:`,
-                                            error
-                                        );
-                                    }
-                                }
-                            }
 
                             // Process Groups
                             const groups = await Promise.all(
