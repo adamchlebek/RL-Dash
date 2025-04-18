@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Clock, Home, Settings, Users } from 'lucide-react';
+import { Home, Users } from 'lucide-react';
 
 export function Navigation(): React.ReactElement {
     return (
@@ -30,7 +30,7 @@ export function Navigation(): React.ReactElement {
                                 <Users className="mr-2 h-4 w-4" />
                                 Players
                             </Link>
-                            <Link
+                            {/* <Link
                                 href="/replays"
                                 className="inline-flex items-center px-1 pt-1 text-sm font-medium text-zinc-300 transition-colors hover:text-white"
                             >
@@ -43,7 +43,7 @@ export function Navigation(): React.ReactElement {
                             >
                                 <Settings className="mr-2 h-4 w-4" />
                                 Settings
-                            </Link>
+                            </Link> */}
                         </div>
                     </div>
                 </div>
