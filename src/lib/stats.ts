@@ -650,10 +650,12 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
     const replays = await prisma.replay.findMany({
         where: {
             status: 'completed',
+            date: { not: null },
             AND: [{ blueTeam: { isNot: null } }, { orangeTeam: { isNot: null } }]
         },
         select: {
             id: true,
+            date: true,
             ballchasingId: true,
             blueTeam: {
                 select: {
@@ -699,24 +701,26 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
                     }
                 }
             }
+        },
+        orderBy: {
+            date: 'asc'
         }
     });
 
-    // Deduplicate replays based on ballchasing ID
     const uniqueReplays = Array.from(
         new Map(replays.map((replay) => [replay.ballchasingId, replay])).values()
     );
 
-    // Initialize stats map for each player
     const playerStatsMap = new Map<string, PlayerStats>();
+    const playerFirstSeen = new Map<string, Date>();
+    const playerLatestGame = new Map<string, Date>();
 
-    // Process each unique replay
     uniqueReplays.forEach((replay) => {
-        if (!replay.blueTeam || !replay.orangeTeam) return;
+        if (!replay.blueTeam || !replay.orangeTeam || !replay.date) return;
 
+        const date = new Date(replay.date);
         const blueWon = (replay.blueTeam.goals || 0) > (replay.orangeTeam.goals || 0);
 
-        // Process blue team players
         replay.blueTeam.players.forEach((player) => {
             if (!player.globalPlayer) return;
 
@@ -735,6 +739,11 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
                 losses: 0
             };
 
+            if (!playerFirstSeen.has(player.globalPlayer.id)) {
+                playerFirstSeen.set(player.globalPlayer.id, date);
+            }
+            playerLatestGame.set(player.globalPlayer.id, date);
+
             stats.gamesPlayed++;
             stats.totalGoals += player.goals || 0;
             stats.totalAssists += player.assists || 0;
@@ -749,7 +758,6 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
             playerStatsMap.set(player.globalPlayer.id, stats);
         });
 
-        // Process orange team players
         replay.orangeTeam.players.forEach((player) => {
             if (!player.globalPlayer) return;
 
@@ -768,6 +776,11 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
                 losses: 0
             };
 
+            if (!playerFirstSeen.has(player.globalPlayer.id)) {
+                playerFirstSeen.set(player.globalPlayer.id, date);
+            }
+            playerLatestGame.set(player.globalPlayer.id, date);
+
             stats.gamesPlayed++;
             stats.totalGoals += player.goals || 0;
             stats.totalAssists += player.assists || 0;
@@ -783,7 +796,6 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
         });
     });
 
-    // Convert map to array and format the results
     return Array.from(playerStatsMap.values())
         .map((stats) => ({
             id: stats.id,
@@ -797,7 +809,9 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
             avgBoost: stats.gamesPlayed > 0 ? stats.totalBoost / stats.gamesPlayed : 0,
             gamesPlayed: stats.gamesPlayed,
             wins: stats.wins,
-            losses: stats.losses
+            losses: stats.losses,
+            firstSeen: playerFirstSeen.get(stats.id) || new Date(),
+            latestGame: playerLatestGame.get(stats.id) || new Date()
         }))
         .sort((a, b) => b.totalScore - a.totalScore);
 }

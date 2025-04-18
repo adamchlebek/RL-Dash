@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Crown } from 'lucide-react'
 import type { GameDetailsResult } from '@/lib/gameDetails'
 
 interface GameDetailsModalProps {
@@ -47,6 +47,9 @@ export const GameDetailsModal = ({ gameId, isOpen, onClose }: GameDetailsModalPr
     }, [isOpen, gameId])
 
     const StatsTable = ({ players }: StatsTableProps) => {
+        const sortedPlayers = [...players].sort((a, b) => b.score - a.score)
+        const highestScore = Math.max(...gameDetails?.teams.blue.players.concat(gameDetails?.teams.orange.players).map(p => p.score) || [0])
+        
         return (
             <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -62,9 +65,12 @@ export const GameDetailsModal = ({ gameId, isOpen, onClose }: GameDetailsModalPr
                         </tr>
                     </thead>
                     <tbody>
-                        {players.map((player, i) => (
+                        {sortedPlayers.map((player, i) => (
                             <tr key={i} className="border-b border-zinc-800">
-                                <td className="py-2">{player.name}</td>
+                                <td className="py-2 flex items-center gap-2">
+                                    {player.name}
+                                    {player.score === highestScore && <Crown className="h-4 w-4 text-yellow-400" />}
+                                </td>
                                 <td className="py-2 text-right">{player.score}</td>
                                 <td className="py-2 text-right">{player.goals}</td>
                                 <td className="py-2 text-right">{player.assists}</td>

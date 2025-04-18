@@ -3,15 +3,16 @@
 import { useState } from 'react';
 import type { FC } from 'react';
 import { GameHistory } from '../data/dummyData';
-import { Calendar, Trophy, Users } from 'lucide-react';
-import Link from 'next/link';
+import { Calendar, Trophy, Users, Clock } from 'lucide-react';
+import { GameDetailsModal } from './GameDetailsModal';
 
 interface GameHistoryTableProps {
     games: GameHistory[];
 }
 
-const GameHistoryTable: FC<GameHistoryTableProps> = ({ games }) => {
+const GameHistoryTable: FC<GameHistoryTableProps> = ({ games }): React.ReactNode => {
     const [currentPage, setCurrentPage] = useState(1);
+    const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
     const gamesPerPage = 10;
     const totalPages = Math.ceil(games.length / gamesPerPage);
 
@@ -27,6 +28,12 @@ const GameHistoryTable: FC<GameHistoryTableProps> = ({ games }) => {
                                 <div className="flex items-center gap-2">
                                     <Calendar className="h-4 w-4" />
                                     <span>Date</span>
+                                </div>
+                            </th>
+                            <th className="pb-4 font-medium text-zinc-300">
+                                <div className="flex items-center gap-2">
+                                    <Clock className="h-4 w-4" />
+                                    <span>Time</span>
                                 </div>
                             </th>
                             <th className="pb-4 font-medium text-zinc-300">
@@ -47,44 +54,44 @@ const GameHistoryTable: FC<GameHistoryTableProps> = ({ games }) => {
                         {currentGames.map((game) => (
                             <tr
                                 key={game.id}
-                                className="border-b border-zinc-700 transition-colors last:border-0 hover:bg-zinc-700/50"
+                                onClick={() => setSelectedGameId(game.id)}
+                                className="border-b border-zinc-700 transition-colors last:border-0 hover:bg-zinc-700/50 cursor-pointer"
                             >
                                 <td className="px-4 py-4 text-zinc-300">
                                     {new Date(game.date).toLocaleDateString()}
                                 </td>
-                                <td className="px-4 py-4">
-                                    <Link href={`/game/${game.id}`} className="block">
-                                        <span className="font-mono text-zinc-300">
-                                            {game.score}
-                                        </span>
-                                    </Link>
+                                <td className="px-4 py-4 text-zinc-300">
+                                    {new Date(game.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </td>
                                 <td className="px-4 py-4">
-                                    <Link href={`/game/${game.id}`} className="block">
-                                        <div className="flex items-center gap-2">
-                                            {[...game.winningTeam]
-                                                .sort((a, b) => a.localeCompare(b))
-                                                .map((player) => (
-                                                    <span
-                                                        key={player}
-                                                        className="rounded-full bg-green-900/50 px-3 py-1 text-green-400"
-                                                    >
-                                                        {player}
-                                                    </span>
-                                                ))}
-                                            <span className="text-zinc-500">vs</span>
-                                            {[...game.losingTeam]
-                                                .sort((a, b) => a.localeCompare(b))
-                                                .map((player) => (
-                                                    <span
-                                                        key={player}
-                                                        className="rounded-full bg-red-900/50 px-3 py-1 text-red-400"
-                                                    >
-                                                        {player}
-                                                    </span>
-                                                ))}
-                                        </div>
-                                    </Link>
+                                    <span className="font-mono text-zinc-300">
+                                        {game.score}
+                                    </span>
+                                </td>
+                                <td className="px-4 py-4">
+                                    <div className="flex items-center gap-2">
+                                        {[...game.winningTeam]
+                                            .sort((a, b) => a.localeCompare(b))
+                                            .map((player) => (
+                                                <span
+                                                    key={player}
+                                                    className="rounded-full bg-green-900/50 px-3 py-1 text-green-400"
+                                                >
+                                                    {player}
+                                                </span>
+                                            ))}
+                                        <span className="text-zinc-500">vs</span>
+                                        {[...game.losingTeam]
+                                            .sort((a, b) => a.localeCompare(b))
+                                            .map((player) => (
+                                                <span
+                                                    key={player}
+                                                    className="rounded-full bg-red-900/50 px-3 py-1 text-red-400"
+                                                >
+                                                    {player}
+                                                </span>
+                                            ))}
+                                    </div>
                                 </td>
                             </tr>
                         ))}
@@ -113,6 +120,12 @@ const GameHistoryTable: FC<GameHistoryTableProps> = ({ games }) => {
                     </button>
                 </div>
             )}
+
+            <GameDetailsModal
+                gameId={selectedGameId || ''}
+                isOpen={!!selectedGameId}
+                onClose={() => setSelectedGameId(null)}
+            />
         </div>
     );
 };

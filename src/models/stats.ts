@@ -83,6 +83,8 @@ export interface PlayerStatsResult {
     gamesPlayed: number;
     wins: number;
     losses: number;
+    firstSeen: Date;
+    latestGame: Date;
 }
 
 export interface GameHistoryResult {
