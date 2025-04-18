@@ -374,8 +374,10 @@ export async function getLongestGame(): Promise<StatValue> {
     const seconds = longestMatch.duration % 60;
     const formattedDuration = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
-    const bluePlayers = longestMatch.blueTeam?.players.map((p) => p.globalPlayer?.name || p.name) || [];
-    const orangePlayers = longestMatch.orangeTeam?.players.map((p) => p.globalPlayer?.name || p.name) || [];
+    const bluePlayers =
+        longestMatch.blueTeam?.players.map((p) => p.globalPlayer?.name || p.name) || [];
+    const orangePlayers =
+        longestMatch.orangeTeam?.players.map((p) => p.globalPlayer?.name || p.name) || [];
 
     const blueTeamDisplay = bluePlayers.join(' & ');
     const orangeTeamDisplay = orangePlayers.join(' & ');
@@ -514,8 +516,10 @@ export async function getHighestPoints(): Promise<StatValue> {
     }
 
     const maxScore = players[0].score || 0;
-    const topScorePlayers = players.filter(player => player.score === maxScore);
-    const playerNames = [...new Set(topScorePlayers.map(player => player.globalPlayer?.name || player.name))];
+    const topScorePlayers = players.filter((player) => player.score === maxScore);
+    const playerNames = [
+        ...new Set(topScorePlayers.map((player) => player.globalPlayer?.name || player.name))
+    ];
 
     return {
         value: String(maxScore),
@@ -555,8 +559,10 @@ export async function getLowestPoints(): Promise<StatValue> {
     }
 
     const minScore = players[0].score || 0;
-    const bottomScorePlayers = players.filter(player => player.score === minScore);
-    const playerNames = [...new Set(bottomScorePlayers.map(player => player.globalPlayer?.name || player.name))];
+    const bottomScorePlayers = players.filter((player) => player.score === minScore);
+    const playerNames = [
+        ...new Set(bottomScorePlayers.map((player) => player.globalPlayer?.name || player.name))
+    ];
 
     return {
         value: String(minScore),
@@ -596,8 +602,10 @@ export async function getMostDemos(): Promise<StatValue> {
     }
 
     const maxDemos = players[0].demoInflicted || 0;
-    const topDemoPlayers = players.filter(player => player.demoInflicted === maxDemos);
-    const playerNames = [...new Set(topDemoPlayers.map(player => player.globalPlayer?.name || player.name))];
+    const topDemoPlayers = players.filter((player) => player.demoInflicted === maxDemos);
+    const playerNames = [
+        ...new Set(topDemoPlayers.map((player) => player.globalPlayer?.name || player.name))
+    ];
 
     return {
         value: String(maxDemos),

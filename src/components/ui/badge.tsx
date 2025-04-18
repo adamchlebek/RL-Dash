@@ -29,4 +29,4 @@ export const Badge = ({ children, color = 'orange', size = 'sm', className = '' 
             {children}
         </span>
     );
-}; 
+};

@@ -1,4 +1,4 @@
-import { StatValue } from "./stats";
+import { StatValue } from './stats';
 
 export interface Player {
     id?: string;

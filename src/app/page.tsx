@@ -109,13 +109,18 @@ export default function Home() {
                     <h1 className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-4xl font-bold text-transparent">
                         Stats
                     </h1>
-                    <button
-                        onClick={handleRefresh}
-                        disabled={isRefreshing}
-                        className="cursor-pointer rounded-full p-2 text-zinc-400 transition-all hover:text-white disabled:opacity-50"
-                    >
-                        <RefreshCw className={`h-6 w-6 ${isRefreshing ? 'animate-spin' : ''}`} />
-                    </button>
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={handleRefresh}
+                            disabled={isRefreshing}
+                            className="flex cursor-pointer items-center gap-2 rounded-lg border border-zinc-700/50 bg-zinc-800/50 px-4 py-2 text-sm text-zinc-400 transition-all hover:border-zinc-600 hover:text-white disabled:opacity-50"
+                        >
+                            <span>Total Games: {gameHistory?.length || 0}</span>
+                            <RefreshCw
+                                className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`}
+                            />
+                        </button>
+                    </div>
                 </div>
 
                 {!isLoading && stats && (

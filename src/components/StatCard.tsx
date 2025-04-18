@@ -38,12 +38,14 @@ export const StatCard = ({
     if (isMatchup) {
         const team1Players = players[0].split(/[,&\s]+/).filter(Boolean);
         const team2Players = players[1].split(/[,&\s]+/).filter(Boolean);
-        
+
         const team1Won = winningTeam === 0;
         const team2Won = winningTeam === 1;
 
         return (
-            <div className={`rounded-xl border bg-zinc-800/50 p-6 backdrop-blur-sm ${getBorderColor()} transition-all duration-300 hover:scale-[1.02] hover:bg-zinc-700/50`}>
+            <div
+                className={`rounded-xl border bg-zinc-800/50 p-6 backdrop-blur-sm ${getBorderColor()} transition-all duration-300 hover:scale-[1.02] hover:bg-zinc-700/50`}
+            >
                 <div className="mb-4 flex items-center justify-center gap-3">
                     {icon}
                     <p className="text-sm text-zinc-400">{label}</p>
@@ -95,10 +97,7 @@ export const StatCard = ({
                     <div className="mb-4 flex flex-wrap justify-center gap-2">
                         {players.length > 0 ? (
                             players.map((player, index) => (
-                                <Badge
-                                    key={index}
-                                    color={isWorst ? 'red' : 'yellow'}
-                                >
+                                <Badge key={index} color={isWorst ? 'red' : 'yellow'}>
                                     {player}
                                 </Badge>
                             ))
@@ -130,4 +129,4 @@ export const StatCard = ({
             )}
         </div>
     );
-}; 
+};
