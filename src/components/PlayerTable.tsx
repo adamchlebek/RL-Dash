@@ -1,3 +1,5 @@
+'use client';
+
 import { Player } from '../models/player';
 import { Goal, Trophy, Crosshair, Target, Bomb, Gamepad2, Percent, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
@@ -19,7 +21,7 @@ type SortField =
     | 'demos';
 type SortDirection = 'asc' | 'desc';
 
-export function PlayerTable({ players }: PlayerTableProps) {
+export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
     const [sortField, setSortField] = useState<SortField>('gamesPlayed');
     const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
@@ -80,19 +82,19 @@ export function PlayerTable({ players }: PlayerTableProps) {
     };
 
     return (
-        <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/50 p-6 backdrop-blur-sm">
+        <div className="rounded-xl border border-border bg-background/50 p-6 backdrop-blur-sm">
             <div className="overflow-x-auto">
                 <table className="w-full">
                     <thead>
-                        <tr className="border-b border-zinc-700 text-left">
+                        <tr className="border-b border-border text-left">
                             <th
-                                className="cursor-pointer pb-4 font-medium text-zinc-300"
+                                className="cursor-pointer pb-4 font-medium text-foreground"
                                 onClick={() => handleSort('name')}
                             >
                                 Player {getSortIndicator('name')}
                             </th>
                             <th
-                                className="cursor-pointer pb-4 font-medium text-zinc-300"
+                                className="cursor-pointer pb-4 font-medium text-foreground"
                                 onClick={() => handleSort('gamesPlayed')}
                             >
                                 <div className="flex items-center gap-1">
@@ -101,7 +103,7 @@ export function PlayerTable({ players }: PlayerTableProps) {
                                 </div>
                             </th>
                             <th
-                                className="cursor-pointer pb-4 font-medium text-zinc-300"
+                                className="cursor-pointer pb-4 font-medium text-foreground"
                                 onClick={() => handleSort('winRate')}
                             >
                                 <div className="flex items-center gap-1">
@@ -110,7 +112,7 @@ export function PlayerTable({ players }: PlayerTableProps) {
                                 </div>
                             </th>
                             <th
-                                className="cursor-pointer pb-4 font-medium text-zinc-300"
+                                className="cursor-pointer pb-4 font-medium text-foreground"
                                 onClick={() => handleSort('goals')}
                             >
                                 <div className="flex items-center gap-1">
@@ -119,7 +121,7 @@ export function PlayerTable({ players }: PlayerTableProps) {
                                 </div>
                             </th>
                             <th
-                                className="cursor-pointer pb-4 font-medium text-zinc-300"
+                                className="cursor-pointer pb-4 font-medium text-foreground"
                                 onClick={() => handleSort('goalsPerGame')}
                             >
                                 <div className="flex items-center gap-1">
@@ -128,7 +130,7 @@ export function PlayerTable({ players }: PlayerTableProps) {
                                 </div>
                             </th>
                             <th
-                                className="cursor-pointer pb-4 font-medium text-zinc-300"
+                                className="cursor-pointer pb-4 font-medium text-foreground"
                                 onClick={() => handleSort('assists')}
                             >
                                 <div className="flex items-center gap-1">
@@ -137,7 +139,7 @@ export function PlayerTable({ players }: PlayerTableProps) {
                                 </div>
                             </th>
                             <th
-                                className="cursor-pointer pb-4 font-medium text-zinc-300"
+                                className="cursor-pointer pb-4 font-medium text-foreground"
                                 onClick={() => handleSort('shots')}
                             >
                                 <div className="flex items-center gap-1">
@@ -146,7 +148,7 @@ export function PlayerTable({ players }: PlayerTableProps) {
                                 </div>
                             </th>
                             <th
-                                className="cursor-pointer pb-4 font-medium text-zinc-300"
+                                className="cursor-pointer pb-4 font-medium text-foreground"
                                 onClick={() => handleSort('shootingPct')}
                             >
                                 <div className="flex items-center gap-1">
@@ -155,7 +157,7 @@ export function PlayerTable({ players }: PlayerTableProps) {
                                 </div>
                             </th>
                             <th
-                                className="cursor-pointer pb-4 font-medium text-zinc-300"
+                                className="cursor-pointer pb-4 font-medium text-foreground"
                                 onClick={() => handleSort('demos')}
                             >
                                 <div className="flex items-center gap-1">
@@ -185,12 +187,12 @@ export function PlayerTable({ players }: PlayerTableProps) {
                             return (
                                 <tr
                                     key={player.name}
-                                    className="border-b border-zinc-700 transition-colors last:border-0 hover:bg-zinc-700/50"
+                                    className="border-b border-border transition-colors last:border-0 hover:bg-background/70"
                                 >
                                     <td className="px-4 py-4 font-medium">
                                         <Link
                                             href={`/players/${player.id}`}
-                                            className="transition-colors hover:text-zinc-300"
+                                            className="transition-colors hover:text-foreground"
                                         >
                                             {player.name}
                                         </Link>
@@ -198,9 +200,9 @@ export function PlayerTable({ players }: PlayerTableProps) {
                                     <td className="px-4 py-4">{player.gamesPlayed}</td>
                                     <td className="px-4 py-4">
                                         <span className="text-green-400">{player.wins}</span>
-                                        <span className="mx-1 text-zinc-500">/</span>
+                                        <span className="mx-1 text-muted">/</span>
                                         <span className="text-red-400">{player.losses}</span>
-                                        <span className="ml-2 text-zinc-500">({winRate}%)</span>
+                                        <span className="ml-2 text-muted">({winRate}%)</span>
                                     </td>
                                     <td className="px-4 py-4">{player.goals}</td>
                                     <td className="px-4 py-4">{goalsPerGame}</td>

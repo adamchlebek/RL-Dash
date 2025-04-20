@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog'
@@ -54,20 +56,20 @@ export const GameDetailsModal = ({ gameId, isOpen, onClose }: GameDetailsModalPr
             <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                     <thead>
-                        <tr className="border-b border-zinc-700">
-                            <th className="py-2 text-left">Player</th>
-                            <th className="py-2 text-right">Score</th>
-                            <th className="py-2 text-right">Goals</th>
-                            <th className="py-2 text-right">Assists</th>
-                            <th className="py-2 text-right">Saves</th>
-                            <th className="py-2 text-right">Shots</th>
-                            <th className="py-2 text-right">Demos</th>
+                        <tr className="border-b border-border">
+                            <th className="py-2 text-left text-foreground">Player</th>
+                            <th className="py-2 text-right text-foreground">Score</th>
+                            <th className="py-2 text-right text-foreground">Goals</th>
+                            <th className="py-2 text-right text-foreground">Assists</th>
+                            <th className="py-2 text-right text-foreground">Saves</th>
+                            <th className="py-2 text-right text-foreground">Shots</th>
+                            <th className="py-2 text-right text-foreground">Demos</th>
                         </tr>
                     </thead>
                     <tbody>
                         {sortedPlayers.map((player, i) => (
-                            <tr key={i} className="border-b border-zinc-800">
-                                <td className="py-2 flex items-center gap-2">
+                            <tr key={i} className="border-b border-border">
+                                <td className="flex items-center gap-2 py-2">
                                     {player.name}
                                     {player.score === highestScore && <Crown className="h-4 w-4 text-yellow-400" />}
                                 </td>

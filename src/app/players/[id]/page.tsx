@@ -1,159 +1,81 @@
-import { prisma } from '@/lib/prisma';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { format } from 'date-fns';
 import { notFound } from 'next/navigation';
-import { getGameIdFromInstance } from '@/lib/getGameId';
+import { getPlayerStats, getGameHistory } from '@/lib/stats';
+import GameHistoryTable from '@/components/GameHistoryTable';
 
-export const revalidate = 3600; // Revalidate every hour
+export const revalidate = 3600;
 
-async function getPlayerData(id: string) {
-    const player = await prisma.globalPlayer.findUnique({
-        where: { id },
-        include: {
-            players: {
-                include: {
-                    team: true,
-                    blueReplays: true,
-                    orangeReplays: true
-                }
-            }
-        }
-    });
-
-    return player;
+interface Props {
+    params: Promise<{
+        id: string;
+    }>;
 }
 
-export default async function PlayerDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function PlayerPage({ params }: Props): Promise<React.ReactElement> {
     const { id } = await params;
-    const player = await getPlayerData(id);
+    const players = await getPlayerStats();
+    const player = players.find((p) => p.id === id);
 
     if (!player) {
         notFound();
     }
 
-    // Map player instances to add a replayId property for display
-    const playerInstances = await Promise.all(
-        player.players.map(async (instance) => {
-            const replayId = await getGameIdFromInstance(instance.id);
-
-            return {
-                ...instance,
-                replayId
-            };
-        })
-    );
+    const gameHistory = await getGameHistory(id);
+    const winRate = player.gamesPlayed > 0 ? ((player.wins / player.gamesPlayed) * 100).toFixed(1) : '0.0';
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 p-8 text-white">
+        <div className="min-h-screen bg-background p-8 text-foreground">
             <div className="mx-auto max-w-7xl space-y-8">
-                <Link
-                    href="/players"
-                    className="inline-flex items-center gap-2 text-zinc-400 transition-colors hover:text-white"
-                >
-                    <ArrowLeft className="h-4 w-4" />
-                    Back to Players
-                </Link>
+                <div className="flex items-center justify-between">
+                    <h1 className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-4xl font-bold text-transparent">
+                        {player.name}
+                    </h1>
+                </div>
 
-                <h1 className="mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-4xl font-bold text-transparent">
-                    {player.name}
-                </h1>
-
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                    <div className="rounded-lg bg-zinc-800/50 p-6 shadow">
-                        <h2 className="mb-4 text-xl font-semibold">Player Info</h2>
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <span className="text-zinc-400">Platform:</span>
-                                <span>{player.platform}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-zinc-400">Platform ID:</span>
-                                <span>{player.platformId}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-zinc-400">First Seen:</span>
-                                <span>{new Date(player.createdAt).toLocaleDateString()}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-zinc-400">Total Games:</span>
-                                <span>{playerInstances.length}</span>
-                            </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <div className="rounded-xl border border-border bg-background/50 p-6 shadow backdrop-blur-sm">
+                        <h3 className="text-sm font-medium text-muted">Win Rate</h3>
+                        <p className="mt-2 text-3xl font-semibold text-foreground">
+                            {winRate}%
+                        </p>
+                        <div className="mt-1">
+                            <span className="text-green-400">{player.wins}</span>
+                            <span className="mx-1 text-muted">/</span>
+                            <span className="text-red-400">{player.losses}</span>
                         </div>
                     </div>
 
-                    <div className="rounded-lg bg-zinc-800/50 p-6 shadow md:col-span-2">
-                        <h2 className="mb-4 text-xl font-semibold">Game History</h2>
-                        {playerInstances.length > 0 ? (
-                            <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-zinc-700">
-                                    <thead className="bg-zinc-700/30">
-                                        <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-zinc-300 uppercase">
-                                                Game
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-zinc-300 uppercase">
-                                                Team
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-zinc-300 uppercase">
-                                                Score
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-zinc-300 uppercase">
-                                                Goals
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-zinc-300 uppercase">
-                                                Assists
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-zinc-300 uppercase">
-                                                Saves
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-zinc-700 bg-zinc-800/20">
-                                        {playerInstances.map((instance) => (
-                                            <tr
-                                                key={instance.id}
-                                                className="transition-colors hover:bg-zinc-700/30"
-                                            >
-                                                <td className="px-6 py-4 text-sm whitespace-nowrap">
-                                                    {instance.replayId ? (
-                                                        <Link
-                                                            href={`/game/${instance.replayId}`}
-                                                            className="text-blue-400 hover:text-blue-300"
-                                                        >
-                                                            {instance.replayId.substring(0, 8)}...
-                                                        </Link>
-                                                    ) : (
-                                                        <span className="text-zinc-500">N/A</span>
-                                                    )}
-                                                </td>
-                                                <td className="px-6 py-4 text-sm whitespace-nowrap">
-                                                    <span
-                                                        className={`rounded px-2 py-1 ${instance.team?.color === 'blue' ? 'bg-blue-800/50' : 'bg-orange-700/50'}`}
-                                                    >
-                                                        {instance.team?.color || 'unknown'}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-4 text-sm whitespace-nowrap">
-                                                    {instance.score || '0'}
-                                                </td>
-                                                <td className="px-6 py-4 text-sm whitespace-nowrap">
-                                                    {instance.goals || '0'}
-                                                </td>
-                                                <td className="px-6 py-4 text-sm whitespace-nowrap">
-                                                    {instance.assists || '0'}
-                                                </td>
-                                                <td className="px-6 py-4 text-sm whitespace-nowrap">
-                                                    {instance.saves || '0'}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        ) : (
-                            <p className="text-zinc-400">No games found for this player.</p>
-                        )}
+                    <div className="rounded-xl border border-border bg-background/50 p-6 shadow backdrop-blur-sm">
+                        <h3 className="text-sm font-medium text-muted">Games Played</h3>
+                        <p className="mt-2 text-3xl font-semibold text-foreground">
+                            {player.gamesPlayed}
+                        </p>
                     </div>
+
+                    <div className="rounded-xl border border-border bg-background/50 p-6 shadow backdrop-blur-sm">
+                        <h3 className="text-sm font-medium text-muted">First Seen</h3>
+                        <p className="mt-2 text-3xl font-semibold text-foreground">
+                            {format(new Date(player.firstSeen), 'MMM dd, yyyy')}
+                        </p>
+                        <p className="mt-1 text-sm text-muted">
+                            {format(new Date(player.firstSeen), 'h:mm a')}
+                        </p>
+                    </div>
+
+                    <div className="rounded-xl border border-border bg-background/50 p-6 shadow backdrop-blur-sm">
+                        <h3 className="text-sm font-medium text-muted">Latest Game</h3>
+                        <p className="mt-2 text-3xl font-semibold text-foreground">
+                            {format(new Date(player.latestGame), 'MMM dd, yyyy')}
+                        </p>
+                        <p className="mt-1 text-sm text-muted">
+                            {format(new Date(player.latestGame), 'h:mm a')}
+                        </p>
+                    </div>
+                </div>
+
+                <div className="rounded-xl border border-border bg-background/50 p-6 shadow backdrop-blur-sm">
+                    <h2 className="mb-6 text-2xl font-semibold text-foreground">Game History</h2>
+                    <GameHistoryTable games={gameHistory} highlightPlayerId={id} />
                 </div>
             </div>
         </div>

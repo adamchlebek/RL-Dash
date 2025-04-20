@@ -8,34 +8,34 @@ export default async function PlayersPage(): Promise<React.ReactElement> {
     const players = await getPlayerStats();
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 p-8 text-white">
+        <div className="min-h-screen bg-background p-8 text-foreground">
             <div className="mx-auto max-w-7xl space-y-8">
                 <h1 className="mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-4xl font-bold text-transparent">
                     Players
                 </h1>
 
-                <div className="overflow-hidden rounded-xl border border-zinc-700/50 bg-zinc-800/50 shadow backdrop-blur-sm">
-                    <table className="min-w-full divide-y divide-zinc-700/50">
+                <div className="overflow-hidden rounded-xl border border-border bg-background/50 shadow backdrop-blur-sm">
+                    <table className="min-w-full divide-y divide-border">
                         <thead>
-                            <tr className="bg-zinc-800/80">
-                                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-300">
+                            <tr className="bg-background/80">
+                                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-muted">
                                     Name
                                 </th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-300">
+                                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-muted">
                                     Win Rate
                                 </th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-300">
+                                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-muted">
                                     Games Played
                                 </th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-300">
+                                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-muted">
                                     First Seen
                                 </th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-300">
+                                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-muted">
                                     Latest Game
                                 </th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-zinc-700/50">
+                        <tbody className="divide-y divide-border">
                             {players.map((player) => {
                                 const winRate = player.gamesPlayed > 0
                                     ? ((player.wins / player.gamesPlayed) * 100).toFixed(1)
@@ -44,7 +44,7 @@ export default async function PlayersPage(): Promise<React.ReactElement> {
                                 return (
                                     <tr
                                         key={player.id}
-                                        className="transition-colors hover:bg-zinc-700/30"
+                                        className="transition-colors hover:bg-muted/10"
                                     >
                                         <td className="px-6 py-4">
                                             <Link
@@ -56,17 +56,17 @@ export default async function PlayersPage(): Promise<React.ReactElement> {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="text-green-400">{player.wins}</span>
-                                            <span className="mx-1 text-zinc-500">/</span>
+                                            <span className="mx-1 text-muted">/</span>
                                             <span className="text-red-400">{player.losses}</span>
-                                            <span className="ml-2 text-zinc-500">({winRate}%)</span>
+                                            <span className="ml-2 text-muted">({winRate}%)</span>
                                         </td>
-                                        <td className="px-6 py-4 text-zinc-300">
+                                        <td className="px-6 py-4 text-foreground">
                                             {player.gamesPlayed}
                                         </td>
-                                        <td className="px-6 py-4 text-zinc-300">
+                                        <td className="px-6 py-4 text-foreground">
                                             {format(new Date(player.firstSeen), 'MMM dd, yyyy h:mm a')}
                                         </td>
-                                        <td className="px-6 py-4 text-zinc-300">
+                                        <td className="px-6 py-4 text-foreground">
                                             {format(new Date(player.latestGame), 'MMM dd, yyyy h:mm a')}
                                         </td>
                                     </tr>
@@ -76,7 +76,7 @@ export default async function PlayersPage(): Promise<React.ReactElement> {
                                 <tr>
                                     <td
                                         colSpan={5}
-                                        className="px-6 py-8 text-center text-sm text-zinc-400"
+                                        className="px-6 py-8 text-center text-sm text-muted"
                                     >
                                         No players found. Process some replays to see players here.
                                     </td>

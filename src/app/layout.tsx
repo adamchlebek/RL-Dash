@@ -1,10 +1,10 @@
-import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { BackgroundPolling } from '@/components/BackgroundPolling';
 import { Navigation } from '@/components/Navigation';
 import { Analytics } from '@vercel/analytics/react';
 import { Toaster } from 'sonner';
+import { ThemeProvider } from '@/providers/ThemeProvider';
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -16,24 +16,17 @@ const geistMono = Geist_Mono({
     subsets: ['latin']
 });
 
-export const metadata: Metadata = {
-    title: 'Rocket League Stats',
-    description: 'Track and analyze your Rocket League performance'
-};
-
-export default function RootLayout({
-    children
-}: Readonly<{
-    children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }): React.ReactElement {
     return (
-        <html lang="en">
+        <html lang="en" suppressHydrationWarning>
             <body className={`${geistSans.variable} ${geistMono.variable} font-sans`}>
-                <Navigation />
-                {children}
-                <BackgroundPolling />
-                <Analytics />
-                <Toaster />
+                <ThemeProvider>
+                    <Navigation />
+                    {children}
+                    <BackgroundPolling />
+                    <Analytics />
+                    <Toaster />
+                </ThemeProvider>
             </body>
         </html>
     );

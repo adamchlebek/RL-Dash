@@ -141,7 +141,7 @@ function getBestTeam(teamStats: Map<string, TeamStat>): TeamResult {
 function getWorstTeam(teamStats: Map<string, TeamStat>): TeamResult {
     let worstTeam: TeamResult = {
         key: '',
-        winRate: 1,
+        winRate: 0,
         wins: 0,
         losses: 0,
         playerIds: [],
@@ -153,10 +153,10 @@ function getWorstTeam(teamStats: Map<string, TeamStat>): TeamResult {
         const goalDiff = stats.goalsScored - stats.goalsConceded;
 
         if (
-            stats.wins < worstTeam.wins ||
-            (stats.wins === worstTeam.wins && stats.losses > worstTeam.losses) ||
-            (stats.wins === worstTeam.wins &&
-                stats.losses === worstTeam.losses &&
+            stats.losses > worstTeam.losses ||
+            (stats.losses === worstTeam.losses && stats.wins < worstTeam.wins) ||
+            (stats.losses === worstTeam.losses &&
+                stats.wins === worstTeam.wins &&
                 goalDiff < worstTeam.goalDiff)
         ) {
             worstTeam = {
@@ -871,10 +871,40 @@ export async function getAllStats() {
     };
 }
 
-export async function getGameHistory(): Promise<GameHistoryResult[]> {
+export async function getGameHistory(playerId?: string): Promise<GameHistoryResult[]> {
     const games = await prisma.replay.findMany({
         where: {
-            status: 'completed'
+            status: 'completed',
+            AND: [
+                { blueTeam: { isNot: null } },
+                { orangeTeam: { isNot: null } },
+                playerId ? {
+                    OR: [
+                        {
+                            blueTeam: {
+                                players: {
+                                    some: {
+                                        globalPlayer: {
+                                            id: playerId
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            orangeTeam: {
+                                players: {
+                                    some: {
+                                        globalPlayer: {
+                                            id: playerId
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                } : {}
+            ]
         },
         select: {
             id: true,
@@ -921,8 +951,7 @@ export async function getGameHistory(): Promise<GameHistoryResult[]> {
         const blueWon = blueGoals > orangeGoals;
 
         const bluePlayers = game.blueTeam?.players.map((p) => p.globalPlayer?.name || p.name) || [];
-        const orangePlayers =
-            game.orangeTeam?.players.map((p) => p.globalPlayer?.name || p.name) || [];
+        const orangePlayers = game.orangeTeam?.players.map((p) => p.globalPlayer?.name || p.name) || [];
 
         return {
             id: game.id,

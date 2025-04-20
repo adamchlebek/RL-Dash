@@ -53,20 +53,20 @@ export default function ReplayPage(): React.ReactElement {
     useReplaySubscription(fetchReplays);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 p-8 text-white">
+        <div className="min-h-screen bg-background p-8 text-foreground">
             <div className="mx-auto max-w-7xl space-y-8">
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-4xl font-bold text-transparent">
                             Upload Replays
                         </h1>
-                        <p className="text-zinc-400">
+                        <p className="text-muted">
                             Upload your Rocket League replay files to analyze your performance
                         </p>
                     </div>
                     <Link
                         href="/settings"
-                        className="rounded-full p-2 transition-colors hover:bg-zinc-700"
+                        className="rounded-full p-2 transition-colors hover:bg-muted/10"
                     >
                         <Settings className="h-6 w-6" />
                     </Link>
@@ -75,7 +75,7 @@ export default function ReplayPage(): React.ReactElement {
                 <ReplayUpload onUploadComplete={fetchReplays} />
 
                 <div className="mt-8">
-                    <h2 className="mb-4 text-2xl font-semibold">All Replays</h2>
+                    <h2 className="mb-4 text-2xl font-semibold text-foreground">All Replays</h2>
                     <ReplayList
                         replays={replays}
                         isLoading={isLoading}

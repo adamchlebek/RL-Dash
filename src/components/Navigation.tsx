@@ -1,9 +1,15 @@
+'use client';
+
 import Link from 'next/link';
 import { Home, Users } from 'lucide-react';
+import { ThemeToggle } from './ThemeToggle';
+import { useTheme } from '../providers/ThemeProvider';
 
 export function Navigation(): React.ReactElement {
+    const { theme, toggleTheme } = useTheme();
+
     return (
-        <div className="border-b border-zinc-700/50 bg-zinc-800/70 backdrop-blur-sm">
+        <div className="border-b border-border bg-background/70 backdrop-blur-sm">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="flex h-16 justify-between">
                     <div className="flex">
@@ -18,33 +24,22 @@ export function Navigation(): React.ReactElement {
                         <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                             <Link
                                 href="/"
-                                className="inline-flex items-center px-1 pt-1 text-sm font-medium text-zinc-300 transition-colors hover:text-white"
+                                className="inline-flex items-center px-1 pt-1 text-sm font-medium text-muted hover:text-foreground"
                             >
                                 <Home className="mr-2 h-4 w-4" />
                                 Home
                             </Link>
                             <Link
                                 href="/players"
-                                className="inline-flex items-center px-1 pt-1 text-sm font-medium text-zinc-300 transition-colors hover:text-white"
+                                className="inline-flex items-center px-1 pt-1 text-sm font-medium text-muted hover:text-foreground"
                             >
                                 <Users className="mr-2 h-4 w-4" />
                                 Players
                             </Link>
-                            {/* <Link
-                                href="/replays"
-                                className="inline-flex items-center px-1 pt-1 text-sm font-medium text-zinc-300 transition-colors hover:text-white"
-                            >
-                                <Clock className="mr-2 h-4 w-4" />
-                                Replays
-                            </Link>
-                            <Link
-                                href="/settings"
-                                className="inline-flex items-center px-1 pt-1 text-sm font-medium text-zinc-300 transition-colors hover:text-white"
-                            >
-                                <Settings className="mr-2 h-4 w-4" />
-                                Settings
-                            </Link> */}
                         </div>
+                    </div>
+                    <div className="flex items-center">
+                        {/* <ThemeToggle checked={theme === 'dark'} onChange={toggleTheme} /> */}
                     </div>
                 </div>
             </div>

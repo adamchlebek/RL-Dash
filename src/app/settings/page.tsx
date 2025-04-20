@@ -67,17 +67,17 @@ export default function SettingsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 p-8 text-white">
+        <div className="min-h-screen bg-background p-8 text-foreground">
             <div className="mx-auto max-w-7xl space-y-8">
                 <h1 className="flex items-center gap-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-4xl font-bold text-transparent">
                     Settings
                 </h1>
 
-                <div className="space-y-6 rounded-xl border border-zinc-700/50 bg-zinc-800/50 p-6 backdrop-blur-sm">
+                <div className="space-y-6 rounded-xl border border-border bg-background/50 p-6 backdrop-blur-sm">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h2 className="text-xl font-semibold">Background Polling</h2>
-                            <p className="mt-1 text-zinc-400">
+                            <h2 className="text-xl font-semibold text-foreground">Background Polling</h2>
+                            <p className="mt-1 text-muted">
                                 Automatically check for new replay updates
                             </p>
                         </div>
@@ -93,11 +93,11 @@ export default function SettingsPage() {
                     <PollingInterval />
                 </div>
 
-                <div className="space-y-6 rounded-xl border border-zinc-700/50 bg-zinc-800/50 p-6 backdrop-blur-sm">
+                <div className="space-y-6 rounded-xl border border-border bg-background/50 p-6 backdrop-blur-sm">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h2 className="text-xl font-semibold">Check Private Matches</h2>
-                            <p className="mt-1 text-zinc-400">
+                            <h2 className="text-xl font-semibold text-foreground">Check Private Matches</h2>
+                            <p className="mt-1 text-muted">
                                 Verify if uploaded replays are from private matches
                             </p>
                         </div>

@@ -2,130 +2,151 @@
 
 import { useState } from 'react';
 import type { FC } from 'react';
-import { GameHistory } from '../data/dummyData';
-import { Calendar, Trophy, Users, Clock } from 'lucide-react';
+import { Calendar, Trophy, Users, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { GameDetailsModal } from './GameDetailsModal';
+import { GameHistoryResult } from '@/models/stats';
 
 interface GameHistoryTableProps {
-    games: GameHistory[];
+    games: GameHistoryResult[];
+    highlightPlayerId?: string;
 }
 
-const GameHistoryTable: FC<GameHistoryTableProps> = ({ games }): React.ReactNode => {
-    const [currentPage, setCurrentPage] = useState(1);
-    const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
-    const gamesPerPage = 10;
-    const totalPages = Math.ceil(games.length / gamesPerPage);
+const ITEMS_PER_PAGE = 10;
 
-    const currentGames = games.slice((currentPage - 1) * gamesPerPage, currentPage * gamesPerPage);
+const GameHistoryTable: FC<GameHistoryTableProps> = ({ games }): React.ReactElement => {
+    const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
+    const [currentPage, setCurrentPage] = useState<number>(1);
+
+    const totalPages = Math.ceil(games.length / ITEMS_PER_PAGE);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const currentGames = games.slice(startIndex, endIndex);
+
+    const handlePrevPage = (): void => {
+        setCurrentPage((prev) => Math.max(1, prev - 1));
+    };
+
+    const handleNextPage = (): void => {
+        setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+    };
 
     return (
-        <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/50 p-6 backdrop-blur-sm">
+        <div className="rounded-xl border border-border bg-background/50 p-6 backdrop-blur-sm">
             <div className="overflow-x-auto">
                 <table className="w-full">
                     <thead>
-                        <tr className="border-b border-zinc-700 text-left">
-                            <th className="pb-4 font-medium text-zinc-300">
+                        <tr className="border-b border-border text-left">
+                            <th className="pb-4 font-medium text-foreground">
                                 <div className="flex items-center gap-2">
                                     <Calendar className="h-4 w-4" />
                                     <span>Date</span>
                                 </div>
                             </th>
-                            <th className="pb-4 font-medium text-zinc-300">
+                            <th className="pb-4 font-medium text-foreground">
                                 <div className="flex items-center gap-2">
                                     <Clock className="h-4 w-4" />
                                     <span>Time</span>
                                 </div>
                             </th>
-                            <th className="pb-4 font-medium text-zinc-300">
+                            <th className="pb-4 font-medium text-foreground">
                                 <div className="flex items-center gap-2">
                                     <Trophy className="h-4 w-4" />
                                     <span>Score</span>
                                 </div>
                             </th>
-                            <th className="pb-4 font-medium text-zinc-300">
+                            <th className="pb-4 font-medium text-foreground">
                                 <div className="flex items-center gap-2">
                                     <Users className="h-4 w-4" />
-                                    <span>Matchup</span>
+                                    <span>Players</span>
                                 </div>
                             </th>
                         </tr>
                     </thead>
                     <tbody>
-                        {currentGames.map((game) => (
-                            <tr
-                                key={game.id}
-                                onClick={() => setSelectedGameId(game.id)}
-                                className="border-b border-zinc-700 transition-colors last:border-0 hover:bg-zinc-700/50 cursor-pointer"
-                            >
-                                <td className="px-4 py-4 text-zinc-300">
-                                    {new Date(game.date).toLocaleDateString()}
-                                </td>
-                                <td className="px-4 py-4 text-zinc-300">
-                                    {new Date(game.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </td>
-                                <td className="px-4 py-4">
-                                    <span className="font-mono text-zinc-300">
-                                        {game.score}
-                                    </span>
-                                </td>
-                                <td className="px-4 py-4">
-                                    <div className="flex items-center gap-2">
-                                        {[...game.winningTeam]
-                                            .sort((a, b) => a.localeCompare(b))
-                                            .map((player) => (
-                                                <span
-                                                    key={player}
-                                                    className="rounded-full bg-green-900/50 px-3 py-1 text-green-400"
-                                                >
-                                                    {player}
-                                                </span>
-                                            ))}
-                                        <span className="text-zinc-500">vs</span>
-                                        {[...game.losingTeam]
-                                            .sort((a, b) => a.localeCompare(b))
-                                            .map((player) => (
-                                                <span
-                                                    key={player}
-                                                    className="rounded-full bg-red-900/50 px-3 py-1 text-red-400"
-                                                >
-                                                    {player}
-                                                </span>
-                                            ))}
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
+                        {currentGames.map((game) => {
+                            const date = new Date(game.date);
+                            const formattedDate = date.toLocaleDateString();
+                            const formattedTime = date.toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
+
+                            return (
+                                <tr
+                                    key={game.id}
+                                    className="cursor-pointer border-b border-border transition-colors hover:bg-background/70"
+                                    onClick={() => setSelectedGameId(game.id)}
+                                >
+                                    <td className="px-4 py-4">{formattedDate}</td>
+                                    <td className="px-4 py-4">{formattedTime}</td>
+                                    <td className="px-4 py-4">
+                                        <span className="text-green-400">{game.score.split('-')[0]}</span>
+                                        <span className="mx-1 text-muted">-</span>
+                                        <span className="text-red-400">{game.score.split('-')[1]}</span>
+                                    </td>
+                                    <td className="px-4 py-4">
+                                        <div className="flex items-center gap-2">
+                                            {[...game.winningTeam]
+                                                .sort((a, b) => a.localeCompare(b))
+                                                .map((player) => (
+                                                    <span
+                                                        key={player}
+                                                        className="rounded-full bg-green-900/50 px-3 py-1 text-green-400"
+                                                    >
+                                                        {player}
+                                                    </span>
+                                                ))}
+                                            <span className="text-muted">vs</span>
+                                            {[...game.losingTeam]
+                                                .sort((a, b) => a.localeCompare(b))
+                                                .map((player) => (
+                                                    <span
+                                                        key={player}
+                                                        className="rounded-full bg-red-900/50 px-3 py-1 text-red-400"
+                                                    >
+                                                        {player}
+                                                    </span>
+                                                ))}
+                                        </div>
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>
 
             {totalPages > 1 && (
-                <div className="mt-4 flex justify-center gap-2">
+                <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
                     <button
-                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                        onClick={handlePrevPage}
                         disabled={currentPage === 1}
-                        className="rounded bg-zinc-800 px-3 py-1 disabled:opacity-50"
+                        className="flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm text-muted transition-colors hover:border-muted hover:text-foreground disabled:opacity-50"
                     >
+                        <ChevronLeft className="h-4 w-4" />
                         Previous
                     </button>
-                    <span className="px-3 py-1">
+                    <span className="text-sm text-muted">
                         Page {currentPage} of {totalPages}
                     </span>
                     <button
-                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                        onClick={handleNextPage}
                         disabled={currentPage === totalPages}
-                        className="rounded bg-zinc-800 px-3 py-1 disabled:opacity-50"
+                        className="flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm text-muted transition-colors hover:border-muted hover:text-foreground disabled:opacity-50"
                     >
                         Next
+                        <ChevronRight className="h-4 w-4" />
                     </button>
                 </div>
             )}
 
-            <GameDetailsModal
-                gameId={selectedGameId || ''}
-                isOpen={!!selectedGameId}
-                onClose={() => setSelectedGameId(null)}
-            />
+            {selectedGameId && (
+                <GameDetailsModal
+                    gameId={selectedGameId}
+                    isOpen={!!selectedGameId}
+                    onClose={() => setSelectedGameId(null)}
+                />
+            )}
         </div>
     );
 };

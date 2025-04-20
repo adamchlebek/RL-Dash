@@ -25,7 +25,7 @@ type PlayerStatsType = {
     losses: number;
 };
 
-export default function Home() {
+export default function Home(): React.ReactElement {
     const [stats, setStats] = useState<Stats | null>(null);
     const [playerStats, setPlayerStats] = useState<PlayerStatsType[]>([]);
     const [gameHistory, setGameHistory] = useState<GameHistory[]>([]);
@@ -34,7 +34,7 @@ export default function Home() {
     const [isGameHistoryLoading, setGameHistoryLoading] = useState<boolean>(true);
     const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
-    const fetchStats = useCallback(async () => {
+    const fetchStats = useCallback(async (): Promise<void> => {
         try {
             setLoading(true);
             const response = await fetch('/api/stats');
@@ -52,7 +52,7 @@ export default function Home() {
         }
     }, []);
 
-    const fetchPlayerStats = useCallback(async () => {
+    const fetchPlayerStats = useCallback(async (): Promise<void> => {
         try {
             setPlayerLoading(true);
             const response = await fetch('/api/stats/players');
@@ -70,7 +70,7 @@ export default function Home() {
         }
     }, []);
 
-    const fetchGameHistory = useCallback(async () => {
+    const fetchGameHistory = useCallback(async (): Promise<void> => {
         try {
             setGameHistoryLoading(true);
             const response = await fetch('/api/stats/games');
@@ -88,7 +88,7 @@ export default function Home() {
         }
     }, []);
 
-    const handleRefresh = useCallback(async () => {
+    const handleRefresh = useCallback(async (): Promise<void> => {
         setIsRefreshing(true);
 
         await Promise.all([fetchStats(), fetchPlayerStats(), fetchGameHistory()]);
@@ -103,7 +103,7 @@ export default function Home() {
     }, [handleRefresh]);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 p-8 text-white">
+        <div className="min-h-screen bg-background p-8 text-foreground">
             <div className="mx-auto max-w-7xl space-y-12">
                 <div className="flex items-center justify-between">
                     <h1 className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-4xl font-bold text-transparent">
@@ -113,7 +113,7 @@ export default function Home() {
                         <button
                             onClick={handleRefresh}
                             disabled={isRefreshing}
-                            className="flex cursor-pointer items-center gap-2 rounded-lg border border-zinc-700/50 bg-zinc-800/50 px-4 py-2 text-sm text-zinc-400 transition-all hover:border-zinc-600 hover:text-white disabled:opacity-50"
+                            className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-background/50 px-4 py-2 text-sm text-muted transition-all hover:border-muted hover:text-foreground disabled:opacity-50"
                         >
                             <span>Total Games: {gameHistory?.length || 0}</span>
                             <RefreshCw
@@ -126,7 +126,7 @@ export default function Home() {
                 {!isLoading && stats && (
                     <>
                         <div>
-                            <h2 className="mb-6 flex items-center gap-2 text-2xl font-semibold">
+                            <h2 className="mb-6 flex items-center gap-2 text-2xl font-semibold text-foreground">
                                 <Trophy className="h-6 w-6 text-yellow-400" />
                                 Team Stats
                             </h2>
@@ -165,9 +165,9 @@ export default function Home() {
                         </div>
 
                         <div>
-                            <h2 className="mb-6 flex items-center gap-2 text-2xl font-semibold">
+                            <h2 className="mb-6 flex items-center gap-2 text-2xl font-semibold text-foreground">
                                 <Computer className="h-6 w-6 text-yellow-400" />
-                              Game Stats
+                                Game Stats
                             </h2>
                             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                                 <StatCard
@@ -201,7 +201,7 @@ export default function Home() {
                         </div>
 
                         <div>
-                            <h2 className="mb-6 flex items-center gap-2 text-2xl font-semibold">
+                            <h2 className="mb-6 flex items-center gap-2 text-2xl font-semibold text-foreground">
                                 <Users className="h-6 w-6 text-blue-400" />
                                 Individual Achievements
                             </h2>
@@ -234,7 +234,7 @@ export default function Home() {
                         </div>
 
                         <div>
-                            <h2 className="mb-6 flex items-center gap-2 text-2xl font-semibold">
+                            <h2 className="mb-6 flex items-center gap-2 text-2xl font-semibold text-foreground">
                                 <User className="h-6 w-6 text-blue-400" />
                                 Player Stats
                             </h2>
@@ -253,8 +253,8 @@ export default function Home() {
                                     }))}
                                 />
                             ) : (
-                                <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/50 p-6 backdrop-blur-sm">
-                                    <div className="py-8 text-center text-zinc-400">
+                                <div className="rounded-xl border border-border bg-background/50 p-6 backdrop-blur-sm">
+                                    <div className="py-8 text-center text-muted">
                                         Loading player statistics...
                                     </div>
                                 </div>
@@ -262,15 +262,15 @@ export default function Home() {
                         </div>
 
                         <div>
-                            <h2 className="mb-6 flex items-center gap-2 text-2xl font-semibold">
+                            <h2 className="mb-6 flex items-center gap-2 text-2xl font-semibold text-foreground">
                                 <History className="h-6 w-6 text-blue-400" />
                                 Game History
                             </h2>
                             {!isGameHistoryLoading ? (
                                 <GameHistoryTable games={gameHistory} />
                             ) : (
-                                <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/50 p-6 backdrop-blur-sm">
-                                    <div className="py-8 text-center text-zinc-400">
+                                <div className="rounded-xl border border-border bg-background/50 p-6 backdrop-blur-sm">
+                                    <div className="py-8 text-center text-muted">
                                         Loading game history...
                                     </div>
                                 </div>
