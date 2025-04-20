@@ -1,9 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { Home, Users } from 'lucide-react';
+import { Home, Users, BarChart } from 'lucide-react';
+import { ThemeToggle } from './ThemeToggle';
+import { useTheme } from '../providers/ThemeProvider';
 
 export function Navigation(): React.ReactElement {
+    const { theme, toggleTheme } = useTheme();
+
     return (
         <div className="border-border bg-background/70 border-b backdrop-blur-sm">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -26,6 +30,13 @@ export function Navigation(): React.ReactElement {
                                 Home
                             </Link>
                             <Link
+                                href="/more"
+                                className="text-muted hover:text-foreground inline-flex items-center px-1 pt-1 text-sm font-medium"
+                            >
+                                <BarChart className="mr-2 h-4 w-4" />
+                                More Stats
+                            </Link>
+                            <Link
                                 href="/players"
                                 className="text-muted hover:text-foreground inline-flex items-center px-1 pt-1 text-sm font-medium"
                             >
@@ -35,7 +46,7 @@ export function Navigation(): React.ReactElement {
                         </div>
                     </div>
                     <div className="flex items-center">
-                        {/* <ThemeToggle checked={theme === 'dark'} onChange={toggleTheme} /> */}
+                        <ThemeToggle checked={theme === 'light'} onChange={toggleTheme} />
                     </div>
                 </div>
             </div>

@@ -74,7 +74,7 @@ const GameHistoryTable: FC<GameHistoryTableProps> = ({ games }): React.ReactElem
                                     <td className="px-4 py-4">{formattedDate}</td>
                                     <td className="px-4 py-4">{formattedTime}</td>
                                     <td className="px-4 py-4 text-center">
-                                        <div className="bg-background/80 inline-flex items-center gap-2 rounded-lg p-2 shadow-sm">
+                                        <div className="bg-background/80 inline-flex items-center gap-2 rounded-lg p-2">
                                             <div className="flex min-w-[100px] flex-col items-center">
                                                 <span className="text-lg font-bold text-green-400">
                                                     {Math.max(

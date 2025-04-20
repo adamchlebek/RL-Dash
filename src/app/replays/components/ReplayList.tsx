@@ -60,52 +60,52 @@ export function ReplayList({
     return (
         <div className="space-y-4">
             <div className="mb-4 flex items-center justify-between">
-                <div className="text-sm text-zinc-400">
+                <div className="text-sm text-muted">
                     {replays.length} {replays.length === 1 ? 'replay' : 'replays'} total
                 </div>
                 <button
                     onClick={() => onRefresh()}
-                    className="flex cursor-pointer items-center rounded-md bg-zinc-800 px-3 py-1 text-sm text-white transition-colors hover:bg-zinc-700"
+                    className="flex cursor-pointer items-center rounded-md bg-background/50 px-3 py-1 text-sm text-foreground transition-colors hover:bg-background/70"
                 >
                     <RefreshCw className="mr-2 h-4 w-4" />
                     Refresh
                 </button>
             </div>
 
-            <div className="overflow-x-auto rounded-lg border border-zinc-800">
-                <table className="min-w-full divide-y divide-zinc-800">
-                    <thead className="bg-zinc-900">
+            <div className="overflow-x-auto rounded-lg border border-border">
+                <table className="min-w-full divide-y divide-border">
+                    <thead className="bg-background/50">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-zinc-400 uppercase">
+                            <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-muted uppercase">
                                 Status
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-zinc-400 uppercase">
+                            <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-muted uppercase">
                                 File Name
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-zinc-400 uppercase">
+                            <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-muted uppercase">
                                 Upload Date
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-zinc-400 uppercase">
+                            <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-muted uppercase">
                                 Actions
                             </th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-zinc-700 bg-zinc-800">
+                    <tbody className="divide-y divide-border bg-background/50">
                         {paginatedReplays.map((replay) => (
-                            <tr key={replay.id} className="transition-colors hover:bg-zinc-700">
+                            <tr key={replay.id} className="transition-colors hover:bg-background/70">
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <div className="flex items-center">
                                         {getStatusIcon(replay.status)}
-                                        <span className="ml-2 text-xs text-zinc-500 uppercase">
+                                        <span className="ml-2 text-xs text-muted uppercase">
                                             {replay.status}
                                         </span>
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm text-zinc-300">{replay.fileName}</div>
+                                    <div className="text-sm text-foreground">{replay.fileName}</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm text-zinc-400">
+                                    <div className="text-sm text-muted">
                                         {new Date(replay.uploadedAt).toLocaleString()}
                                     </div>
                                 </td>
@@ -136,17 +136,17 @@ export function ReplayList({
                     <button
                         onClick={() => setPage((p) => Math.max(1, p - 1))}
                         disabled={page === 1}
-                        className="cursor-pointer rounded-md bg-zinc-800 px-3 py-1 text-sm text-white transition-colors hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="cursor-pointer rounded-md bg-background/50 px-3 py-1 text-sm text-foreground transition-colors hover:bg-background/70 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         Previous
                     </button>
-                    <span className="px-3 py-1 text-sm text-zinc-400">
+                    <span className="px-3 py-1 text-sm text-muted">
                         Page {page} of {totalPages}
                     </span>
                     <button
                         onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                         disabled={page === totalPages}
-                        className="cursor-pointer rounded-md bg-zinc-800 px-3 py-1 text-sm text-white transition-colors hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="cursor-pointer rounded-md bg-background/50 px-3 py-1 text-sm text-foreground transition-colors hover:bg-background/70 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         Next
                     </button>
