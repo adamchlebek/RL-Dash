@@ -53,7 +53,7 @@ export default function ReplayPage(): React.ReactElement {
     useReplaySubscription(fetchReplays);
 
     return (
-        <div className="min-h-screen bg-background p-8 text-foreground">
+        <div className="bg-background text-foreground min-h-screen p-8">
             <div className="mx-auto max-w-7xl space-y-8">
                 <div className="flex items-center justify-between">
                     <div>
@@ -66,7 +66,7 @@ export default function ReplayPage(): React.ReactElement {
                     </div>
                     <Link
                         href="/settings"
-                        className="rounded-full p-2 transition-colors hover:bg-muted/10"
+                        className="hover:bg-muted/10 rounded-full p-2 transition-colors"
                     >
                         <Settings className="h-6 w-6" />
                     </Link>
@@ -75,7 +75,7 @@ export default function ReplayPage(): React.ReactElement {
                 <ReplayUpload onUploadComplete={fetchReplays} />
 
                 <div className="mt-8">
-                    <h2 className="mb-4 text-2xl font-semibold text-foreground">All Replays</h2>
+                    <h2 className="text-foreground mb-4 text-2xl font-semibold">All Replays</h2>
                     <ReplayList
                         replays={replays}
                         isLoading={isLoading}

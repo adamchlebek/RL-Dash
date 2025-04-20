@@ -519,10 +519,7 @@ export async function getHighestPoints(): Promise<StatValue> {
 
     const replay = await prisma.replay.findFirst({
         where: {
-            OR: [
-                { blueTeamId: player.teamId },
-                { orangeTeamId: player.teamId }
-            ]
+            OR: [{ blueTeamId: player.teamId }, { orangeTeamId: player.teamId }]
         },
         select: {
             id: true
@@ -572,10 +569,7 @@ export async function getLowestPoints(): Promise<StatValue> {
 
     const replay = await prisma.replay.findFirst({
         where: {
-            OR: [
-                { blueTeamId: player.teamId },
-                { orangeTeamId: player.teamId }
-            ]
+            OR: [{ blueTeamId: player.teamId }, { orangeTeamId: player.teamId }]
         },
         select: {
             id: true
@@ -625,10 +619,7 @@ export async function getMostDemos(): Promise<StatValue> {
 
     const replay = await prisma.replay.findFirst({
         where: {
-            OR: [
-                { blueTeamId: player.teamId },
-                { orangeTeamId: player.teamId }
-            ]
+            OR: [{ blueTeamId: player.teamId }, { orangeTeamId: player.teamId }]
         },
         select: {
             id: true
@@ -878,32 +869,34 @@ export async function getGameHistory(playerId?: string): Promise<GameHistoryResu
             AND: [
                 { blueTeam: { isNot: null } },
                 { orangeTeam: { isNot: null } },
-                playerId ? {
-                    OR: [
-                        {
-                            blueTeam: {
-                                players: {
-                                    some: {
-                                        globalPlayer: {
-                                            id: playerId
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            orangeTeam: {
-                                players: {
-                                    some: {
-                                        globalPlayer: {
-                                            id: playerId
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    ]
-                } : {}
+                playerId
+                    ? {
+                          OR: [
+                              {
+                                  blueTeam: {
+                                      players: {
+                                          some: {
+                                              globalPlayer: {
+                                                  id: playerId
+                                              }
+                                          }
+                                      }
+                                  }
+                              },
+                              {
+                                  orangeTeam: {
+                                      players: {
+                                          some: {
+                                              globalPlayer: {
+                                                  id: playerId
+                                              }
+                                          }
+                                      }
+                                  }
+                              }
+                          ]
+                      }
+                    : {}
             ]
         },
         select: {
@@ -951,7 +944,8 @@ export async function getGameHistory(playerId?: string): Promise<GameHistoryResu
         const blueWon = blueGoals > orangeGoals;
 
         const bluePlayers = game.blueTeam?.players.map((p) => p.globalPlayer?.name || p.name) || [];
-        const orangePlayers = game.orangeTeam?.players.map((p) => p.globalPlayer?.name || p.name) || [];
+        const orangePlayers =
+            game.orangeTeam?.players.map((p) => p.globalPlayer?.name || p.name) || [];
 
         return {
             id: game.id,

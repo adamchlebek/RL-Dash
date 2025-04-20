@@ -103,7 +103,7 @@ export default function Home(): React.ReactElement {
     }, [handleRefresh]);
 
     return (
-        <div className="min-h-screen bg-background p-8 text-foreground">
+        <div className="bg-background text-foreground min-h-screen p-8">
             <div className="mx-auto max-w-7xl space-y-12">
                 <div className="flex items-center justify-between">
                     <h1 className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-4xl font-bold text-transparent">
@@ -113,7 +113,7 @@ export default function Home(): React.ReactElement {
                         <button
                             onClick={handleRefresh}
                             disabled={isRefreshing}
-                            className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-background/50 px-4 py-2 text-sm text-muted transition-all hover:border-muted hover:text-foreground disabled:opacity-50"
+                            className="border-border bg-background/50 text-muted hover:border-muted hover:text-foreground flex cursor-pointer items-center gap-2 rounded-lg border px-4 py-2 text-sm transition-all disabled:opacity-50"
                         >
                             <span>Total Games: {gameHistory?.length || 0}</span>
                             <RefreshCw
@@ -126,7 +126,7 @@ export default function Home(): React.ReactElement {
                 {!isLoading && stats && (
                     <>
                         <div>
-                            <h2 className="mb-6 flex items-center gap-2 text-2xl font-semibold text-foreground">
+                            <h2 className="text-foreground mb-6 flex items-center gap-2 text-2xl font-semibold">
                                 <Trophy className="h-6 w-6 text-yellow-400" />
                                 Team Stats
                             </h2>
@@ -165,7 +165,7 @@ export default function Home(): React.ReactElement {
                         </div>
 
                         <div>
-                            <h2 className="mb-6 flex items-center gap-2 text-2xl font-semibold text-foreground">
+                            <h2 className="text-foreground mb-6 flex items-center gap-2 text-2xl font-semibold">
                                 <Computer className="h-6 w-6 text-yellow-400" />
                                 Game Stats
                             </h2>
@@ -201,7 +201,7 @@ export default function Home(): React.ReactElement {
                         </div>
 
                         <div>
-                            <h2 className="mb-6 flex items-center gap-2 text-2xl font-semibold text-foreground">
+                            <h2 className="text-foreground mb-6 flex items-center gap-2 text-2xl font-semibold">
                                 <Users className="h-6 w-6 text-blue-400" />
                                 Individual Achievements
                             </h2>
@@ -234,7 +234,7 @@ export default function Home(): React.ReactElement {
                         </div>
 
                         <div>
-                            <h2 className="mb-6 flex items-center gap-2 text-2xl font-semibold text-foreground">
+                            <h2 className="text-foreground mb-6 flex items-center gap-2 text-2xl font-semibold">
                                 <User className="h-6 w-6 text-blue-400" />
                                 Player Stats
                             </h2>
@@ -253,8 +253,8 @@ export default function Home(): React.ReactElement {
                                     }))}
                                 />
                             ) : (
-                                <div className="rounded-xl border border-border bg-background/50 p-6 backdrop-blur-sm">
-                                    <div className="py-8 text-center text-muted">
+                                <div className="border-border bg-background/50 rounded-xl border p-6 backdrop-blur-sm">
+                                    <div className="text-muted py-8 text-center">
                                         Loading player statistics...
                                     </div>
                                 </div>
@@ -262,15 +262,15 @@ export default function Home(): React.ReactElement {
                         </div>
 
                         <div>
-                            <h2 className="mb-6 flex items-center gap-2 text-2xl font-semibold text-foreground">
+                            <h2 className="text-foreground mb-6 flex items-center gap-2 text-2xl font-semibold">
                                 <History className="h-6 w-6 text-blue-400" />
                                 Game History
                             </h2>
                             {!isGameHistoryLoading ? (
                                 <GameHistoryTable games={gameHistory} />
                             ) : (
-                                <div className="rounded-xl border border-border bg-background/50 p-6 backdrop-blur-sm">
-                                    <div className="py-8 text-center text-muted">
+                                <div className="border-border bg-background/50 rounded-xl border p-6 backdrop-blur-sm">
+                                    <div className="text-muted py-8 text-center">
                                         Loading game history...
                                     </div>
                                 </div>

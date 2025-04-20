@@ -82,19 +82,19 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
     };
 
     return (
-        <div className="rounded-xl border border-border bg-background/50 p-6 backdrop-blur-sm">
+        <div className="border-border bg-background/50 rounded-xl border p-6 backdrop-blur-sm">
             <div className="overflow-x-auto">
                 <table className="w-full">
                     <thead>
-                        <tr className="border-b border-border text-left">
+                        <tr className="border-border border-b text-left">
                             <th
-                                className="cursor-pointer pb-4 font-medium text-foreground"
+                                className="text-foreground cursor-pointer pb-4 font-medium"
                                 onClick={() => handleSort('name')}
                             >
                                 Player {getSortIndicator('name')}
                             </th>
                             <th
-                                className="cursor-pointer pb-4 font-medium text-foreground"
+                                className="text-foreground cursor-pointer pb-4 font-medium"
                                 onClick={() => handleSort('gamesPlayed')}
                             >
                                 <div className="flex items-center gap-1">
@@ -103,7 +103,7 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                                 </div>
                             </th>
                             <th
-                                className="cursor-pointer pb-4 font-medium text-foreground"
+                                className="text-foreground cursor-pointer pb-4 font-medium"
                                 onClick={() => handleSort('winRate')}
                             >
                                 <div className="flex items-center gap-1">
@@ -112,7 +112,7 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                                 </div>
                             </th>
                             <th
-                                className="cursor-pointer pb-4 font-medium text-foreground"
+                                className="text-foreground cursor-pointer pb-4 font-medium"
                                 onClick={() => handleSort('goals')}
                             >
                                 <div className="flex items-center gap-1">
@@ -121,7 +121,7 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                                 </div>
                             </th>
                             <th
-                                className="cursor-pointer pb-4 font-medium text-foreground"
+                                className="text-foreground cursor-pointer pb-4 font-medium"
                                 onClick={() => handleSort('goalsPerGame')}
                             >
                                 <div className="flex items-center gap-1">
@@ -130,7 +130,7 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                                 </div>
                             </th>
                             <th
-                                className="cursor-pointer pb-4 font-medium text-foreground"
+                                className="text-foreground cursor-pointer pb-4 font-medium"
                                 onClick={() => handleSort('assists')}
                             >
                                 <div className="flex items-center gap-1">
@@ -139,7 +139,7 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                                 </div>
                             </th>
                             <th
-                                className="cursor-pointer pb-4 font-medium text-foreground"
+                                className="text-foreground cursor-pointer pb-4 font-medium"
                                 onClick={() => handleSort('shots')}
                             >
                                 <div className="flex items-center gap-1">
@@ -148,7 +148,7 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                                 </div>
                             </th>
                             <th
-                                className="cursor-pointer pb-4 font-medium text-foreground"
+                                className="text-foreground cursor-pointer pb-4 font-medium"
                                 onClick={() => handleSort('shootingPct')}
                             >
                                 <div className="flex items-center gap-1">
@@ -157,7 +157,7 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                                 </div>
                             </th>
                             <th
-                                className="cursor-pointer pb-4 font-medium text-foreground"
+                                className="text-foreground cursor-pointer pb-4 font-medium"
                                 onClick={() => handleSort('demos')}
                             >
                                 <div className="flex items-center gap-1">
@@ -187,12 +187,12 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                             return (
                                 <tr
                                     key={player.name}
-                                    className="border-b border-border transition-colors last:border-0 hover:bg-background/70"
+                                    className="border-border hover:bg-background/70 border-b transition-colors last:border-0"
                                 >
                                     <td className="px-4 py-4 font-medium">
                                         <Link
                                             href={`/players/${player.id}`}
-                                            className="transition-colors hover:text-foreground"
+                                            className="hover:text-foreground transition-colors"
                                         >
                                             {player.name}
                                         </Link>
@@ -200,9 +200,9 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                                     <td className="px-4 py-4">{player.gamesPlayed}</td>
                                     <td className="px-4 py-4">
                                         <span className="text-green-400">{player.wins}</span>
-                                        <span className="mx-1 text-muted">/</span>
+                                        <span className="text-muted mx-1">/</span>
                                         <span className="text-red-400">{player.losses}</span>
-                                        <span className="ml-2 text-muted">({winRate}%)</span>
+                                        <span className="text-muted ml-2">({winRate}%)</span>
                                     </td>
                                     <td className="px-4 py-4">{player.goals}</td>
                                     <td className="px-4 py-4">{goalsPerGame}</td>

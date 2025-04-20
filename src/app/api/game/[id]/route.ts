@@ -14,4 +14,4 @@ export async function GET(
         console.error('Failed to fetch game details:', error);
         return NextResponse.json({ error: 'Failed to fetch game details' }, { status: 500 });
     }
-};
+}

@@ -16,7 +16,11 @@ const geistMono = Geist_Mono({
     subsets: ['latin']
 });
 
-export default function RootLayout({ children }: { children: React.ReactNode }): React.ReactElement {
+export default function RootLayout({
+    children
+}: {
+    children: React.ReactNode;
+}): React.ReactElement {
     return (
         <html lang="en" suppressHydrationWarning>
             <body className={`${geistSans.variable} ${geistMono.variable} font-sans`}>

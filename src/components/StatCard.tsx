@@ -58,14 +58,16 @@ export const StatCard = ({
         return (
             <>
                 <div
-                    className={`rounded-xl border bg-background/50 p-6 backdrop-blur-sm ${getBorderColor()} transition-all duration-300 hover:scale-[1.02] hover:bg-background/70 ${gameId ? 'cursor-pointer' : ''}`}
+                    className={`bg-background/50 rounded-xl border p-6 backdrop-blur-sm ${getBorderColor()} hover:bg-background/70 transition-all duration-300 hover:scale-[1.02] ${gameId ? 'cursor-pointer' : ''}`}
                     onClick={handleClick}
                 >
                     <div className="mb-4 flex items-center justify-center gap-3">
                         {icon}
-                        <p className="text-sm text-muted">{label}</p>
+                        <p className="text-muted text-sm">{label}</p>
                     </div>
-                    <p className="mb-4 text-center text-2xl font-semibold text-foreground">{value}</p>
+                    <p className="text-foreground mb-4 text-center text-2xl font-semibold">
+                        {value}
+                    </p>
                     <div className="space-y-3">
                         <div className="flex items-center justify-center gap-2">
                             {team1Won && <Crown className="h-4 w-4 text-yellow-400" />}
@@ -79,9 +81,9 @@ export const StatCard = ({
                             {team1Won && <Crown className="h-4 w-4 text-yellow-400" />}
                         </div>
                         <div className="flex items-center">
-                            <div className="h-[1px] flex-1 bg-border"></div>
-                            <span className="px-3 font-medium text-muted">vs</span>
-                            <div className="h-[1px] flex-1 bg-border"></div>
+                            <div className="bg-border h-[1px] flex-1"></div>
+                            <span className="text-muted px-3 font-medium">vs</span>
+                            <div className="bg-border h-[1px] flex-1"></div>
                         </div>
                         <div className="flex items-center justify-center gap-2">
                             {team2Won && <Crown className="h-4 w-4 text-yellow-400" />}
@@ -110,12 +112,12 @@ export const StatCard = ({
     return (
         <>
             <div
-                className={`rounded-xl border bg-background/50 p-6 backdrop-blur-sm ${getBorderColor()} transition-all duration-300 hover:scale-[1.02] hover:bg-background/70 ${gameId ? 'cursor-pointer' : ''}`}
+                className={`bg-background/50 rounded-xl border p-6 backdrop-blur-sm ${getBorderColor()} hover:bg-background/70 transition-all duration-300 hover:scale-[1.02] ${gameId ? 'cursor-pointer' : ''}`}
                 onClick={handleClick}
             >
                 <div className={`mb-4 flex items-center ${isTeam ? 'justify-center' : ''} gap-3`}>
                     {icon}
-                    <p className="text-sm text-muted">{label}</p>
+                    <p className="text-muted text-sm">{label}</p>
                 </div>
                 {isTeam ? (
                     <>
@@ -138,7 +140,7 @@ export const StatCard = ({
                     </>
                 ) : (
                     <>
-                        <p className="mb-2 text-2xl font-semibold text-foreground">{value}</p>
+                        <p className="text-foreground mb-2 text-2xl font-semibold">{value}</p>
                         <div className="flex flex-wrap gap-2">
                             {players.length > 0 ? (
                                 players.map((player, index) => (
@@ -163,4 +165,3 @@ export const StatCard = ({
         </>
     );
 };
-
