@@ -62,8 +62,8 @@ export function PositioningTable(): React.ReactElement {
                 <table className="w-full">
                     <thead>
                         <tr className="border-border text-muted border-b">
-                            <th 
-                                className="p-4 text-left cursor-pointer hover:text-foreground"
+                            <th
+                                className="hover:text-foreground cursor-pointer p-4 text-left"
                                 onClick={() => handleSort('name')}
                             >
                                 <div className="flex items-center gap-2">
@@ -71,8 +71,8 @@ export function PositioningTable(): React.ReactElement {
                                     <ArrowUpDown className="h-4 w-4" />
                                 </div>
                             </th>
-                            <th 
-                                className="p-4 text-left cursor-pointer hover:text-foreground"
+                            <th
+                                className="hover:text-foreground cursor-pointer p-4 text-left"
                                 onClick={() => handleSort('behindBallPercent')}
                             >
                                 <div className="flex items-center gap-2">
@@ -80,8 +80,8 @@ export function PositioningTable(): React.ReactElement {
                                     <ArrowUpDown className="h-4 w-4" />
                                 </div>
                             </th>
-                            <th 
-                                className="p-4 text-left cursor-pointer hover:text-foreground"
+                            <th
+                                className="hover:text-foreground cursor-pointer p-4 text-left"
                                 onClick={() => handleSort('lastBackPercent')}
                             >
                                 <div className="flex items-center gap-2">
@@ -89,8 +89,8 @@ export function PositioningTable(): React.ReactElement {
                                     <ArrowUpDown className="h-4 w-4" />
                                 </div>
                             </th>
-                            <th 
-                                className="p-4 text-left cursor-pointer hover:text-foreground"
+                            <th
+                                className="hover:text-foreground cursor-pointer p-4 text-left"
                                 onClick={() => handleSort('closestToBallPercent')}
                             >
                                 <div className="flex items-center gap-2">
@@ -98,8 +98,8 @@ export function PositioningTable(): React.ReactElement {
                                     <ArrowUpDown className="h-4 w-4" />
                                 </div>
                             </th>
-                            <th 
-                                className="p-4 text-left cursor-pointer hover:text-foreground"
+                            <th
+                                className="hover:text-foreground cursor-pointer p-4 text-left"
                                 onClick={() => handleSort('avgDistanceToBall')}
                             >
                                 <div className="flex items-center gap-2">
@@ -107,8 +107,8 @@ export function PositioningTable(): React.ReactElement {
                                     <ArrowUpDown className="h-4 w-4" />
                                 </div>
                             </th>
-                            <th 
-                                className="p-4 text-left cursor-pointer hover:text-foreground"
+                            <th
+                                className="hover:text-foreground cursor-pointer p-4 text-left"
                                 onClick={() => handleSort('avgSpeed')}
                             >
                                 <div className="flex items-center gap-2">
@@ -116,8 +116,8 @@ export function PositioningTable(): React.ReactElement {
                                     <ArrowUpDown className="h-4 w-4" />
                                 </div>
                             </th>
-                            <th 
-                                className="p-4 text-left cursor-pointer hover:text-foreground"
+                            <th
+                                className="hover:text-foreground cursor-pointer p-4 text-left"
                                 onClick={() => handleSort('timeSupersonic')}
                             >
                                 <div className="flex items-center gap-2">
@@ -130,7 +130,7 @@ export function PositioningTable(): React.ReactElement {
                     <tbody>
                         {isLoading ? (
                             <tr>
-                                <td colSpan={7} className="p-8 text-center text-muted">
+                                <td colSpan={7} className="text-muted p-8 text-center">
                                     Loading...
                                 </td>
                             </tr>
@@ -157,4 +157,4 @@ export function PositioningTable(): React.ReactElement {
             </div>
         </div>
     );
-} 
+}

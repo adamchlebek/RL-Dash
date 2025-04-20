@@ -21,6 +21,54 @@ interface PlayerMovementStats {
     boostPercent75_100: number;
 }
 
+interface PlayerLastDefenderStats {
+    name: string;
+    totalGoalsConceded: number;
+    goalsAsLastDefender: number;
+}
+
+export const getLastDefenderStats = async (): Promise<PlayerLastDefenderStats[]> => {
+    try {
+        const players = await prisma.player.groupBy({
+            by: ['platformId', 'platform'],
+            _sum: {
+                goalsAgainst: true,
+                goalsAgainstWhileLastDefender: true
+            }
+        });
+
+        const stats = await Promise.all(
+            players.map(async (stat) => {
+                const globalPlayer = await prisma.globalPlayer.findUnique({
+                    where: {
+                        platform_platformId: {
+                            platform: stat.platform,
+                            platformId: stat.platformId
+                        }
+                    },
+                    select: {
+                        name: true
+                    }
+                });
+
+                if (!globalPlayer) return null;
+
+                return {
+                    name: globalPlayer.name,
+                    totalGoalsConceded: stat._sum.goalsAgainst || 0,
+                    goalsAsLastDefender: stat._sum.goalsAgainstWhileLastDefender || 0
+                };
+            })
+        );
+
+        return stats
+            .filter((stat): stat is PlayerLastDefenderStats => stat !== null)
+            .sort((a, b) => b.goalsAsLastDefender - a.goalsAsLastDefender);
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const getPlayerPositioningStats = async (): Promise<PlayerPosition[]> => {
     try {
         const stats = await prisma.player.groupBy({
@@ -53,7 +101,9 @@ export const getPlayerPositioningStats = async (): Promise<PlayerPosition[]> => 
                     name: globalPlayer?.name || stat.platformId,
                     behindBallPercent: Math.round(stat._avg.positioningPercentBehindBall || 0),
                     lastBackPercent: Math.round(stat._avg.positioningPercentMostBack || 0),
-                    closestToBallPercent: Math.round(stat._avg.positioningPercentClosestToBall || 0),
+                    closestToBallPercent: Math.round(
+                        stat._avg.positioningPercentClosestToBall || 0
+                    ),
                     avgDistanceToBall: Math.round(stat._avg.positioningAvgDistanceToBall || 0),
                     avgSpeed: Math.round(stat._avg.movementAvgSpeed || 0),
                     timeSupersonic: Math.round(stat._avg.movementPercentSupersonicSpeed || 0)
@@ -65,7 +115,7 @@ export const getPlayerPositioningStats = async (): Promise<PlayerPosition[]> => 
     } catch (error) {
         throw error;
     }
-}
+};
 
 export const getPlayerMovementStats = async (): Promise<PlayerMovementStats[]> => {
     try {
@@ -117,4 +167,4 @@ export const getPlayerMovementStats = async (): Promise<PlayerMovementStats[]> =
     } catch (error) {
         throw error;
     }
-}
+};

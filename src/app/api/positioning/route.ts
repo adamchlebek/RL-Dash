@@ -8,4 +8,4 @@ export async function GET() {
     } catch {
         return NextResponse.json({ error: 'Failed to fetch positioning stats' }, { status: 500 });
     }
-} 
+}

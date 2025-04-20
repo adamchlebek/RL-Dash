@@ -21,7 +21,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }): Reac
         const savedTheme = (localStorage.getItem('theme') as Theme) || 'dark';
 
         setTheme(savedTheme);
-        
+
         document.documentElement.classList.toggle('dark', savedTheme === 'dark');
     }, []);
 

@@ -1,9 +1,10 @@
 'use client';
 
-import { MapPin } from 'lucide-react';
+import { MapPin, Shield } from 'lucide-react';
 import { StatsGrid } from '@/components/StatsGrid';
 import { PositioningTable } from '@/components/PositioningTable';
 import { RocketField } from '@/components/RocketField';
+import { LastDefenderStats } from '@/components/LastDefenderStats';
 
 export default function MoreStatsPage(): React.ReactElement {
     return (
@@ -25,7 +26,17 @@ export default function MoreStatsPage(): React.ReactElement {
                     </h2>
                     <RocketField />
                 </div>
+
+                <div className="w-full">
+                    <h2 className="text-foreground mb-6 flex items-center gap-2 text-2xl font-semibold">
+                        <Shield className="h-6 w-6 text-red-400" />
+                        Last Defender Goals
+                    </h2>
+                    <div className="rounded-lg border border-red-800/30 bg-gradient-to-br from-red-900/20 to-red-800/20 p-6">
+                        <LastDefenderStats />
+                    </div>
+                </div>
             </div>
         </div>
     );
-} 
+}

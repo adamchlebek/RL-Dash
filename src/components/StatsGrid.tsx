@@ -41,7 +41,7 @@ export function StatsGrid(): React.ReactElement {
                 </h2>
                 <div className="border-border bg-background/50 space-y-4 rounded-xl border p-6 backdrop-blur-sm">
                     {isLoading ? (
-                        <div className="text-muted text-center py-8">Loading...</div>
+                        <div className="text-muted py-8 text-center">Loading...</div>
                     ) : (
                         stats.map((stat) => (
                             <div key={stat.name} className="space-y-2">
@@ -61,9 +61,15 @@ export function StatsGrid(): React.ReactElement {
                                     />
                                 </div>
                                 <div className="flex justify-between text-xs">
-                                    <span className="text-muted">Ground ({stat.movementPercentGround}%)</span>
-                                    <span className="text-muted">Low Air ({stat.movementPercentLowAir}%)</span>
-                                    <span className="text-muted">High Air ({stat.movementPercentHighAir}%)</span>
+                                    <span className="text-muted">
+                                        Ground ({stat.movementPercentGround}%)
+                                    </span>
+                                    <span className="text-muted">
+                                        Low Air ({stat.movementPercentLowAir}%)
+                                    </span>
+                                    <span className="text-muted">
+                                        High Air ({stat.movementPercentHighAir}%)
+                                    </span>
                                 </div>
                             </div>
                         ))
@@ -78,7 +84,7 @@ export function StatsGrid(): React.ReactElement {
                 </h2>
                 <div className="border-border bg-background/50 space-y-4 rounded-xl border p-6 backdrop-blur-sm">
                     {isLoading ? (
-                        <div className="text-muted text-center py-8">Loading...</div>
+                        <div className="text-muted py-8 text-center">Loading...</div>
                     ) : (
                         stats.map((stat) => (
                             <div key={stat.name} className="space-y-2">
@@ -102,10 +108,18 @@ export function StatsGrid(): React.ReactElement {
                                     />
                                 </div>
                                 <div className="flex justify-between text-xs">
-                                    <span className="text-muted">0-25% ({stat.boostPercent0_25}%)</span>
-                                    <span className="text-muted">25-50% ({stat.boostPercent25_50}%)</span>
-                                    <span className="text-muted">50-75% ({stat.boostPercent50_75}%)</span>
-                                    <span className="text-muted">75-100% ({stat.boostPercent75_100}%)</span>
+                                    <span className="text-muted">
+                                        0-25% ({stat.boostPercent0_25}%)
+                                    </span>
+                                    <span className="text-muted">
+                                        25-50% ({stat.boostPercent25_50}%)
+                                    </span>
+                                    <span className="text-muted">
+                                        50-75% ({stat.boostPercent50_75}%)
+                                    </span>
+                                    <span className="text-muted">
+                                        75-100% ({stat.boostPercent75_100}%)
+                                    </span>
                                 </div>
                             </div>
                         ))
@@ -114,4 +128,4 @@ export function StatsGrid(): React.ReactElement {
             </div>
         </div>
     );
-} 
+}

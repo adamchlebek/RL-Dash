@@ -8,4 +8,4 @@ export async function GET(): Promise<NextResponse> {
     } catch {
         return NextResponse.json({ error: 'Failed to fetch movement stats' }, { status: 500 });
     }
-} 
+}
