@@ -30,13 +30,6 @@ export function Navigation(): React.ReactElement {
                                 Home
                             </Link>
                             <Link
-                                href="/more"
-                                className="text-muted hover:text-foreground inline-flex items-center px-1 pt-1 text-sm font-medium"
-                            >
-                                <BarChart className="mr-2 h-4 w-4" />
-                                More Stats
-                            </Link>
-                            <Link
                                 href="/players"
                                 className="text-muted hover:text-foreground inline-flex items-center px-1 pt-1 text-sm font-medium"
                             >

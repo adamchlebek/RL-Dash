@@ -4,6 +4,7 @@ interface PlayerLastDefenderStats {
     name: string;
     totalGoalsConceded: number;
     goalsAsLastDefender: number;
+    totalSaves: number;
 }
 
 export function LastDefenderStats(): React.ReactElement {
@@ -91,7 +92,7 @@ export function LastDefenderStats(): React.ReactElement {
 
                             <div className="space-y-4">
                                 <div className="flex justify-between text-sm">
-                                    <span className="text-muted-foreground">Goals Conceded</span>
+                                    <span className="text-muted-foreground">Total Goals Conceded</span>
                                     <span className="font-medium text-red-400">
                                         {player.totalGoalsConceded}
                                     </span>
@@ -99,10 +100,19 @@ export function LastDefenderStats(): React.ReactElement {
 
                                 <div className="flex justify-between text-sm">
                                     <span className="text-muted-foreground">
-                                        Goals as Last Defender
+                                        Conceded as Last Defender
                                     </span>
                                     <span className="font-medium text-red-400">
                                         {player.goalsAsLastDefender}
+                                    </span>
+                                </div>
+
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-muted-foreground">
+                                        Total Saves
+                                    </span>
+                                    <span className="font-medium text-red-400">
+                                        {player.totalSaves}
                                     </span>
                                 </div>
 

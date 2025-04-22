@@ -25,6 +25,7 @@ interface PlayerLastDefenderStats {
     name: string;
     totalGoalsConceded: number;
     goalsAsLastDefender: number;
+    totalSaves: number;
 }
 
 export const getLastDefenderStats = async (): Promise<PlayerLastDefenderStats[]> => {
@@ -33,7 +34,8 @@ export const getLastDefenderStats = async (): Promise<PlayerLastDefenderStats[]>
             by: ['platformId', 'platform'],
             _sum: {
                 goalsAgainst: true,
-                goalsAgainstWhileLastDefender: true
+                goalsAgainstWhileLastDefender: true,
+                saves: true
             }
         });
 
@@ -56,14 +58,20 @@ export const getLastDefenderStats = async (): Promise<PlayerLastDefenderStats[]>
                 return {
                     name: globalPlayer.name,
                     totalGoalsConceded: stat._sum.goalsAgainst || 0,
-                    goalsAsLastDefender: stat._sum.goalsAgainstWhileLastDefender || 0
+                    goalsAsLastDefender: stat._sum.goalsAgainstWhileLastDefender || 0,
+                    totalSaves: stat._sum.saves || 0
                 };
             })
         );
 
         return stats
             .filter((stat): stat is PlayerLastDefenderStats => stat !== null)
-            .sort((a, b) => b.goalsAsLastDefender - a.goalsAsLastDefender);
+            .sort((a, b) => {
+                const aPercent = a.totalGoalsConceded > 0 ? (a.goalsAsLastDefender / a.totalGoalsConceded) * 100 : 0;
+                const bPercent = b.totalGoalsConceded > 0 ? (b.goalsAsLastDefender / b.totalGoalsConceded) * 100 : 0;
+                
+                return bPercent - aPercent;
+            });
     } catch (error) {
         throw error;
     }
