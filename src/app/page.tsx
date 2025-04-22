@@ -13,6 +13,7 @@ import { StatsGrid } from '@/components/StatsGrid';
 import { PositioningTable } from '@/components/PositioningTable';
 import { RocketField } from '@/components/RocketField';
 import { LastDefenderStats } from '@/components/LastDefenderStats';
+import { GameStatsBadges } from '@/components/GameStatsBadges';
 
 type PlayerStatsType = {
     id: string;
@@ -114,12 +115,12 @@ export default function Home(): React.ReactElement {
                         Stats
                     </h1>
                     <div className="flex items-center gap-4">
+                        {/* <TeamSizeFilter /> */}
                         <button
                             onClick={handleRefresh}
                             disabled={isRefreshing}
                             className="border-border bg-background/50 text-muted hover:border-muted hover:text-foreground flex cursor-pointer items-center gap-2 rounded-lg border px-4 py-2 text-sm transition-all disabled:opacity-50"
                         >
-                            <span>Total Games: {gameHistory?.length || 0}</span>
                             <RefreshCw
                                 className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`}
                             />
@@ -130,6 +131,9 @@ export default function Home(): React.ReactElement {
                 {!isLoading && stats && (
                     <>
                         <div>
+                            <div className="mb-4 -mt-2">
+                                <GameStatsBadges />
+                            </div>
                             <h2 className="text-foreground mb-6 flex items-center gap-2 text-2xl font-semibold">
                                 <Trophy className="h-6 w-6 text-yellow-400" />
                                 Team Stats

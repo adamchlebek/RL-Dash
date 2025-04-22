@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Home, Users, BarChart } from 'lucide-react';
+import { Home, Users } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { useTheme } from '../providers/ThemeProvider';
 
