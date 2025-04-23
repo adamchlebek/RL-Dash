@@ -28,6 +28,7 @@ type PlayerStatsType = {
     gamesPlayed: number;
     wins: number;
     losses: number;
+    avgPointsPerGame: number;
 };
 
 export default function Home(): React.ReactElement {
@@ -257,7 +258,8 @@ export default function Home(): React.ReactElement {
                                         demos: player.totalDemos,
                                         gamesPlayed: player.gamesPlayed,
                                         wins: player.wins,
-                                        losses: player.losses
+                                        losses: player.losses,
+                                        avgPointsPerGame: player.avgPointsPerGame
                                     }))}
                                 />
                             ) : (

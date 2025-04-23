@@ -68,6 +68,7 @@ export interface PlayerStats {
     gamesPlayed: number;
     wins: number;
     losses: number;
+    avgPointsPerGame: number;
 }
 
 export interface PlayerStatsResult {
@@ -85,6 +86,7 @@ export interface PlayerStatsResult {
     losses: number;
     firstSeen: Date;
     latestGame: Date;
+    avgPointsPerGame: number;
 }
 
 export interface GameHistoryResult {

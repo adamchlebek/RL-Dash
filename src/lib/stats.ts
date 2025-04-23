@@ -727,7 +727,8 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
                 totalBoost: 0,
                 gamesPlayed: 0,
                 wins: 0,
-                losses: 0
+                losses: 0,
+                avgPointsPerGame: 0
             };
 
             if (!playerFirstSeen.has(player.globalPlayer.id)) {
@@ -743,6 +744,7 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
             stats.totalDemos += player.demoInflicted || 0;
             stats.totalScore += player.score || 0;
             stats.totalBoost += player.boostAvgAmount || 0;
+            stats.avgPointsPerGame = stats.gamesPlayed > 0 ? stats.totalScore / stats.gamesPlayed : 0;
             if (blueWon) stats.wins++;
             else stats.losses++;
 
@@ -764,7 +766,8 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
                 totalBoost: 0,
                 gamesPlayed: 0,
                 wins: 0,
-                losses: 0
+                losses: 0,
+                avgPointsPerGame: 0
             };
 
             if (!playerFirstSeen.has(player.globalPlayer.id)) {
@@ -780,6 +783,7 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
             stats.totalDemos += player.demoInflicted || 0;
             stats.totalScore += player.score || 0;
             stats.totalBoost += player.boostAvgAmount || 0;
+            stats.avgPointsPerGame = stats.gamesPlayed > 0 ? stats.totalScore / stats.gamesPlayed : 0;
             if (!blueWon) stats.wins++;
             else stats.losses++;
 
@@ -801,6 +805,7 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
             gamesPlayed: stats.gamesPlayed,
             wins: stats.wins,
             losses: stats.losses,
+            avgPointsPerGame: stats.avgPointsPerGame,
             firstSeen: playerFirstSeen.get(stats.id) || new Date(),
             latestGame: playerLatestGame.get(stats.id) || new Date()
         }))

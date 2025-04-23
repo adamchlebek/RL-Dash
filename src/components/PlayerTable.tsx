@@ -1,7 +1,7 @@
 'use client';
 
 import { Player } from '../models/player';
-import { Goal, Trophy, Crosshair, Target, Bomb, Gamepad2, Percent, TrendingUp } from 'lucide-react';
+import { Goal, Trophy, Crosshair, Target, Bomb, Gamepad2, Percent, TrendingUp, Star } from 'lucide-react';
 import { useState } from 'react';
 import Link from 'next/link';
 
@@ -18,7 +18,8 @@ type SortField =
     | 'assists'
     | 'shots'
     | 'shootingPct'
-    | 'demos';
+    | 'demos'
+    | 'avgPointsPerGame';
 type SortDirection = 'asc' | 'desc';
 
 export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
@@ -71,6 +72,9 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
             case 'demos':
                 comparison = a.demos - b.demos;
                 break;
+            case 'avgPointsPerGame':
+                comparison = a.avgPointsPerGame - b.avgPointsPerGame;
+                break;
         }
 
         return sortDirection === 'asc' ? comparison : -comparison;
@@ -109,6 +113,15 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                                 <div className="flex items-center gap-1">
                                     <Trophy className="h-4 w-4" />
                                     <span>W/L {getSortIndicator('winRate')}</span>
+                                </div>
+                            </th>
+                            <th
+                                className="text-foreground cursor-pointer pb-4 font-medium"
+                                onClick={() => handleSort('avgPointsPerGame')}
+                            >
+                                <div className="flex items-center gap-1">
+                                    <Star className="h-4 w-4" />
+                                    <span>Avg PPG {getSortIndicator('avgPointsPerGame')}</span>
                                 </div>
                             </th>
                             <th
@@ -204,6 +217,7 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                                         <span className="text-red-400">{player.losses}</span>
                                         <span className="text-muted ml-2">({winRate}%)</span>
                                     </td>
+                                    <td className="px-4 py-4">{player.avgPointsPerGame?.toFixed(2)}</td>
                                     <td className="px-4 py-4">{player.goals}</td>
                                     <td className="px-4 py-4">{goalsPerGame}</td>
                                     <td className="px-4 py-4">{player.assists}</td>
