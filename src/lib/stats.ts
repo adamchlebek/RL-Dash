@@ -669,65 +669,74 @@ export async function getMostForfeits(): Promise<StatValue> {
 
 // Get player statistics across all games
 export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
-    const replays = await prisma.replay.findMany({
-        where: {
-            status: 'completed',
-            date: { not: null },
-            AND: [{ blueTeam: { isNot: null } }, { orangeTeam: { isNot: null } }]
-        },
-        select: {
-            id: true,
-            date: true,
-            ballchasingId: true,
-            blueTeam: {
-                select: {
-                    goals: true,
-                    players: {
-                        select: {
-                            goals: true,
-                            assists: true,
-                            saves: true,
-                            shots: true,
-                            score: true,
-                            demoInflicted: true,
-                            boostAvgAmount: true,
-                            globalPlayer: {
-                                select: {
-                                    id: true,
-                                    name: true
+    const [replays, globalPlayers] = await Promise.all([
+        prisma.replay.findMany({
+            where: {
+                status: 'completed',
+                date: { not: null },
+                AND: [{ blueTeam: { isNot: null } }, { orangeTeam: { isNot: null } }]
+            },
+            select: {
+                id: true,
+                date: true,
+                ballchasingId: true,
+                blueTeam: {
+                    select: {
+                        goals: true,
+                        players: {
+                            select: {
+                                goals: true,
+                                assists: true,
+                                saves: true,
+                                shots: true,
+                                score: true,
+                                demoInflicted: true,
+                                boostAvgAmount: true,
+                                globalPlayer: {
+                                    select: {
+                                        id: true,
+                                        name: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                orangeTeam: {
+                    select: {
+                        goals: true,
+                        players: {
+                            select: {
+                                goals: true,
+                                assists: true,
+                                saves: true,
+                                shots: true,
+                                score: true,
+                                demoInflicted: true,
+                                boostAvgAmount: true,
+                                globalPlayer: {
+                                    select: {
+                                        id: true,
+                                        name: true
+                                    }
                                 }
                             }
                         }
                     }
                 }
             },
-            orangeTeam: {
-                select: {
-                    goals: true,
-                    players: {
-                        select: {
-                            goals: true,
-                            assists: true,
-                            saves: true,
-                            shots: true,
-                            score: true,
-                            demoInflicted: true,
-                            boostAvgAmount: true,
-                            globalPlayer: {
-                                select: {
-                                    id: true,
-                                    name: true
-                                }
-                            }
-                        }
-                    }
-                }
+            orderBy: {
+                date: 'asc'
             }
-        },
-        orderBy: {
-            date: 'asc'
-        }
-    });
+        }),
+        prisma.globalPlayer.findMany({
+            select: {
+                id: true,
+                name: true,
+                forfeitCount: true
+            }
+        })
+    ]);
 
     const uniqueReplays = Array.from(
         new Map(replays.map((replay) => [replay.ballchasingId, replay])).values()
@@ -820,6 +829,28 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
 
             playerStatsMap.set(player.globalPlayer.id, stats);
         });
+    });
+
+    globalPlayers.forEach(player => {
+        const stats = playerStatsMap.get(player.id) || {
+            id: player.id,
+            name: player.name,
+            totalGoals: 0,
+            totalAssists: 0,
+            totalSaves: 0,
+            totalShots: 0,
+            totalDemos: 0,
+            totalScore: 0,
+            totalBoost: 0,
+            gamesPlayed: 0,
+            wins: 0,
+            losses: 0,
+            avgPointsPerGame: 0
+        };
+
+        stats.gamesPlayed += player.forfeitCount || 0;
+        stats.losses += player.forfeitCount || 0;
+        playerStatsMap.set(player.id, stats);
     });
 
     return Array.from(playerStatsMap.values())
