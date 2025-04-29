@@ -636,6 +636,34 @@ export async function getMostDemos(): Promise<StatValue> {
     };
 }
 
+export async function getMostForfeits(): Promise<StatValue> {
+    const player = await prisma.globalPlayer.findFirst({
+        select: {
+            name: true,
+            forfeitCount: true
+        },
+        orderBy: {
+            forfeitCount: 'desc'
+        },
+        take: 10
+    });
+
+    if (!player) {
+        return {
+            value: '0',
+            players: ['Unknown'],
+            isTeamVsTeam: false
+        };
+    }
+
+    return {
+        gameId: undefined,
+        value: String(player.forfeitCount),
+        players: [player.name],
+        isTeamVsTeam: false
+    };
+}
+
 // Get player statistics across all games
 export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
     const replays = await prisma.replay.findMany({
@@ -824,7 +852,8 @@ export async function getAllStats() {
         highestScoringGame,
         highestPoints,
         lowestPoints,
-        mostDemos
+        mostDemos,
+        mostForfeits
     ] = await Promise.all([
         getBest3sTeam(),
         getBest2sTeam(),
@@ -835,7 +864,8 @@ export async function getAllStats() {
         getHighestScoringGame(),
         getHighestPoints(),
         getLowestPoints(),
-        getMostDemos()
+        getMostDemos(),
+        getMostForfeits()
     ]);
 
     // Add placeholder values for stats we don't calculate yet
@@ -862,6 +892,7 @@ export async function getAllStats() {
         highestPoints,
         lowestPoints,
         mostDemos,
+        mostForfeits,
         fastestGoal,
         slowestGoal
     };

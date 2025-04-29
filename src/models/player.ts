@@ -50,4 +50,5 @@ export interface Stats {
     highestPoints: StatValue;
     lowestPoints: StatValue;
     mostDemos: StatValue;
+    mostForfeits: StatValue;
 }

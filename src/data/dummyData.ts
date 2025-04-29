@@ -9,7 +9,8 @@ import {
     Zap,
     TrendingUp,
     TrendingDown,
-    Bomb
+    Bomb,
+    Cat
 } from 'lucide-react';
 import { Stats } from '../models/player';
 
@@ -25,7 +26,8 @@ export const statIcons: Record<keyof Stats, LucideIcon> = {
     slowestGoal: Timer,
     highestPoints: TrendingUp,
     lowestPoints: TrendingDown,
-    mostDemos: Bomb
+    mostDemos: Bomb,
+    mostForfeits: Cat
 };
 
 export interface GameHistory {

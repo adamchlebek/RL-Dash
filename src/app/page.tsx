@@ -240,6 +240,15 @@ export default function Home(): React.ReactElement {
                                     color="green"
                                 />
                             </div>
+                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 mt-4">
+                                <StatCard
+                                    label="Most Forfeits"
+                                    value={Number(stats.mostForfeits.value).toLocaleString()}
+                                    players={stats.mostForfeits.players}
+                                    icon={<statIcons.mostForfeits className="h-6 w-6" />}
+                                    color="red"
+                                />
+                            </div>
                         </div>
 
                         <div>
