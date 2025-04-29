@@ -637,7 +637,7 @@ export async function getMostDemos(): Promise<StatValue> {
 }
 
 export async function getMostForfeits(): Promise<StatValue> {
-    const player = await prisma.globalPlayer.findFirst({
+    const players = await prisma.globalPlayer.findMany({
         select: {
             name: true,
             forfeitCount: true
@@ -648,7 +648,7 @@ export async function getMostForfeits(): Promise<StatValue> {
         take: 10
     });
 
-    if (!player) {
+    if (players.length === 0) {
         return {
             value: '0',
             players: ['Unknown'],
@@ -656,10 +656,13 @@ export async function getMostForfeits(): Promise<StatValue> {
         };
     }
 
+    const maxForfeits = players[0].forfeitCount;
+    const tiedPlayers = players.filter(p => p.forfeitCount === maxForfeits).map(p => p.name);
+
     return {
         gameId: undefined,
-        value: String(player.forfeitCount),
-        players: [player.name],
+        value: String(maxForfeits),
+        players: tiedPlayers,
         isTeamVsTeam: false
     };
 }
