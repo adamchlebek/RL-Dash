@@ -31,7 +31,13 @@ export async function DELETE(
         }
     });
 
-    if (password !== correctPassword?.value) {
+    const correctPasswordValue: {
+        value: string;
+    } = correctPassword?.value as {
+        value: string;
+    };
+
+    if (password !== correctPasswordValue.value) {
         return NextResponse.json({ error: 'Invalid password' }, { status: 401 });
     }  
 
