@@ -5,6 +5,9 @@ import { Navigation } from '@/components/Navigation';
 import { Analytics } from '@vercel/analytics/react';
 import { Toaster } from 'sonner';
 import { ThemeProvider } from '@/providers/ThemeProvider';
+import { metadata } from './metadata';
+
+export { metadata };
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
