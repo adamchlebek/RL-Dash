@@ -23,6 +23,18 @@ export async function DELETE(
 ): Promise<NextResponse> {
     const { id } = await context.params;
 
+    const { password } = await req.json();
+
+    const correctPassword = await prisma.edgeConfig.findFirst({
+        where: {
+            key: 'delete_password'
+        }
+    });
+
+    if (password !== correctPassword?.value) {
+        return NextResponse.json({ error: 'Invalid password' }, { status: 401 });
+    }  
+
     try {
         const replay = await prisma.replay.findUnique({
             where: { id },

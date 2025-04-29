@@ -8,6 +8,8 @@ export default function DeletePage(): React.ReactElement {
     const [games, setGames] = useState<GameHistoryResult[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [gameToDelete, setGameToDelete] = useState<GameHistoryResult | null>(null);
+    const [password, setPassword] = useState<string>('');
+    const [error, setError] = useState<string>('');
 
     useEffect(() => {
         const fetchGames = async (): Promise<void> => {
@@ -27,15 +29,28 @@ export default function DeletePage(): React.ReactElement {
     }, []);
 
     const handleDelete = async (gameId: string): Promise<void> => {
+        if (!password) {
+            setError('Please enter a password');
+            return;
+        }
         try {
             const response = await fetch(`/api/game/${gameId}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ password })
             });
-            if (!response.ok) throw new Error('Failed to delete game');
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to delete game');
+            }
             setGames(games.filter(game => game.id !== gameId));
             setGameToDelete(null);
+            setPassword('');
+            setError('');
         } catch (error) {
-            console.error('Error deleting game:', error);
+            setError(error instanceof Error ? error.message : 'Failed to delete game');
         }
     };
 
@@ -77,6 +92,21 @@ export default function DeletePage(): React.ReactElement {
                         <DialogTitle>Confirm Delete</DialogTitle>
                     </DialogHeader>
                     <p className="text-muted-foreground">Are you sure you want to delete this game?</p>
+                    {error && (
+                        <div className="mb-2 rounded-lg bg-red-100 p-2 text-sm text-red-600">
+                            {error}
+                        </div>
+                    )}
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => {
+                            setPassword(e.target.value);
+                            setError('');
+                        }}
+                        placeholder="Enter delete password"
+                        className="mt-2 rounded-lg border p-2"
+                    />
                     <div className="mt-4 flex justify-end gap-4">
                         <button
                             onClick={() => setGameToDelete(null)}
