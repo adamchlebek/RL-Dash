@@ -110,6 +110,7 @@ export async function getTeamMatchupStats(
         const team2Score = team1IsBlue ? replay.orangeTeam?.goals : replay.blueTeam?.goals;
 
         return {
+            id: replay.id,
             team1Score: team1Score || 0,
             team2Score: team2Score || 0,
             date: replay.date,
@@ -141,7 +142,8 @@ export async function getTeamMatchupStats(
     team1Stats.winRate = team1Stats.wins / (team1Stats.wins + team1Stats.losses) * 100 || 0;
     team2Stats.winRate = team2Stats.wins / (team2Stats.wins + team2Stats.losses) * 100 || 0;
 
-    const matchHistory: MatchHistory[] = matchResults.slice(0, 10).map(match => ({
+    const matchHistory: MatchHistory[] = matchResults.map(match => ({
+        id: match.id,
         winner: match.team1Score > match.team2Score ? 1 : 2,
         score: `${match.team1Score}-${match.team2Score}`,
         date: match.date ? new Date(match.date).toLocaleString('en-US', {

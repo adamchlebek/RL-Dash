@@ -9,6 +9,8 @@ import {
 } from '@dnd-kit/core';
 import type { CSSProperties } from 'react';
 import { GlobalPlayer } from '@prisma/client';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { GameDetailsModal } from '../GameDetailsModal';
 
 interface Player {
     id: string;
@@ -39,6 +41,7 @@ interface TeamBuilderProps {
             recentPerformance: ('W' | 'L')[];
         };
         matchHistory: {
+            id: string;
             winner: 1 | 2;
             score: string;
             date: string;
@@ -187,6 +190,10 @@ export default function TeamBuilder({
     );
     const [activeId, setActiveId] = useState<string | null>(null);
     const [showResults, setShowResults] = useState<boolean>(false);
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const ITEMS_PER_PAGE = 10;
 
     const resetTeam = (teamNumber: 1 | 2): void => {
         const teamKeys = Array.from({ length: teamSize }).map((_, i) => `team${teamNumber}-${i}`);
@@ -322,6 +329,19 @@ export default function TeamBuilder({
     if (isCalculated && teamStats && showResults && !isCalculating) {
         const noGamesPlayed = teamStats.matchHistory.length === 0;
 
+        const totalPages = Math.ceil(teamStats.matchHistory.length / ITEMS_PER_PAGE);
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
+        const currentGames = teamStats.matchHistory.slice(startIndex, endIndex);
+
+        const handlePrevPage = (): void => {
+            setCurrentPage((prev) => Math.max(1, prev - 1));
+        };
+
+        const handleNextPage = (): void => {
+            setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+        };
+
         return (
             <div className="flex min-h-[80vh] flex-col items-center justify-start px-4 py-12">
                 <div className="w-full max-w-7xl">
@@ -369,7 +389,7 @@ export default function TeamBuilder({
                                                                     className="h-6 w-6 rounded-full"
                                                                 />
                                                             )}
-                                                            <span className="text-sm text-white">
+                                                            <span className={`text-sm ${player.id === 'wildcard' ? 'bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 bg-clip-text text-transparent' : 'text-white'}`}>
                                                                 {player.name}
                                                             </span>
                                                         </div>
@@ -450,10 +470,14 @@ export default function TeamBuilder({
                             <div className="rounded-lg bg-gray-900 p-6">
                                 <h3 className="mb-4 text-lg font-semibold text-gray-400">Match History</h3>
                                 <div className="space-y-3">
-                                    {teamStats.matchHistory.map((match, i) => (
+                                    {currentGames.map((match, i) => (
                                         <div
                                             key={i}
-                                            className="flex items-center justify-between rounded-lg bg-gray-800 p-6"
+                                            className="flex cursor-pointer items-center justify-between rounded-lg bg-gray-800 p-6 hover:bg-gray-700"
+                                            onClick={() => {
+                                                setSelectedGameId(match.id);
+                                                setIsModalOpen(true);
+                                            }}
                                         >
                                             <div className="flex items-center gap-8">
                                                 <div className="flex items-center gap-4">
@@ -500,7 +524,40 @@ export default function TeamBuilder({
                                         </div>
                                     ))}
                                 </div>
+
+                                {totalPages > 1 && (
+                                    <div className="mt-4 flex items-center justify-between border-t border-gray-800 pt-4">
+                                        <button
+                                            onClick={handlePrevPage}
+                                            disabled={currentPage === 1}
+                                            className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-700 px-4 py-2 text-sm text-gray-400 transition-colors hover:border-gray-600 hover:text-white disabled:opacity-50"
+                                        >
+                                            <ChevronLeft className="h-4 w-4" />
+                                            Previous
+                                        </button>
+                                        <span className="text-sm text-gray-400">
+                                            Page {currentPage} of {totalPages}
+                                        </span>
+                                        <button
+                                            onClick={handleNextPage}
+                                            disabled={currentPage === totalPages}
+                                            className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-700 px-4 py-2 text-sm text-gray-400 transition-colors hover:border-gray-600 hover:text-white disabled:opacity-50"
+                                        >
+                                            Next
+                                            <ChevronRight className="h-4 w-4" />
+                                        </button>
+                                    </div>
+                                )}
                             </div>
+
+                            <GameDetailsModal
+                                gameId={selectedGameId || ''}
+                                isOpen={isModalOpen}
+                                onClose={() => {
+                                    setIsModalOpen(false);
+                                    setSelectedGameId(null);
+                                }}
+                            />
                         </>
                     )}
                 </div>
