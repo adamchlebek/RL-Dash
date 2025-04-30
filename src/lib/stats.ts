@@ -657,12 +657,252 @@ export async function getMostForfeits(): Promise<StatValue> {
     }
 
     const maxForfeits = players[0].forfeitCount;
-    const tiedPlayers = players.filter(p => p.forfeitCount === maxForfeits).map(p => p.name);
+    const tiedPlayers = players.filter((p) => p.forfeitCount === maxForfeits).map((p) => p.name);
 
     return {
         gameId: undefined,
         value: String(maxForfeits),
         players: tiedPlayers,
+        isTeamVsTeam: false
+    };
+}
+
+export async function getLongestWinStreak(): Promise<StatValue> {
+    const replays = await prisma.replay.findMany({
+        where: {
+            status: 'completed',
+            AND: [{ blueTeam: { isNot: null } }, { orangeTeam: { isNot: null } }]
+        },
+        select: {
+            id: true,
+            date: true,
+            blueTeam: {
+                select: {
+                    goals: true,
+                    players: {
+                        select: {
+                            name: true,
+                            globalPlayer: {
+                                select: {
+                                    id: true,
+                                    name: true
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            orangeTeam: {
+                select: {
+                    goals: true,
+                    players: {
+                        select: {
+                            name: true,
+                            globalPlayer: {
+                                select: {
+                                    id: true,
+                                    name: true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        orderBy: {
+            date: 'asc'
+        }
+    });
+
+    const playerStreaks = new Map<
+        string,
+        { currentStreak: number; maxStreak: number; name: string }
+    >();
+    let longestStreak = { playerId: '', streak: 0, name: '' };
+
+    for (const replay of replays) {
+        if (!replay.blueTeam || !replay.orangeTeam) continue;
+
+        const blueWon = (replay.blueTeam.goals || 0) > (replay.orangeTeam.goals || 0);
+
+        for (const player of replay.blueTeam.players) {
+            if (!player.globalPlayer) continue;
+
+            const stats = playerStreaks.get(player.globalPlayer.id) || {
+                currentStreak: 0,
+                maxStreak: 0,
+                name: player.globalPlayer.name
+            };
+
+            if (blueWon) {
+                stats.currentStreak++;
+                stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak);
+
+                if (stats.maxStreak > longestStreak.streak) {
+                    longestStreak = {
+                        playerId: player.globalPlayer.id,
+                        streak: stats.maxStreak,
+                        name: player.globalPlayer.name
+                    };
+                }
+            } else {
+                stats.currentStreak = 0;
+            }
+
+            playerStreaks.set(player.globalPlayer.id, stats);
+        }
+
+        for (const player of replay.orangeTeam.players) {
+            if (!player.globalPlayer) continue;
+
+            const stats = playerStreaks.get(player.globalPlayer.id) || {
+                currentStreak: 0,
+                maxStreak: 0,
+                name: player.globalPlayer.name
+            };
+
+            if (!blueWon) {
+                stats.currentStreak++;
+                stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak);
+
+                if (stats.maxStreak > longestStreak.streak) {
+                    longestStreak = {
+                        playerId: player.globalPlayer.id,
+                        streak: stats.maxStreak,
+                        name: player.globalPlayer.name
+                    };
+                }
+            } else {
+                stats.currentStreak = 0;
+            }
+
+            playerStreaks.set(player.globalPlayer.id, stats);
+        }
+    }
+
+    return {
+        value: String(longestStreak.streak),
+        players: [longestStreak.name],
+        isTeamVsTeam: false
+    };
+}
+
+export async function getLongestLossStreak(): Promise<StatValue> {
+    const replays = await prisma.replay.findMany({
+        where: {
+            status: 'completed',
+            AND: [{ blueTeam: { isNot: null } }, { orangeTeam: { isNot: null } }]
+        },
+        select: {
+            id: true,
+            date: true,
+            blueTeam: {
+                select: {
+                    goals: true,
+                    players: {
+                        select: {
+                            name: true,
+                            globalPlayer: {
+                                select: {
+                                    id: true,
+                                    name: true
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            orangeTeam: {
+                select: {
+                    goals: true,
+                    players: {
+                        select: {
+                            name: true,
+                            globalPlayer: {
+                                select: {
+                                    id: true,
+                                    name: true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        orderBy: {
+            date: 'asc'
+        }
+    });
+
+    const playerStreaks = new Map<
+        string,
+        { currentStreak: number; maxStreak: number; name: string }
+    >();
+    let longestStreak = { playerId: '', streak: 0, name: '' };
+
+    for (const replay of replays) {
+        if (!replay.blueTeam || !replay.orangeTeam) continue;
+
+        const blueWon = (replay.blueTeam.goals || 0) > (replay.orangeTeam.goals || 0);
+
+        for (const player of replay.blueTeam.players) {
+            if (!player.globalPlayer) continue;
+
+            const stats = playerStreaks.get(player.globalPlayer.id) || {
+                currentStreak: 0,
+                maxStreak: 0,
+                name: player.globalPlayer.name
+            };
+
+            if (!blueWon) {
+                stats.currentStreak++;
+                stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak);
+
+                if (stats.maxStreak > longestStreak.streak) {
+                    longestStreak = {
+                        playerId: player.globalPlayer.id,
+                        streak: stats.maxStreak,
+                        name: player.globalPlayer.name
+                    };
+                }
+            } else {
+                stats.currentStreak = 0;
+            }
+
+            playerStreaks.set(player.globalPlayer.id, stats);
+        }
+
+        for (const player of replay.orangeTeam.players) {
+            if (!player.globalPlayer) continue;
+
+            const stats = playerStreaks.get(player.globalPlayer.id) || {
+                currentStreak: 0,
+                maxStreak: 0,
+                name: player.globalPlayer.name
+            };
+
+            if (blueWon) {
+                stats.currentStreak++;
+                stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak);
+
+                if (stats.maxStreak > longestStreak.streak) {
+                    longestStreak = {
+                        playerId: player.globalPlayer.id,
+                        streak: stats.maxStreak,
+                        name: player.globalPlayer.name
+                    };
+                }
+            } else {
+                stats.currentStreak = 0;
+            }
+
+            playerStreaks.set(player.globalPlayer.id, stats);
+        }
+    }
+
+    return {
+        value: String(longestStreak.streak),
+        players: [longestStreak.name],
         isTeamVsTeam: false
     };
 }
@@ -784,7 +1024,8 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
             stats.totalDemos += player.demoInflicted || 0;
             stats.totalScore += player.score || 0;
             stats.totalBoost += player.boostAvgAmount || 0;
-            stats.avgPointsPerGame = stats.gamesPlayed > 0 ? stats.totalScore / stats.gamesPlayed : 0;
+            stats.avgPointsPerGame =
+                stats.gamesPlayed > 0 ? stats.totalScore / stats.gamesPlayed : 0;
             if (blueWon) stats.wins++;
             else stats.losses++;
 
@@ -823,7 +1064,8 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
             stats.totalDemos += player.demoInflicted || 0;
             stats.totalScore += player.score || 0;
             stats.totalBoost += player.boostAvgAmount || 0;
-            stats.avgPointsPerGame = stats.gamesPlayed > 0 ? stats.totalScore / stats.gamesPlayed : 0;
+            stats.avgPointsPerGame =
+                stats.gamesPlayed > 0 ? stats.totalScore / stats.gamesPlayed : 0;
             if (!blueWon) stats.wins++;
             else stats.losses++;
 
@@ -831,7 +1073,7 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
         });
     });
 
-    globalPlayers.forEach(player => {
+    globalPlayers.forEach((player) => {
         const stats = playerStatsMap.get(player.id) || {
             id: player.id,
             name: player.name,
@@ -887,7 +1129,9 @@ export async function getAllStats() {
         highestPoints,
         lowestPoints,
         mostDemos,
-        mostForfeits
+        mostForfeits,
+        longestWinStreak,
+        longestLossStreak
     ] = await Promise.all([
         getBest3sTeam(),
         getBest2sTeam(),
@@ -899,7 +1143,9 @@ export async function getAllStats() {
         getHighestPoints(),
         getLowestPoints(),
         getMostDemos(),
-        getMostForfeits()
+        getMostForfeits(),
+        getLongestWinStreak(),
+        getLongestLossStreak()
     ]);
 
     // Add placeholder values for stats we don't calculate yet
@@ -928,7 +1174,9 @@ export async function getAllStats() {
         mostDemos,
         mostForfeits,
         fastestGoal,
-        slowestGoal
+        slowestGoal,
+        longestWinStreak,
+        longestLossStreak
     };
 }
 

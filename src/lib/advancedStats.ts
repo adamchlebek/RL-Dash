@@ -67,9 +67,15 @@ export const getLastDefenderStats = async (): Promise<PlayerLastDefenderStats[]>
         return stats
             .filter((stat): stat is PlayerLastDefenderStats => stat !== null)
             .sort((a, b) => {
-                const aPercent = a.totalGoalsConceded > 0 ? (a.goalsAsLastDefender / a.totalGoalsConceded) * 100 : 0;
-                const bPercent = b.totalGoalsConceded > 0 ? (b.goalsAsLastDefender / b.totalGoalsConceded) * 100 : 0;
-                
+                const aPercent =
+                    a.totalGoalsConceded > 0
+                        ? (a.goalsAsLastDefender / a.totalGoalsConceded) * 100
+                        : 0;
+                const bPercent =
+                    b.totalGoalsConceded > 0
+                        ? (b.goalsAsLastDefender / b.totalGoalsConceded) * 100
+                        : 0;
+
                 return bPercent - aPercent;
             });
     } catch (error) {

@@ -132,7 +132,7 @@ export default function Home(): React.ReactElement {
                 {!isLoading && stats && (
                     <>
                         <div>
-                            <div className="mb-4 -mt-2">
+                            <div className="-mt-2 mb-4">
                                 <GameStatsBadges />
                             </div>
                             <h2 className="text-foreground mb-6 flex items-center gap-2 text-2xl font-semibold">
@@ -229,7 +229,7 @@ export default function Home(): React.ReactElement {
                                     value={Number(stats.lowestPoints.value).toLocaleString()}
                                     players={stats.lowestPoints.players}
                                     icon={<statIcons.lowestPoints className="h-6 w-6" />}
-                                    color="red"
+                                    color="pink"
                                 />
                                 <StatCard
                                     label="Most Demos (single game)"
@@ -237,16 +237,28 @@ export default function Home(): React.ReactElement {
                                     value={Number(stats.mostDemos.value).toLocaleString()}
                                     players={stats.mostDemos.players}
                                     icon={<statIcons.mostDemos className="h-6 w-6" />}
+                                    color="orange"
+                                />
+                                <StatCard
+                                    label="Longest Win Streak"
+                                    value={Number(stats.longestWinStreak.value).toLocaleString()}
+                                    players={stats.longestWinStreak.players}
+                                    icon={<statIcons.longestWinStreak className="h-6 w-6" />}
                                     color="green"
                                 />
-                            </div>
-                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 mt-4">
+                                <StatCard
+                                    label="Longest Loss Streak"
+                                    value={Number(stats.longestLossStreak.value).toLocaleString()}
+                                    players={stats.longestLossStreak.players}
+                                    icon={<statIcons.longestLossStreak className="h-6 w-6" />}
+                                    color="red"
+                                />
                                 <StatCard
                                     label="Most Forfeits"
                                     value={Number(stats.mostForfeits.value).toLocaleString()}
                                     players={stats.mostForfeits.players}
                                     icon={<statIcons.mostForfeits className="h-6 w-6" />}
-                                    color="red"
+                                    color="blue"
                                 />
                             </div>
                         </div>
