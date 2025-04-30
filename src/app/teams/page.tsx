@@ -15,6 +15,7 @@ interface TeamStats {
 }
 
 interface MatchHistory {
+    id: string;
     winner: 1 | 2;
     score: string;
     date: string;
