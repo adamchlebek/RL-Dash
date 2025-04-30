@@ -190,6 +190,7 @@ model GlobalPlayer {
   platform      String
   platformId    String    @map("platform_id")
   name          String
+  imageUrl      String?
   forfeitCount  Int?      @default(0)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt

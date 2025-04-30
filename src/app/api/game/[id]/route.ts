@@ -39,7 +39,7 @@ export async function DELETE(
 
     if (password !== correctPasswordValue.value) {
         return NextResponse.json({ error: 'Invalid password' }, { status: 401 });
-    }  
+    }
 
     try {
         const replay = await prisma.replay.findUnique({

@@ -7,7 +7,7 @@ import {
     SelectContent,
     SelectItem,
     SelectTrigger,
-    SelectValue,
+    SelectValue
 } from '@/components/ui/select';
 
 interface TeamSizeFilterProps {
@@ -49,4 +49,4 @@ export function TeamSizeFilter({ className }: TeamSizeFilterProps): React.ReactE
             </SelectContent>
         </Select>
     );
-} 
+}

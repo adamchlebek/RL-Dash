@@ -37,7 +37,7 @@ export default function DeletePage(): React.ReactElement {
             const response = await fetch(`/api/game/${gameId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ password })
             });
@@ -45,7 +45,7 @@ export default function DeletePage(): React.ReactElement {
                 const data = await response.json();
                 throw new Error(data.error || 'Failed to delete game');
             }
-            setGames(games.filter(game => game.id !== gameId));
+            setGames(games.filter((game) => game.id !== gameId));
             setGameToDelete(null);
             setPassword('');
             setError('');
@@ -65,7 +65,9 @@ export default function DeletePage(): React.ReactElement {
                 {games.map((game) => (
                     <div key={game.id} className="flex flex-col rounded-lg border p-3">
                         <div className="mb-1 flex justify-between">
-                            <span className="text-sm text-gray-500">{new Date(game.date).toLocaleDateString()}</span>
+                            <span className="text-sm text-gray-500">
+                                {new Date(game.date).toLocaleDateString()}
+                            </span>
                             <span className="font-semibold">{game.score}</span>
                         </div>
                         <div className="mb-1 text-sm">
@@ -91,7 +93,9 @@ export default function DeletePage(): React.ReactElement {
                     <DialogHeader>
                         <DialogTitle>Confirm Delete</DialogTitle>
                     </DialogHeader>
-                    <p className="text-muted-foreground">Are you sure you want to delete this game?</p>
+                    <p className="text-muted-foreground">
+                        Are you sure you want to delete this game?
+                    </p>
                     {error && (
                         <div className="mb-2 rounded-lg bg-red-100 p-2 text-sm text-red-600">
                             {error}
@@ -125,4 +129,4 @@ export default function DeletePage(): React.ReactElement {
             </Dialog>
         </div>
     );
-} 
+}

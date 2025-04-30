@@ -1,7 +1,17 @@
 'use client';
 
 import { Player } from '../models/player';
-import { Goal, Trophy, Crosshair, Target, Bomb, Gamepad2, Percent, TrendingUp, Star } from 'lucide-react';
+import {
+    Goal,
+    Trophy,
+    Crosshair,
+    Target,
+    Bomb,
+    Gamepad2,
+    Percent,
+    TrendingUp,
+    Star
+} from 'lucide-react';
 import { useState } from 'react';
 import Link from 'next/link';
 
@@ -217,7 +227,9 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                                         <span className="text-red-400">{player.losses}</span>
                                         <span className="text-muted ml-2">({winRate}%)</span>
                                     </td>
-                                    <td className="px-4 py-4">{player.avgPointsPerGame?.toFixed(2)}</td>
+                                    <td className="px-4 py-4">
+                                        {player.avgPointsPerGame?.toFixed(2)}
+                                    </td>
                                     <td className="px-4 py-4">{player.goals}</td>
                                     <td className="px-4 py-4">{goalsPerGame}</td>
                                     <td className="px-4 py-4">{player.assists}</td>

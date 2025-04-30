@@ -40,7 +40,7 @@ export function GameStatsBadges(): React.ReactElement {
         };
 
         fetchStats();
-        
+
         // Refresh stats every 30 seconds
         const interval = setInterval(fetchStats, 30000);
         return () => clearInterval(interval);
@@ -65,4 +65,4 @@ export function GameStatsBadges(): React.ReactElement {
             )}
         </div>
     );
-} 
+}

@@ -1,4 +1,4 @@
-import { LucideIcon } from 'lucide-react';
+import { HeartCrack, LucideIcon } from 'lucide-react';
 import {
     Trophy,
     Clock,
@@ -27,6 +27,8 @@ export const statIcons: Record<keyof Stats, LucideIcon> = {
     highestPoints: TrendingUp,
     lowestPoints: TrendingDown,
     mostDemos: Bomb,
+    longestWinStreak: Trophy,
+    longestLossStreak: HeartCrack,
     mostForfeits: Cat
 };
 
