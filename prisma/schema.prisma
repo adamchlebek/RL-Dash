@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -15,307 +9,266 @@ datasource db {
 }
 
 model Replay {
-  id               String       @id @default(uuid())
-  ballchasingId    String       @unique
-  fileName         String?
-  status           String       // "processing", "completed", "failed"
-  uploadedAt       DateTime     @default(now())
-  processedAt      DateTime?
-  
-  // Fields from Ballchasing API
-  rocketLeagueId   String?      @map("rocket_league_id")
-  matchGuid        String?      @map("match_guid")
-  title            String?
-  mapCode          String?      @map("map_code")
-  mapName          String?      @map("map_name")
-  matchType        String?      @map("match_type")
-  teamSize         Int?         @map("team_size")
-  playlistId       String?      @map("playlist_id")
-  playlistName     String?      @map("playlist_name")
-  duration         Int?
-  overtime         Boolean?     @default(false)
-  overtimeSeconds  Int?         @map("overtime_seconds")
-  season           Int?
-  seasonType       String?      @map("season_type")
-  date             DateTime?
-  dateHasTimezone  Boolean?     @map("date_has_timezone")
-  visibility       String?
-  link             String?
-  created          DateTime?
-  
-  // Relations
-  uploader         Uploader?    @relation(fields: [uploaderId], references: [id])
-  uploaderId       String?
-  
-  blueTeam         Team?        @relation("BlueTeam", fields: [blueTeamId], references: [id])
-  blueTeamId       String?
-  
-  orangeTeam       Team?        @relation("OrangeTeam", fields: [orangeTeamId], references: [id])
-  orangeTeamId     String?
-  
-  groups           ReplayGroup[]
-  bluePlayers      Player[]     @relation("BlueTeamPlayers")
-  orangePlayers    Player[]     @relation("OrangeTeamPlayers")
+  id              String        @id @default(uuid())
+  ballchasingId   String        @unique
+  fileName        String?
+  status          String
+  uploadedAt      DateTime      @default(now())
+  processedAt     DateTime?
+  rocketLeagueId  String?       @map("rocket_league_id")
+  matchGuid       String?       @map("match_guid")
+  title           String?
+  mapCode         String?       @map("map_code")
+  mapName         String?       @map("map_name")
+  matchType       String?       @map("match_type")
+  teamSize        Int?          @map("team_size")
+  playlistId      String?       @map("playlist_id")
+  playlistName    String?       @map("playlist_name")
+  duration        Int?
+  overtime        Boolean?      @default(false)
+  overtimeSeconds Int?          @map("overtime_seconds")
+  season          Int?
+  seasonType      String?       @map("season_type")
+  date            DateTime?
+  dateHasTimezone Boolean?      @map("date_has_timezone")
+  visibility      String?
+  link            String?
+  created         DateTime?
+  uploaderId      String?
+  blueTeamId      String?
+  orangeTeamId    String?
+  blueTeam        Team?         @relation("BlueTeam", fields: [blueTeamId], references: [id])
+  orangeTeam      Team?         @relation("OrangeTeam", fields: [orangeTeamId], references: [id])
+  uploader        Uploader?     @relation(fields: [uploaderId], references: [id])
+  bluePlayers     Player[]      @relation("BlueTeamPlayers")
+  orangePlayers   Player[]      @relation("OrangeTeamPlayers")
+  groups          ReplayGroup[] @relation("ReplayToReplayGroup")
 }
 
 model Uploader {
-  id          String    @id @default(uuid())
-  steamId     String    @unique @map("steam_id")
-  name        String
-  profileUrl  String?   @map("profile_url")
-  avatar      String?
-  
-  replays     Replay[]
+  id         String   @id @default(uuid())
+  steamId    String   @unique @map("steam_id")
+  name       String
+  profileUrl String?  @map("profile_url")
+  avatar     String?
+  replays    Replay[]
 }
 
 model ReplayGroup {
-  id            String    @id @default(uuid())
-  ballchasingId String    @unique @map("ballchasing_id")
+  id            String   @id @default(uuid())
+  ballchasingId String   @unique @map("ballchasing_id")
   name          String
   link          String?
-  
-  replays       Replay[]
+  replays       Replay[] @relation("ReplayToReplayGroup")
 }
 
 model Team {
-  id          String    @id @default(uuid())
-  color       String    // "blue" or "orange"
-  name        String?
-  
-  // Ball stats
-  possessionTime     Float?  @map("possession_time")
-  timeInSide         Float?  @map("time_in_side")
-  
-  // Core stats
-  shots              Int?
-  shotsAgainst       Int?    @map("shots_against")
-  goals              Int?
-  goalsAgainst       Int?    @map("goals_against")
-  saves              Int?
-  assists            Int?
-  score              Int?
-  shootingPercentage Float?  @map("shooting_percentage")
-  
-  // Relations
-  blueReplays      Replay[] @relation("BlueTeam")
-  orangeReplays    Replay[] @relation("OrangeTeam")
-  players          Player[]
-  
-  // Boost stats
-  boostBPM                     Float?  @map("boost_bpm")
-  boostBCPM                    Float?  @map("boost_bcpm")
-  boostAvgAmount               Float?  @map("boost_avg_amount")
-  boostAmountCollected         Int?    @map("boost_amount_collected")
-  boostAmountStolen            Int?    @map("boost_amount_stolen")
-  boostAmountCollectedBig      Int?    @map("boost_amount_collected_big")
-  boostAmountStolenBig         Int?    @map("boost_amount_stolen_big")
-  boostAmountCollectedSmall    Int?    @map("boost_amount_collected_small")
-  boostAmountStolenSmall       Int?    @map("boost_amount_stolen_small")
-  boostCountCollectedBig       Int?    @map("boost_count_collected_big")
-  boostCountStolenBig          Int?    @map("boost_count_stolen_big")
-  boostCountCollectedSmall     Int?    @map("boost_count_collected_small")
-  boostCountStolenSmall        Int?    @map("boost_count_stolen_small")
-  boostAmountOverfill          Int?    @map("boost_amount_overfill")
-  boostAmountOverfillStolen    Int?    @map("boost_amount_overfill_stolen")
-  boostAmountUsedWhileSupersonic Int?   @map("boost_amount_used_while_supersonic")
-  boostTimeZeroBoost           Float?  @map("boost_time_zero_boost")
-  boostTimeFullBoost           Float?  @map("boost_time_full_boost")
-  boostPercentZeroBoost        Float?  @map("boost_percent_zero_boost")
-  boostPercentFullBoost        Float?  @map("boost_percent_full_boost")
-  boostTimeBoost0_25           Float?  @map("boost_time_boost_0_25")
-  boostTimeBoost25_50          Float?  @map("boost_time_boost_25_50")
-  boostTimeBoost50_75          Float?  @map("boost_time_boost_50_75")
-  boostTimeBoost75_100         Float?  @map("boost_time_boost_75_100")
-  boostPercentBoost0_25        Float?  @map("boost_percent_boost_0_25")
-  boostPercentBoost25_50       Float?  @map("boost_percent_boost_25_50")
-  boostPercentBoost50_75       Float?  @map("boost_percent_boost_50_75")
-  boostPercentBoost75_100      Float?  @map("boost_percent_boost_75_100")
-  
-  // Movement stats
-  movementTotalDistance        Int?    @map("movement_total_distance")
-  movementTimeSupersonicSpeed  Float?  @map("movement_time_supersonic_speed")
-  movementTimeBoostSpeed       Float?  @map("movement_time_boost_speed")
-  movementTimeSlowSpeed        Float?  @map("movement_time_slow_speed")
-  movementTimeGround           Float?  @map("movement_time_ground")
-  movementTimeLowAir           Float?  @map("movement_time_low_air")
-  movementTimeHighAir          Float?  @map("movement_time_high_air")
-  movementTimePowerslide       Float?  @map("movement_time_powerslide")
-  movementCountPowerslide      Int?    @map("movement_count_powerslide")
-  movementAvgSpeed             Float?  @map("movement_avg_speed")
-  movementAvgPowerslideDuration Float?  @map("movement_avg_powerslide_duration")
-  movementAvgSpeedPercentage   Float?  @map("movement_avg_speed_percentage")
-  movementPercentSlowSpeed     Float?  @map("movement_percent_slow_speed")
-  movementPercentBoostSpeed    Float?  @map("movement_percent_boost_speed")
-  movementPercentSupersonicSpeed Float?  @map("movement_percent_supersonic_speed")
-  movementPercentGround        Float?  @map("movement_percent_ground")
-  movementPercentLowAir        Float?  @map("movement_percent_low_air")
-  movementPercentHighAir       Float?  @map("movement_percent_high_air")
-  
-  // Positioning stats
-  positioningTimeDefensiveThird Float?  @map("positioning_time_defensive_third")
-  positioningTimeNeutralThird   Float?  @map("positioning_time_neutral_third")
-  positioningTimeOffensiveThird Float?  @map("positioning_time_offensive_third")
-  positioningTimeDefensiveHalf  Float?  @map("positioning_time_defensive_half")
-  positioningTimeOffensiveHalf  Float?  @map("positioning_time_offensive_half")
-  positioningTimeBehindBall     Float?  @map("positioning_time_behind_ball")
-  positioningTimeInfrontBall    Float?  @map("positioning_time_infront_ball")
-  positioningTimeMostBack       Float?  @map("positioning_time_most_back")
-  positioningTimeMostForward    Float?  @map("positioning_time_most_forward")
-  positioningTimeClosestToBall  Float?  @map("positioning_time_closest_to_ball")
-  positioningTimeFarthestFromBall Float? @map("positioning_time_farthest_from_ball")
-  positioningAvgDistanceToBall  Float?  @map("positioning_avg_distance_to_ball")
-  positioningAvgDistanceToBallPossession Float? @map("positioning_avg_distance_to_ball_possession")
-  positioningAvgDistanceToBallNoPossession Float? @map("positioning_avg_distance_to_ball_no_possession")
-  positioningAvgDistanceToMates Float?  @map("positioning_avg_distance_to_mates")
-  positioningPercentDefensiveThird Float? @map("positioning_percent_defensive_third")
-  positioningPercentOffensiveThird Float? @map("positioning_percent_offensive_third")
-  positioningPercentNeutralThird Float? @map("positioning_percent_neutral_third")
-  positioningPercentDefensiveHalf Float? @map("positioning_percent_defensive_half")
-  positioningPercentOffensiveHalf Float? @map("positioning_percent_offensive_half")
-  positioningPercentBehindBall  Float?  @map("positioning_percent_behind_ball")
-  positioningPercentInfrontBall Float?  @map("positioning_percent_infront_ball")
-  positioningPercentMostBack    Float?  @map("positioning_percent_most_back")
-  positioningPercentMostForward Float?  @map("positioning_percent_most_forward")
-  positioningPercentClosestToBall Float? @map("positioning_percent_closest_to_ball")
-  positioningPercentFarthestFromBall Float? @map("positioning_percent_farthest_from_ball")
-  goalsAgainstWhileLastDefender Int?    @map("goals_against_while_last_defender")
-  
-  // Demo stats
-  demoInflicted Int? @map("demo_inflicted")
-  demoTaken     Int? @map("demo_taken")
+  id                                       String   @id @default(uuid())
+  color                                    String
+  name                                     String?
+  possessionTime                           Float?   @map("possession_time")
+  timeInSide                               Float?   @map("time_in_side")
+  shots                                    Int?
+  shotsAgainst                             Int?     @map("shots_against")
+  goals                                    Int?
+  goalsAgainst                             Int?     @map("goals_against")
+  saves                                    Int?
+  assists                                  Int?
+  score                                    Int?
+  shootingPercentage                       Float?   @map("shooting_percentage")
+  boostBPM                                 Float?   @map("boost_bpm")
+  boostBCPM                                Float?   @map("boost_bcpm")
+  boostAvgAmount                           Float?   @map("boost_avg_amount")
+  boostAmountCollected                     Int?     @map("boost_amount_collected")
+  boostAmountStolen                        Int?     @map("boost_amount_stolen")
+  boostAmountCollectedBig                  Int?     @map("boost_amount_collected_big")
+  boostAmountStolenBig                     Int?     @map("boost_amount_stolen_big")
+  boostAmountCollectedSmall                Int?     @map("boost_amount_collected_small")
+  boostAmountStolenSmall                   Int?     @map("boost_amount_stolen_small")
+  boostCountCollectedBig                   Int?     @map("boost_count_collected_big")
+  boostCountStolenBig                      Int?     @map("boost_count_stolen_big")
+  boostCountCollectedSmall                 Int?     @map("boost_count_collected_small")
+  boostCountStolenSmall                    Int?     @map("boost_count_stolen_small")
+  boostAmountOverfill                      Int?     @map("boost_amount_overfill")
+  boostAmountOverfillStolen                Int?     @map("boost_amount_overfill_stolen")
+  boostAmountUsedWhileSupersonic           Int?     @map("boost_amount_used_while_supersonic")
+  boostTimeZeroBoost                       Float?   @map("boost_time_zero_boost")
+  boostTimeFullBoost                       Float?   @map("boost_time_full_boost")
+  boostTimeBoost0_25                       Float?   @map("boost_time_boost_0_25")
+  boostTimeBoost25_50                      Float?   @map("boost_time_boost_25_50")
+  boostTimeBoost50_75                      Float?   @map("boost_time_boost_50_75")
+  boostTimeBoost75_100                     Float?   @map("boost_time_boost_75_100")
+  movementTotalDistance                    Int?     @map("movement_total_distance")
+  movementTimeSupersonicSpeed              Float?   @map("movement_time_supersonic_speed")
+  movementTimeBoostSpeed                   Float?   @map("movement_time_boost_speed")
+  movementTimeSlowSpeed                    Float?   @map("movement_time_slow_speed")
+  movementTimeGround                       Float?   @map("movement_time_ground")
+  movementTimeLowAir                       Float?   @map("movement_time_low_air")
+  movementTimeHighAir                      Float?   @map("movement_time_high_air")
+  movementTimePowerslide                   Float?   @map("movement_time_powerslide")
+  movementCountPowerslide                  Int?     @map("movement_count_powerslide")
+  positioningTimeDefensiveThird            Float?   @map("positioning_time_defensive_third")
+  positioningTimeNeutralThird              Float?   @map("positioning_time_neutral_third")
+  positioningTimeOffensiveThird            Float?   @map("positioning_time_offensive_third")
+  positioningTimeDefensiveHalf             Float?   @map("positioning_time_defensive_half")
+  positioningTimeOffensiveHalf             Float?   @map("positioning_time_offensive_half")
+  positioningTimeBehindBall                Float?   @map("positioning_time_behind_ball")
+  positioningTimeInfrontBall               Float?   @map("positioning_time_infront_ball")
+  demoInflicted                            Int?     @map("demo_inflicted")
+  demoTaken                                Int?     @map("demo_taken")
+  boostPercentBoost0_25                    Float?   @map("boost_percent_boost_0_25")
+  boostPercentBoost25_50                   Float?   @map("boost_percent_boost_25_50")
+  boostPercentBoost50_75                   Float?   @map("boost_percent_boost_50_75")
+  boostPercentBoost75_100                  Float?   @map("boost_percent_boost_75_100")
+  boostPercentFullBoost                    Float?   @map("boost_percent_full_boost")
+  boostPercentZeroBoost                    Float?   @map("boost_percent_zero_boost")
+  goalsAgainstWhileLastDefender            Int?     @map("goals_against_while_last_defender")
+  movementAvgPowerslideDuration            Float?   @map("movement_avg_powerslide_duration")
+  movementAvgSpeed                         Float?   @map("movement_avg_speed")
+  movementAvgSpeedPercentage               Float?   @map("movement_avg_speed_percentage")
+  movementPercentBoostSpeed                Float?   @map("movement_percent_boost_speed")
+  movementPercentGround                    Float?   @map("movement_percent_ground")
+  movementPercentHighAir                   Float?   @map("movement_percent_high_air")
+  movementPercentLowAir                    Float?   @map("movement_percent_low_air")
+  movementPercentSlowSpeed                 Float?   @map("movement_percent_slow_speed")
+  movementPercentSupersonicSpeed           Float?   @map("movement_percent_supersonic_speed")
+  positioningAvgDistanceToBall             Float?   @map("positioning_avg_distance_to_ball")
+  positioningAvgDistanceToBallNoPossession Float?   @map("positioning_avg_distance_to_ball_no_possession")
+  positioningAvgDistanceToBallPossession   Float?   @map("positioning_avg_distance_to_ball_possession")
+  positioningAvgDistanceToMates            Float?   @map("positioning_avg_distance_to_mates")
+  positioningPercentBehindBall             Float?   @map("positioning_percent_behind_ball")
+  positioningPercentClosestToBall          Float?   @map("positioning_percent_closest_to_ball")
+  positioningPercentDefensiveHalf          Float?   @map("positioning_percent_defensive_half")
+  positioningPercentDefensiveThird         Float?   @map("positioning_percent_defensive_third")
+  positioningPercentFarthestFromBall       Float?   @map("positioning_percent_farthest_from_ball")
+  positioningPercentInfrontBall            Float?   @map("positioning_percent_infront_ball")
+  positioningPercentMostBack               Float?   @map("positioning_percent_most_back")
+  positioningPercentMostForward            Float?   @map("positioning_percent_most_forward")
+  positioningPercentNeutralThird           Float?   @map("positioning_percent_neutral_third")
+  positioningPercentOffensiveHalf          Float?   @map("positioning_percent_offensive_half")
+  positioningPercentOffensiveThird         Float?   @map("positioning_percent_offensive_third")
+  positioningTimeClosestToBall             Float?   @map("positioning_time_closest_to_ball")
+  positioningTimeFarthestFromBall          Float?   @map("positioning_time_farthest_from_ball")
+  positioningTimeMostBack                  Float?   @map("positioning_time_most_back")
+  positioningTimeMostForward               Float?   @map("positioning_time_most_forward")
+  players                                  Player[]
+  blueReplays                              Replay[] @relation("BlueTeam")
+  orangeReplays                            Replay[] @relation("OrangeTeam")
 }
 
 model GlobalPlayer {
-  id            String    @id @default(uuid())
-  platform      String
-  platformId    String    @map("platform_id")
-  name          String
-  imageUrl      String?
-  forfeitCount  Int?      @default(0)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  
-  // Player instances in individual games
-  players       Player[]
+  id           String   @id @default(uuid())
+  platform     String
+  platformId   String   @map("platform_id")
+  name         String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  forfeitCount Int?     @default(0)
+  imageUrl     String?
+  players      Player[]
 
   @@unique([platform, platformId])
 }
 
 model Player {
-  id                String        @id @default(uuid())
-  name              String
-  platform          String
-  platformId        String        @map("platform_id")
-  carId             Int?          @map("car_id")
-  carName           String?       @map("car_name")
-  startTime         Float?        @map("start_time")
-  endTime           Float?        @map("end_time")
-  steeringSensitivity Float?      @map("steering_sensitivity")
-  mvp               Boolean?      @default(false)
-  
-  // Relations
-  team              Team?         @relation(fields: [teamId], references: [id])
-  teamId            String?
-  
-  // Global player relation (connects to the unique player across games)
-  globalPlayer      GlobalPlayer  @relation(fields: [platform, platformId], references: [platform, platformId])
-  
-  // Replay relations
-  blueReplays       Replay[]      @relation("BlueTeamPlayers")
-  orangeReplays     Replay[]      @relation("OrangeTeamPlayers")
-  
-  // Core stats
-  score             Int?
-  goals             Int?
-  assists           Int?
-  saves             Int?
-  shots             Int?
-  shotsAgainst      Int?          @map("shots_against")
-  goalsAgainst      Int?          @map("goals_against")
-  shootingPercentage Float?       @map("shooting_percentage")
-  
-  // Boost stats
-  boostBPM                     Float?  @map("boost_bpm")
-  boostBCPM                    Float?  @map("boost_bcpm")
-  boostAvgAmount               Float?  @map("boost_avg_amount")
-  boostAmountCollected         Int?    @map("boost_amount_collected")
-  boostAmountStolen            Int?    @map("boost_amount_stolen")
-  boostAmountCollectedBig      Int?    @map("boost_amount_collected_big")
-  boostAmountStolenBig         Int?    @map("boost_amount_stolen_big")
-  boostAmountCollectedSmall    Int?    @map("boost_amount_collected_small")
-  boostAmountStolenSmall       Int?    @map("boost_amount_stolen_small")
-  boostCountCollectedBig       Int?    @map("boost_count_collected_big")
-  boostCountStolenBig          Int?    @map("boost_count_stolen_big")
-  boostCountCollectedSmall     Int?    @map("boost_count_collected_small")
-  boostCountStolenSmall        Int?    @map("boost_count_stolen_small")
-  boostAmountOverfill          Int?    @map("boost_amount_overfill")
-  boostAmountOverfillStolen    Int?    @map("boost_amount_overfill_stolen")
-  boostAmountUsedWhileSupersonic Int?   @map("boost_amount_used_while_supersonic")
-  boostTimeZeroBoost           Float?  @map("boost_time_zero_boost")
-  boostPercentZeroBoost        Float?  @map("boost_percent_zero_boost")
-  boostTimeFullBoost           Float?  @map("boost_time_full_boost")
-  boostPercentFullBoost        Float?  @map("boost_percent_full_boost")
-  boostTimeBoost0_25           Float?  @map("boost_time_boost_0_25")
-  boostTimeBoost25_50          Float?  @map("boost_time_boost_25_50")
-  boostTimeBoost50_75          Float?  @map("boost_time_boost_50_75")
-  boostTimeBoost75_100         Float?  @map("boost_time_boost_75_100")
-  boostPercentBoost0_25        Float?  @map("boost_percent_boost_0_25")
-  boostPercentBoost25_50       Float?  @map("boost_percent_boost_25_50")
-  boostPercentBoost50_75       Float?  @map("boost_percent_boost_50_75")
-  boostPercentBoost75_100      Float?  @map("boost_percent_boost_75_100")
-  
-  // Movement stats
-  movementAvgSpeed             Float?  @map("movement_avg_speed")
-  movementTotalDistance        Int?    @map("movement_total_distance")
-  movementTimeSupersonicSpeed  Float?  @map("movement_time_supersonic_speed")
-  movementTimeBoostSpeed       Float?  @map("movement_time_boost_speed")
-  movementTimeSlowSpeed        Float?  @map("movement_time_slow_speed")
-  movementTimeGround           Float?  @map("movement_time_ground")
-  movementTimeLowAir           Float?  @map("movement_time_low_air")
-  movementTimeHighAir          Float?  @map("movement_time_high_air")
-  movementTimePowerslide       Float?  @map("movement_time_powerslide")
-  movementCountPowerslide      Int?    @map("movement_count_powerslide")
-  movementAvgPowerslideDuration Float?  @map("movement_avg_powerslide_duration")
-  movementAvgSpeedPercentage   Float?  @map("movement_avg_speed_percentage")
-  movementPercentSlowSpeed     Float?  @map("movement_percent_slow_speed")
-  movementPercentBoostSpeed    Float?  @map("movement_percent_boost_speed")
-  movementPercentSupersonicSpeed Float?  @map("movement_percent_supersonic_speed")
-  movementPercentGround        Float?  @map("movement_percent_ground")
-  movementPercentLowAir        Float?  @map("movement_percent_low_air")
-  movementPercentHighAir       Float?  @map("movement_percent_high_air")
-  
-  // Positioning stats
-  positioningAvgDistanceToBall        Float?  @map("positioning_avg_distance_to_ball")
-  positioningAvgDistanceToBallPossession Float? @map("positioning_avg_distance_to_ball_possession")
-  positioningAvgDistanceToBallNoPossession Float? @map("positioning_avg_distance_to_ball_no_possession")
-  positioningAvgDistanceToMates       Float?  @map("positioning_avg_distance_to_mates")
-  positioningTimeDefensiveThird       Float?  @map("positioning_time_defensive_third")
-  positioningTimeNeutralThird         Float?  @map("positioning_time_neutral_third")
-  positioningTimeOffensiveThird       Float?  @map("positioning_time_offensive_third")
-  positioningTimeDefensiveHalf        Float?  @map("positioning_time_defensive_half")
-  positioningTimeOffensiveHalf        Float?  @map("positioning_time_offensive_half")
-  positioningTimeBehindBall           Float?  @map("positioning_time_behind_ball")
-  positioningTimeInfrontBall          Float?  @map("positioning_time_infront_ball")
-  positioningTimeMostBack             Float?  @map("positioning_time_most_back")
-  positioningTimeMostForward          Float?  @map("positioning_time_most_forward")
-  positioningTimeClosestToBall        Float?  @map("positioning_time_closest_to_ball")
-  positioningTimeFarthestFromBall     Float?  @map("positioning_time_farthest_from_ball")
-  positioningPercentDefensiveThird    Float?  @map("positioning_percent_defensive_third")
-  positioningPercentOffensiveThird    Float?  @map("positioning_percent_offensive_third")
-  positioningPercentNeutralThird      Float?  @map("positioning_percent_neutral_third")
-  positioningPercentDefensiveHalf     Float?  @map("positioning_percent_defensive_half")
-  positioningPercentOffensiveHalf     Float?  @map("positioning_percent_offensive_half")
-  positioningPercentBehindBall        Float?  @map("positioning_percent_behind_ball")
-  positioningPercentInfrontBall       Float?  @map("positioning_percent_infront_ball")
-  positioningPercentMostBack          Float?  @map("positioning_percent_most_back")
-  positioningPercentMostForward       Float?  @map("positioning_percent_most_forward")
-  positioningPercentClosestToBall     Float?  @map("positioning_percent_closest_to_ball")
-  positioningPercentFarthestFromBall  Float?  @map("positioning_percent_farthest_from_ball")
-  goalsAgainstWhileLastDefender       Int?    @map("goals_against_while_last_defender")
-  
-  // Demo stats
-  demoInflicted                Int?    @map("demo_inflicted")
-  demoTaken                    Int?    @map("demo_taken")
+  id                                       String       @id @default(uuid())
+  name                                     String
+  platform                                 String
+  platformId                               String       @map("platform_id")
+  carId                                    Int?         @map("car_id")
+  carName                                  String?      @map("car_name")
+  startTime                                Float?       @map("start_time")
+  endTime                                  Float?       @map("end_time")
+  steeringSensitivity                      Float?       @map("steering_sensitivity")
+  mvp                                      Boolean?     @default(false)
+  teamId                                   String?
+  score                                    Int?
+  goals                                    Int?
+  assists                                  Int?
+  saves                                    Int?
+  shots                                    Int?
+  shotsAgainst                             Int?         @map("shots_against")
+  goalsAgainst                             Int?         @map("goals_against")
+  shootingPercentage                       Float?       @map("shooting_percentage")
+  boostBPM                                 Float?       @map("boost_bpm")
+  boostBCPM                                Float?       @map("boost_bcpm")
+  boostAvgAmount                           Float?       @map("boost_avg_amount")
+  boostAmountCollected                     Int?         @map("boost_amount_collected")
+  boostAmountStolen                        Int?         @map("boost_amount_stolen")
+  boostAmountCollectedBig                  Int?         @map("boost_amount_collected_big")
+  boostAmountStolenBig                     Int?         @map("boost_amount_stolen_big")
+  boostAmountCollectedSmall                Int?         @map("boost_amount_collected_small")
+  boostAmountStolenSmall                   Int?         @map("boost_amount_stolen_small")
+  boostCountCollectedBig                   Int?         @map("boost_count_collected_big")
+  boostCountStolenBig                      Int?         @map("boost_count_stolen_big")
+  boostCountCollectedSmall                 Int?         @map("boost_count_collected_small")
+  boostCountStolenSmall                    Int?         @map("boost_count_stolen_small")
+  boostAmountOverfill                      Int?         @map("boost_amount_overfill")
+  boostAmountOverfillStolen                Int?         @map("boost_amount_overfill_stolen")
+  boostAmountUsedWhileSupersonic           Int?         @map("boost_amount_used_while_supersonic")
+  boostTimeZeroBoost                       Float?       @map("boost_time_zero_boost")
+  boostPercentZeroBoost                    Float?       @map("boost_percent_zero_boost")
+  boostTimeFullBoost                       Float?       @map("boost_time_full_boost")
+  boostPercentFullBoost                    Float?       @map("boost_percent_full_boost")
+  boostTimeBoost0_25                       Float?       @map("boost_time_boost_0_25")
+  boostTimeBoost25_50                      Float?       @map("boost_time_boost_25_50")
+  boostTimeBoost50_75                      Float?       @map("boost_time_boost_50_75")
+  boostTimeBoost75_100                     Float?       @map("boost_time_boost_75_100")
+  boostPercentBoost0_25                    Float?       @map("boost_percent_boost_0_25")
+  boostPercentBoost25_50                   Float?       @map("boost_percent_boost_25_50")
+  boostPercentBoost50_75                   Float?       @map("boost_percent_boost_50_75")
+  boostPercentBoost75_100                  Float?       @map("boost_percent_boost_75_100")
+  movementAvgSpeed                         Float?       @map("movement_avg_speed")
+  movementTotalDistance                    Int?         @map("movement_total_distance")
+  movementTimeSupersonicSpeed              Float?       @map("movement_time_supersonic_speed")
+  movementTimeBoostSpeed                   Float?       @map("movement_time_boost_speed")
+  movementTimeSlowSpeed                    Float?       @map("movement_time_slow_speed")
+  movementTimeGround                       Float?       @map("movement_time_ground")
+  movementTimeLowAir                       Float?       @map("movement_time_low_air")
+  movementTimeHighAir                      Float?       @map("movement_time_high_air")
+  movementTimePowerslide                   Float?       @map("movement_time_powerslide")
+  movementCountPowerslide                  Int?         @map("movement_count_powerslide")
+  movementAvgPowerslideDuration            Float?       @map("movement_avg_powerslide_duration")
+  movementAvgSpeedPercentage               Float?       @map("movement_avg_speed_percentage")
+  movementPercentSlowSpeed                 Float?       @map("movement_percent_slow_speed")
+  movementPercentBoostSpeed                Float?       @map("movement_percent_boost_speed")
+  movementPercentSupersonicSpeed           Float?       @map("movement_percent_supersonic_speed")
+  movementPercentGround                    Float?       @map("movement_percent_ground")
+  movementPercentLowAir                    Float?       @map("movement_percent_low_air")
+  movementPercentHighAir                   Float?       @map("movement_percent_high_air")
+  positioningAvgDistanceToBall             Float?       @map("positioning_avg_distance_to_ball")
+  positioningAvgDistanceToBallPossession   Float?       @map("positioning_avg_distance_to_ball_possession")
+  positioningAvgDistanceToBallNoPossession Float?       @map("positioning_avg_distance_to_ball_no_possession")
+  positioningAvgDistanceToMates            Float?       @map("positioning_avg_distance_to_mates")
+  positioningTimeDefensiveThird            Float?       @map("positioning_time_defensive_third")
+  positioningTimeNeutralThird              Float?       @map("positioning_time_neutral_third")
+  positioningTimeOffensiveThird            Float?       @map("positioning_time_offensive_third")
+  positioningTimeDefensiveHalf             Float?       @map("positioning_time_defensive_half")
+  positioningTimeOffensiveHalf             Float?       @map("positioning_time_offensive_half")
+  positioningTimeBehindBall                Float?       @map("positioning_time_behind_ball")
+  positioningTimeInfrontBall               Float?       @map("positioning_time_infront_ball")
+  positioningTimeMostBack                  Float?       @map("positioning_time_most_back")
+  positioningTimeMostForward               Float?       @map("positioning_time_most_forward")
+  positioningTimeClosestToBall             Float?       @map("positioning_time_closest_to_ball")
+  positioningTimeFarthestFromBall          Float?       @map("positioning_time_farthest_from_ball")
+  positioningPercentDefensiveThird         Float?       @map("positioning_percent_defensive_third")
+  positioningPercentOffensiveThird         Float?       @map("positioning_percent_offensive_third")
+  positioningPercentNeutralThird           Float?       @map("positioning_percent_neutral_third")
+  positioningPercentDefensiveHalf          Float?       @map("positioning_percent_defensive_half")
+  positioningPercentOffensiveHalf          Float?       @map("positioning_percent_offensive_half")
+  positioningPercentBehindBall             Float?       @map("positioning_percent_behind_ball")
+  positioningPercentInfrontBall            Float?       @map("positioning_percent_infront_ball")
+  positioningPercentMostBack               Float?       @map("positioning_percent_most_back")
+  positioningPercentMostForward            Float?       @map("positioning_percent_most_forward")
+  positioningPercentClosestToBall          Float?       @map("positioning_percent_closest_to_ball")
+  positioningPercentFarthestFromBall       Float?       @map("positioning_percent_farthest_from_ball")
+  goalsAgainstWhileLastDefender            Int?         @map("goals_against_while_last_defender")
+  demoInflicted                            Int?         @map("demo_inflicted")
+  demoTaken                                Int?         @map("demo_taken")
+  globalPlayer                             GlobalPlayer @relation(fields: [platform, platformId], references: [platform, platformId])
+  team                                     Team?        @relation(fields: [teamId], references: [id])
+  blueReplays                              Replay[]     @relation("BlueTeamPlayers")
+  orangeReplays                            Replay[]     @relation("OrangeTeamPlayers")
 }
 
 model EdgeConfig {

@@ -36,13 +36,13 @@ export function Navigation(): React.ReactElement {
                                 <Users className="mr-2 h-4 w-4" />
                                 Players
                             </Link>
-                            {/* <Link
+                            <Link
                                 href="/teams"
                                 className="text-muted hover:text-foreground inline-flex items-center px-1 pt-1 text-sm font-medium"
                             >
                                 <Boxes className="mr-2 h-4 w-4" />
                                 Teams
-                            </Link> */}
+                            </Link>
                         </div>
                     </div>
                     <div className="flex items-center">
