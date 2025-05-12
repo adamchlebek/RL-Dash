@@ -22,7 +22,10 @@ interface Player {
 interface TeamBuilderProps {
     teamSize: 2 | 3;
     players: GlobalPlayer[];
-    onCalculate: (team1: { id: string; name: string }[], team2: { id: string; name: string }[]) => void;
+    onCalculate: (
+        team1: { id: string; name: string }[],
+        team2: { id: string; name: string }[]
+    ) => void;
     isCalculated: boolean;
     isCalculating: boolean;
     teamStats: {
@@ -181,11 +184,11 @@ export default function TeamBuilder({
 }: TeamBuilderProps): React.ReactElement {
     const [teams, setTeams] = useState<{ [key: string]: Player | null }>({});
     const [availablePlayers, setAvailablePlayers] = useState<Player[]>(
-        players.map((p) => ({ 
+        players.map((p) => ({
             id: p.id,
             platformId: p.platformId,
-            name: p.name, 
-            avatar: p.imageUrl || undefined 
+            name: p.name,
+            avatar: p.imageUrl || undefined
         }))
     );
     const [activeId, setActiveId] = useState<string | null>(null);
@@ -271,7 +274,9 @@ export default function TeamBuilder({
         }
 
         const sourceSlot = Object.entries(teams).find(([, player]) => player?.id === playerId)?.[0];
-        const player = sourceSlot ? teams[sourceSlot] : availablePlayers.find((p) => p.id === playerId);
+        const player = sourceSlot
+            ? teams[sourceSlot]
+            : availablePlayers.find((p) => p.id === playerId);
 
         if (!player) return;
 
@@ -301,7 +306,7 @@ export default function TeamBuilder({
 
     const handleCalculateClick = (): void => {
         const newTeams = { ...teams };
-        
+
         Array.from({ length: teamSize }).forEach((_, i) => {
             if (!teams[`team1-${i}`]) newTeams[`team1-${i}`] = WILDCARD;
             if (!teams[`team2-${i}`]) newTeams[`team2-${i}`] = WILDCARD;
@@ -314,13 +319,13 @@ export default function TeamBuilder({
 
         setShowResults(false);
         onCalculate(
-            team1Players.map(p => ({ 
+            team1Players.map((p) => ({
                 id: p!.platformId,
-                name: p!.name 
+                name: p!.name
             })),
-            team2Players.map(p => ({ 
+            team2Players.map((p) => ({
                 id: p!.platformId,
-                name: p!.name 
+                name: p!.name
             }))
         );
         setShowResults(true);
@@ -350,7 +355,7 @@ export default function TeamBuilder({
                     </h2>
 
                     <div className="mb-4 flex gap-4">
-                        <button 
+                        <button
                             onClick={() => {
                                 setShowResults(false);
                             }}
@@ -362,8 +367,12 @@ export default function TeamBuilder({
 
                     {noGamesPlayed ? (
                         <div className="rounded-lg bg-gray-900 p-6 text-center">
-                            <h3 className="text-xl font-semibold text-white mb-2">No Games Found</h3>
-                            <p className="text-gray-400">These teams haven&apos;t played any games together yet.</p>
+                            <h3 className="mb-2 text-xl font-semibold text-white">
+                                No Games Found
+                            </h3>
+                            <p className="text-gray-400">
+                                These teams haven&apos;t played any games together yet.
+                            </p>
                         </div>
                     ) : (
                         <>
@@ -389,7 +398,9 @@ export default function TeamBuilder({
                                                                     className="h-6 w-6 rounded-full"
                                                                 />
                                                             )}
-                                                            <span className={`text-sm ${player.id === 'wildcard' ? 'bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 bg-clip-text text-transparent' : 'text-white'}`}>
+                                                            <span
+                                                                className={`text-sm ${player.id === 'wildcard' ? 'bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 bg-clip-text text-transparent' : 'text-white'}`}
+                                                            >
                                                                 {player.name}
                                                             </span>
                                                         </div>
@@ -452,10 +463,11 @@ export default function TeamBuilder({
                                                     ).map((result, i) => (
                                                         <div
                                                             key={i}
-                                                            className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${result === 'W'
+                                                            className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${
+                                                                result === 'W'
                                                                     ? 'bg-green-400/20 text-green-400'
                                                                     : 'bg-red-400/20 text-red-400'
-                                                                }`}
+                                                            }`}
                                                         >
                                                             {result}
                                                         </div>
@@ -468,7 +480,9 @@ export default function TeamBuilder({
                             </div>
 
                             <div className="rounded-lg bg-gray-900 p-6">
-                                <h3 className="mb-4 text-lg font-semibold text-gray-400">Match History</h3>
+                                <h3 className="mb-4 text-lg font-semibold text-gray-400">
+                                    Match History
+                                </h3>
                                 <div className="space-y-3">
                                     {currentGames.map((match, i) => (
                                         <div
@@ -482,15 +496,19 @@ export default function TeamBuilder({
                                             <div className="flex items-center gap-8">
                                                 <div className="flex items-center gap-4">
                                                     {match.team1.map((name, idx) => {
-                                                        const isWildcard = !Array.from({ length: teamSize })
+                                                        const isWildcard = !Array.from({
+                                                            length: teamSize
+                                                        })
                                                             .map((_, i) => teams[`team1-${i}`])
-                                                            .some(p => p?.name === name);
+                                                            .some((p) => p?.name === name);
                                                         return (
                                                             <div
                                                                 key={idx}
                                                                 className={`flex items-center gap-2 rounded-full ${isWildcard ? 'bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-red-500/20' : 'bg-gray-700'} px-3 py-1 ${match.winner === 1 ? 'ring-1 ring-green-400' : ''}`}
                                                             >
-                                                                <span className={`text-sm ${isWildcard ? 'bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 bg-clip-text text-transparent' : 'text-white'}`}>
+                                                                <span
+                                                                    className={`text-sm ${isWildcard ? 'bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 bg-clip-text text-transparent' : 'text-white'}`}
+                                                                >
                                                                     {name}
                                                                     {isWildcard && ' (Wildcard)'}
                                                                 </span>
@@ -503,15 +521,19 @@ export default function TeamBuilder({
                                                 </span>
                                                 <div className="flex items-center gap-2">
                                                     {match.team2.map((name, idx) => {
-                                                        const isWildcard = !Array.from({ length: teamSize })
+                                                        const isWildcard = !Array.from({
+                                                            length: teamSize
+                                                        })
                                                             .map((_, i) => teams[`team2-${i}`])
-                                                            .some(p => p?.name === name);
+                                                            .some((p) => p?.name === name);
                                                         return (
                                                             <div
                                                                 key={idx}
                                                                 className={`flex items-center gap-2 rounded-full ${isWildcard ? 'bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-red-500/20' : 'bg-gray-700'} px-3 py-1 ${match.winner === 2 ? 'ring-1 ring-green-400' : ''}`}
                                                             >
-                                                                <span className={`text-sm ${isWildcard ? 'bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 bg-clip-text text-transparent' : 'text-white'}`}>
+                                                                <span
+                                                                    className={`text-sm ${isWildcard ? 'bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 bg-clip-text text-transparent' : 'text-white'}`}
+                                                                >
                                                                     {name}
                                                                     {isWildcard && ' (Wildcard)'}
                                                                 </span>
@@ -520,7 +542,9 @@ export default function TeamBuilder({
                                                     })}
                                                 </div>
                                             </div>
-                                            <span className="text-sm text-gray-400">{match.date}</span>
+                                            <span className="text-sm text-gray-400">
+                                                {match.date}
+                                            </span>
                                         </div>
                                     ))}
                                 </div>

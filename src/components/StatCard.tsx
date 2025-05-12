@@ -16,6 +16,7 @@ interface StatCardProps {
     isWorst?: boolean;
     isTeam?: boolean;
     isMatchup?: boolean;
+    isLoading?: boolean;
 }
 
 export const StatCard = ({
@@ -28,7 +29,8 @@ export const StatCard = ({
     color = 'orange',
     isWorst = false,
     isTeam = false,
-    isMatchup = false
+    isMatchup = false,
+    isLoading = false
 }: StatCardProps): React.ReactNode => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -43,10 +45,80 @@ export const StatCard = ({
     };
 
     const handleClick = () => {
-        if (gameId) {
+        if (gameId && !isLoading) {
             setIsModalOpen(true);
         }
     };
+
+    if (isLoading) {
+        return (
+            <div
+                className={`bg-background/50 rounded-xl border p-6 backdrop-blur-sm ${getBorderColor()}`}
+            >
+                <div className="mb-4 flex items-center justify-center gap-3">
+                    <div className="h-6 w-6 animate-pulse rounded-full bg-gray-500" />
+                    <div className="h-4 w-24 animate-pulse rounded bg-gray-500" />
+                </div>
+                {isTeam ? (
+                    <>
+                        <div className="mb-4 flex flex-wrap justify-center gap-2">
+                            {[1, 2, 3].map((i) => (
+                                <div
+                                    key={i}
+                                    className="h-6 w-16 animate-pulse rounded-full bg-gray-500"
+                                />
+                            ))}
+                        </div>
+                        <div className="flex items-center justify-center gap-2">
+                            <div className="h-4 w-8 animate-pulse rounded bg-gray-500" />
+                            <span className="text-muted">/</span>
+                            <div className="h-4 w-8 animate-pulse rounded bg-gray-500" />
+                        </div>
+                    </>
+                ) : isMatchup ? (
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-center gap-2">
+                            <div className="flex flex-wrap justify-center gap-2">
+                                {[1, 2, 3].map((i) => (
+                                    <div
+                                        key={i}
+                                        className="h-6 w-16 animate-pulse rounded-full bg-gray-500"
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                        <div className="flex items-center">
+                            <div className="bg-border h-[1px] flex-1"></div>
+                            <span className="text-muted px-3 font-medium">vs</span>
+                            <div className="bg-border h-[1px] flex-1"></div>
+                        </div>
+                        <div className="flex items-center justify-center gap-2">
+                            <div className="flex flex-wrap justify-center gap-2">
+                                {[1, 2, 3].map((i) => (
+                                    <div
+                                        key={i}
+                                        className="h-6 w-16 animate-pulse rounded-full bg-gray-500"
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <>
+                        <div className="mx-auto mb-4 h-8 w-24 animate-pulse rounded bg-gray-500" />
+                        <div className="flex flex-wrap justify-center gap-2">
+                            {[1, 2, 3].map((i) => (
+                                <div
+                                    key={i}
+                                    className="h-6 w-16 animate-pulse rounded-full bg-gray-500"
+                                />
+                            ))}
+                        </div>
+                    </>
+                )}
+            </div>
+        );
+    }
 
     if (isMatchup) {
         const team1Players = players[0].split(/[,&\s]+/).filter(Boolean);

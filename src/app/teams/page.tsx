@@ -61,7 +61,10 @@ export default function TeamsPage(): React.ReactElement {
         setTeamStats(null);
     };
 
-    const handleCalculate = async (team1: { id: string; name: string }[], team2: { id: string; name: string }[]): Promise<void> => {
+    const handleCalculate = async (
+        team1: { id: string; name: string }[],
+        team2: { id: string; name: string }[]
+    ): Promise<void> => {
         try {
             setIsCalculating(true);
             const params = new URLSearchParams({
@@ -104,7 +107,7 @@ export default function TeamsPage(): React.ReactElement {
                 </button>
             </div>
 
-            {(!isCalculated) && (
+            {!isCalculated && (
                 <TeamSelector onSelect={setSelectedTeamSize} selected={selectedTeamSize} />
             )}
 

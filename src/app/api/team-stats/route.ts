@@ -21,4 +21,4 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         console.error('Error calculating team stats:', error);
         return NextResponse.json({ error: 'Failed to calculate team stats' }, { status: 500 });
     }
-} 
+}
