@@ -154,7 +154,7 @@ export const GameDetailsModal = ({ gameId, isOpen, onClose }: GameDetailsModalPr
 
                             <div className="flex justify-center">
                                 <button
-                                    onClick={() => router.push(`/game/${gameId}`)}
+                                    onClick={() => router.push(`/games/${gameId}`)}
                                     className="cursor-pointer rounded-lg bg-zinc-700 px-4 py-2 font-medium text-white transition-colors hover:bg-zinc-600"
                                 >
                                     View All Details

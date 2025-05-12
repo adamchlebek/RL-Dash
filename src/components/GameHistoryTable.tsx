@@ -2,24 +2,32 @@
 
 import { useState } from 'react';
 import type { FC } from 'react';
-import { Calendar, Trophy, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { GameDetailsModal } from './GameDetailsModal';
 import { GameHistoryResult } from '@/models/stats';
+import { format } from 'date-fns';
+import { useRouter } from 'next/navigation';
 
 interface GameHistoryTableProps {
     games: GameHistoryResult[];
+    isLoading?: boolean;
+    itemsPerPage?: number;
     highlightPlayerId?: string;
 }
 
-const ITEMS_PER_PAGE = 10;
-
-const GameHistoryTable: FC<GameHistoryTableProps> = ({ games }): React.ReactElement => {
+const GameHistoryTable: FC<GameHistoryTableProps> = ({
+    games,
+    isLoading = false,
+    itemsPerPage = 10,
+    highlightPlayerId
+}): React.ReactElement => {
+    const router = useRouter();
     const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState<number>(1);
 
-    const totalPages = Math.ceil(games.length / ITEMS_PER_PAGE);
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const totalPages = Math.ceil(games.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
     const currentGames = games.slice(startIndex, endIndex);
 
     const handlePrevPage = (): void => {
@@ -30,125 +38,131 @@ const GameHistoryTable: FC<GameHistoryTableProps> = ({ games }): React.ReactElem
         setCurrentPage((prev) => Math.min(totalPages, prev + 1));
     };
 
+    const handleGameClick = (gameId: string): void => {
+        router.push(`/games/${gameId}`);
+    };
+
     return (
-        <div className="border-border bg-background/50 rounded-xl border p-6 backdrop-blur-sm">
-            <div className="overflow-x-auto">
-                <table className="w-full">
-                    <thead>
-                        <tr className="border-border border-b text-left">
-                            <th className="text-foreground pb-4 font-medium">
-                                <div className="flex items-center gap-2">
-                                    <Calendar className="h-4 w-4" />
-                                    <span>Date</span>
-                                </div>
-                            </th>
-                            <th className="text-foreground pb-4 font-medium">
-                                <div className="flex items-center gap-2">
-                                    <Clock className="h-4 w-4" />
-                                    <span>Time</span>
-                                </div>
-                            </th>
-                            <th className="text-foreground pb-4 text-center font-medium">
-                                <div className="flex items-center justify-center gap-2">
-                                    <Trophy className="h-4 w-4" />
-                                    <span>Match Result</span>
-                                </div>
-                            </th>
+        <div className="border-border bg-background/50 overflow-hidden rounded-xl border shadow backdrop-blur-sm">
+            <table className="divide-border min-w-full divide-y">
+                <thead>
+                    <tr className="bg-background/80">
+                        <th className="text-muted px-6 py-4 text-left text-xs font-semibold tracking-wider uppercase">
+                            Date
+                        </th>
+                        <th className="text-muted px-6 py-4 text-center text-xs font-semibold tracking-wider uppercase">
+                            Match
+                        </th>
+                    </tr>
+                </thead>
+                <tbody className="divide-border divide-y">
+                    {isLoading ? (
+                        <tr>
+                            <td colSpan={2} className="text-muted px-6 py-8 text-center text-sm">
+                                Loading games...
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        {currentGames.map((game) => {
-                            const date = new Date(game.date);
-                            const formattedDate = date.toLocaleDateString();
-                            const formattedTime = date.toLocaleTimeString([], {
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            });
+                    ) : currentGames.length > 0 ? (
+                        currentGames.map((game: GameHistoryResult) => {
+                            const [blueScore, orangeScore] = game.score.split('-').map(Number);
+                            const winningScore = Math.max(blueScore, orangeScore);
+                            const losingScore = Math.min(blueScore, orangeScore);
 
                             return (
                                 <tr
                                     key={game.id}
-                                    className="border-border hover:bg-background/70 cursor-pointer border-b transition-colors"
-                                    onClick={() => setSelectedGameId(game.id)}
+                                    className="hover:bg-muted/10 cursor-pointer transition-colors"
+                                    onClick={() => handleGameClick(game.id)}
                                 >
-                                    <td className="px-4 py-4">{formattedDate}</td>
-                                    <td className="px-4 py-4">{formattedTime}</td>
-                                    <td className="px-4 py-4 text-center">
-                                        <div className="bg-background/80 inline-flex items-center gap-2 rounded-lg p-2">
-                                            <div className="flex min-w-[100px] flex-col items-center">
-                                                <span className="text-lg font-bold text-green-400">
-                                                    {Math.max(
-                                                        Number(game.score.split('-')[0]),
-                                                        Number(game.score.split('-')[1])
-                                                    )}
-                                                </span>
-                                                <div className="flex flex-wrap justify-center gap-1">
-                                                    {[...game.winningTeam]
-                                                        .sort((a, b) => a.localeCompare(b))
-                                                        .map((player) => (
-                                                            <span
-                                                                key={player}
-                                                                className="rounded-full bg-green-900/50 px-2 py-0.5 text-xs text-green-400"
-                                                            >
-                                                                {player}
-                                                            </span>
-                                                        ))}
-                                                </div>
+                                    <td className="px-6 py-4">
+                                        {format(new Date(game.date), 'MMM dd, yyyy h:mm a')}
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex w-full items-center">
+                                            <div
+                                                className="flex flex-wrap justify-end gap-1"
+                                                style={{ minWidth: 180 }}
+                                            >
+                                                {game.winningTeam.map((player: string) => (
+                                                    <span
+                                                        key={player}
+                                                        className={`rounded-full px-2 py-0.5 text-xs ${
+                                                            highlightPlayerId &&
+                                                            player === highlightPlayerId
+                                                                ? 'bg-green-500/50 text-green-300'
+                                                                : 'bg-green-900/50 text-green-400'
+                                                        }`}
+                                                    >
+                                                        {player}
+                                                    </span>
+                                                ))}
                                             </div>
-                                            <div className="flex flex-col items-center">
-                                                <span className="text-muted text-sm">vs</span>
-                                                <div className="bg-border mx-2 h-full w-[1px]" />
-                                            </div>
-                                            <div className="flex min-w-[100px] flex-col items-center">
-                                                <span className="text-lg font-bold text-red-400">
-                                                    {Math.min(
-                                                        Number(game.score.split('-')[0]),
-                                                        Number(game.score.split('-')[1])
-                                                    )}
+                                            <div className="flex min-w-[120px] flex-1 items-center justify-center">
+                                                <span className="font-medium text-green-400">
+                                                    {winningScore}
                                                 </span>
-                                                <div className="flex flex-wrap justify-center gap-1">
-                                                    {[...game.losingTeam]
-                                                        .sort((a, b) => a.localeCompare(b))
-                                                        .map((player) => (
-                                                            <span
-                                                                key={player}
-                                                                className="rounded-full bg-red-900/50 px-2 py-0.5 text-xs text-red-400"
-                                                            >
-                                                                {player}
-                                                            </span>
-                                                        ))}
-                                                </div>
+                                                <span className="text-muted mx-2">-</span>
+                                                <span className="font-medium text-red-400">
+                                                    {losingScore}
+                                                </span>
+                                            </div>
+                                            <div
+                                                className="flex flex-wrap justify-start gap-1"
+                                                style={{ minWidth: 180 }}
+                                            >
+                                                {game.losingTeam.map((player: string) => (
+                                                    <span
+                                                        key={player}
+                                                        className={`rounded-full px-2 py-0.5 text-xs ${
+                                                            highlightPlayerId &&
+                                                            player === highlightPlayerId
+                                                                ? 'bg-red-500/50 text-red-300'
+                                                                : 'bg-red-900/50 text-red-400'
+                                                        }`}
+                                                    >
+                                                        {player}
+                                                    </span>
+                                                ))}
                                             </div>
                                         </div>
                                     </td>
                                 </tr>
                             );
-                        })}
-                    </tbody>
-                </table>
-            </div>
+                        })
+                    ) : (
+                        <tr>
+                            <td colSpan={2} className="text-muted px-6 py-8 text-center text-sm">
+                                No games found.
+                            </td>
+                        </tr>
+                    )}
+                </tbody>
+            </table>
 
-            {totalPages > 1 && (
-                <div className="border-border mt-4 flex items-center justify-between pt-4">
-                    <button
-                        onClick={handlePrevPage}
-                        disabled={currentPage === 1}
-                        className="border-border text-muted hover:border-muted hover:text-foreground flex cursor-pointer items-center gap-2 rounded-lg border px-4 py-2 text-sm transition-colors disabled:opacity-50"
-                    >
-                        <ChevronLeft className="h-4 w-4" />
-                        Previous
-                    </button>
-                    <span className="text-muted text-sm">
-                        Page {currentPage} of {totalPages}
-                    </span>
-                    <button
-                        onClick={handleNextPage}
-                        disabled={currentPage === totalPages}
-                        className="border-border text-muted hover:border-muted hover:text-foreground flex cursor-pointer items-center gap-2 rounded-lg border px-4 py-2 text-sm transition-colors disabled:opacity-50"
-                    >
-                        Next
-                        <ChevronRight className="h-4 w-4" />
-                    </button>
+            {!isLoading && games.length > 0 && (
+                <div className="border-border flex items-center justify-between border-t px-6 py-4">
+                    <div className="text-muted text-sm">
+                        Showing {startIndex + 1} to {Math.min(endIndex, games.length)} of{' '}
+                        {games.length} games
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={handlePrevPage}
+                            disabled={currentPage === 1}
+                            className="border-border bg-background/50 text-muted hover:border-muted hover:text-foreground flex cursor-pointer items-center gap-2 rounded-lg border px-4 py-2 text-sm transition-all disabled:opacity-50"
+                        >
+                            <ChevronLeft className="h-4 w-4" />
+                            Previous
+                        </button>
+                        <button
+                            onClick={handleNextPage}
+                            disabled={currentPage === totalPages}
+                            className="border-border bg-background/50 text-muted hover:border-muted hover:text-foreground flex cursor-pointer items-center gap-2 rounded-lg border px-4 py-2 text-sm transition-all disabled:opacity-50"
+                        >
+                            Next
+                            <ChevronRight className="h-4 w-4" />
+                        </button>
+                    </div>
                 </div>
             )}
 

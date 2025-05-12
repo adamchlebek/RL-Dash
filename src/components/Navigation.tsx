@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Boxes, Home, Users } from 'lucide-react';
+import { Boxes, Contrast, Home, Users } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { useTheme } from '../providers/ThemeProvider';
 
@@ -28,6 +28,13 @@ export function Navigation(): React.ReactElement {
                             >
                                 <Home className="mr-2 h-4 w-4" />
                                 Home
+                            </Link>
+                            <Link
+                                href="/games"
+                                className="text-muted hover:text-foreground inline-flex items-center px-1 pt-1 text-sm font-medium"
+                            >
+                                <Contrast className="mr-2 h-4 w-4" />
+                                Games
                             </Link>
                             <Link
                                 href="/players"

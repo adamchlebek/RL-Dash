@@ -25,6 +25,9 @@ export default async function PlayersPage(): Promise<React.ReactElement> {
                                     Win Rate
                                 </th>
                                 <th className="text-muted px-6 py-4 text-left text-xs font-semibold tracking-wider uppercase">
+                                    Current Streak
+                                </th>
+                                <th className="text-muted px-6 py-4 text-left text-xs font-semibold tracking-wider uppercase">
                                     Games Played
                                 </th>
                                 <th className="text-muted px-6 py-4 text-left text-xs font-semibold tracking-wider uppercase">
@@ -61,6 +64,16 @@ export default async function PlayersPage(): Promise<React.ReactElement> {
                                             <span className="text-red-400">{player.losses}</span>
                                             <span className="text-muted ml-2">({winRate}%)</span>
                                         </td>
+                                        <td className="px-6 py-4">
+                                            {player.currentStreak !== 0 && (
+                                                <span
+                                                    className={`font-medium ${player.isWinningStreak ? 'text-green-400' : 'text-red-400'}`}
+                                                >
+                                                    {player.isWinningStreak ? 'W' : 'L'}{' '}
+                                                    {Math.abs(player.currentStreak)}
+                                                </span>
+                                            )}
+                                        </td>
                                         <td className="text-foreground px-6 py-4">
                                             {player.gamesPlayed}
                                         </td>
@@ -82,7 +95,7 @@ export default async function PlayersPage(): Promise<React.ReactElement> {
                             {players.length === 0 && (
                                 <tr>
                                     <td
-                                        colSpan={5}
+                                        colSpan={6}
                                         className="text-muted px-6 py-8 text-center text-sm"
                                     >
                                         No players found. Process some replays to see players here.

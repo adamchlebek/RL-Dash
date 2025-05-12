@@ -71,7 +71,7 @@ export interface PlayerStats {
     avgPointsPerGame: number;
 }
 
-export interface PlayerStatsResult {
+export type PlayerStatsResult = {
     id: string;
     name: string;
     totalGoals: number;
@@ -84,10 +84,12 @@ export interface PlayerStatsResult {
     gamesPlayed: number;
     wins: number;
     losses: number;
+    avgPointsPerGame: number;
     firstSeen: Date;
     latestGame: Date;
-    avgPointsPerGame: number;
-}
+    currentStreak: number;
+    isWinningStreak: boolean;
+};
 
 export interface GameHistoryResult {
     id: string;

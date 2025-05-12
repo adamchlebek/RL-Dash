@@ -3,10 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { StatCard } from '../components/StatCard';
 import { PlayerTable } from '../components/PlayerTable';
-import GameHistoryTable from '../components/GameHistoryTable';
 import { statIcons } from '../data/dummyData';
-import { Trophy, User, Users, History, RefreshCw, Computer, MapPin, Shield } from 'lucide-react';
-import { GameHistory } from '../models/game';
+import { Trophy, User, Users, RefreshCw, Computer, MapPin, Shield } from 'lucide-react';
 import { useReplaySubscription } from '@/lib/useReplaySubscription';
 import { StatsGrid } from '@/components/StatsGrid';
 import { PositioningTable } from '@/components/PositioningTable';
@@ -58,12 +56,10 @@ export default function Home(): React.ReactElement {
     const [gameStats, setGameStats] = useState<GameStats | null>(null);
     const [achievements, setAchievements] = useState<Achievements | null>(null);
     const [playerStats, setPlayerStats] = useState<PlayerStatsType[]>([]);
-    const [gameHistory, setGameHistory] = useState<GameHistory[]>([]);
     const [isTeamLoading, setTeamLoading] = useState<boolean>(true);
     const [isGameLoading, setGameLoading] = useState<boolean>(true);
     const [isAchievementsLoading, setAchievementsLoading] = useState<boolean>(true);
     const [isPlayerLoading, setPlayerLoading] = useState<boolean>(true);
-    const [isGameHistoryLoading, setGameHistoryLoading] = useState<boolean>(true);
     const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
     const fetchTeamStats = useCallback(async (): Promise<void> => {
@@ -126,35 +122,16 @@ export default function Home(): React.ReactElement {
         }
     }, []);
 
-    const fetchGameHistory = useCallback(async (): Promise<void> => {
-        try {
-            setGameHistoryLoading(true);
-            const response = await fetch('/api/stats/games');
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch game history');
-            }
-
-            const historyData = await response.json();
-            setGameHistory(historyData);
-        } catch (error) {
-            console.error('Error fetching game history:', error);
-        } finally {
-            setGameHistoryLoading(false);
-        }
-    }, []);
-
     const handleRefresh = useCallback(async (): Promise<void> => {
         setIsRefreshing(true);
         await Promise.all([
             fetchTeamStats(),
             fetchGameStats(),
             fetchAchievements(),
-            fetchPlayerStats(),
-            fetchGameHistory()
+            fetchPlayerStats()
         ]);
         setIsRefreshing(false);
-    }, [fetchTeamStats, fetchGameStats, fetchAchievements, fetchPlayerStats, fetchGameHistory]);
+    }, [fetchTeamStats, fetchGameStats, fetchAchievements, fetchPlayerStats]);
 
     useReplaySubscription(handleRefresh);
 
@@ -380,22 +357,6 @@ export default function Home(): React.ReactElement {
                     <div className="rounded-lg border border-red-800/30 bg-gradient-to-br from-red-900/20 to-red-800/20 p-6">
                         <LastDefenderStats />
                     </div>
-                </div>
-
-                <div>
-                    <h2 className="text-foreground mb-6 flex items-center gap-2 text-2xl font-semibold">
-                        <History className="h-6 w-6 text-blue-400" />
-                        Game History
-                    </h2>
-                    {!isGameHistoryLoading ? (
-                        <GameHistoryTable games={gameHistory} />
-                    ) : (
-                        <div className="border-border bg-background/50 rounded-xl border p-6 backdrop-blur-sm">
-                            <div className="text-muted py-8 text-center">
-                                Loading game history...
-                            </div>
-                        </div>
-                    )}
                 </div>
             </div>
         </div>

@@ -11,11 +11,11 @@ export default function GamePage() {
     return (
         <div className="container mx-auto space-y-6 p-4">
             <Link
-                href="/"
+                href="/games"
                 className="inline-flex items-center gap-2 text-zinc-400 transition-colors hover:text-white"
             >
                 <ArrowLeft className="h-4 w-4" />
-                Back to Home
+                Back to Games
             </Link>
 
             <GameOverview gameId={id} />

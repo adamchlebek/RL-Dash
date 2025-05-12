@@ -26,6 +26,7 @@ type SortField =
     | 'goals'
     | 'goalsPerGame'
     | 'assists'
+    | 'assistsPerGame'
     | 'shots'
     | 'shootingPct'
     | 'demos'
@@ -70,6 +71,11 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                 break;
             case 'assists':
                 comparison = a.assists - b.assists;
+                break;
+            case 'assistsPerGame':
+                const apgA = a.gamesPlayed > 0 ? a.assists / a.gamesPlayed : 0;
+                const apgB = b.gamesPlayed > 0 ? b.assists / b.gamesPlayed : 0;
+                comparison = apgA - apgB;
                 break;
             case 'shots':
                 comparison = a.shots - b.shots;
@@ -163,6 +169,15 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                             </th>
                             <th
                                 className="text-foreground cursor-pointer pb-4 font-medium"
+                                onClick={() => handleSort('assistsPerGame')}
+                            >
+                                <div className="flex items-center gap-1">
+                                    <Crosshair className="h-4 w-4" />
+                                    <span>APG {getSortIndicator('assistsPerGame')}</span>
+                                </div>
+                            </th>
+                            <th
+                                className="text-foreground cursor-pointer pb-4 font-medium"
                                 onClick={() => handleSort('shots')}
                             >
                                 <div className="flex items-center gap-1">
@@ -202,6 +217,11 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                                     ? (player.goals / player.gamesPlayed).toFixed(2)
                                     : '0.00';
 
+                            const assistsPerGame =
+                                player.gamesPlayed > 0
+                                    ? (player.assists / player.gamesPlayed).toFixed(2)
+                                    : '0.00';
+
                             const shootingPercentage =
                                 player.shots > 0
                                     ? ((player.goals / player.shots) * 100).toFixed(1)
@@ -233,6 +253,7 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                                     <td className="px-4 py-4">{player.goals}</td>
                                     <td className="px-4 py-4">{goalsPerGame}</td>
                                     <td className="px-4 py-4">{player.assists}</td>
+                                    <td className="px-4 py-4">{assistsPerGame}</td>
                                     <td className="px-4 py-4">{player.shots}</td>
                                     <td className="px-4 py-4">{shootingPercentage}%</td>
                                     <td className="px-4 py-4">{player.demos}</td>

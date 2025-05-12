@@ -966,7 +966,7 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
                 }
             },
             orderBy: {
-                date: 'asc'
+                date: 'desc'
             }
         }),
         prisma.globalPlayer.findMany({
@@ -985,6 +985,7 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
     const playerStatsMap = new Map<string, PlayerStats>();
     const playerFirstSeen = new Map<string, Date>();
     const playerLatestGame = new Map<string, Date>();
+    const playerGameResults = new Map<string, { date: Date; won: boolean }[]>();
 
     uniqueReplays.forEach((replay) => {
         if (!replay.blueTeam || !replay.orangeTeam || !replay.date) return;
@@ -1030,6 +1031,10 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
             else stats.losses++;
 
             playerStatsMap.set(player.globalPlayer.id, stats);
+
+            const results = playerGameResults.get(player.globalPlayer.id) || [];
+            results.push({ date, won: blueWon });
+            playerGameResults.set(player.globalPlayer.id, results);
         });
 
         replay.orangeTeam.players.forEach((player) => {
@@ -1070,6 +1075,10 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
             else stats.losses++;
 
             playerStatsMap.set(player.globalPlayer.id, stats);
+
+            const results = playerGameResults.get(player.globalPlayer.id) || [];
+            results.push({ date, won: !blueWon });
+            playerGameResults.set(player.globalPlayer.id, results);
         });
     });
 
@@ -1096,88 +1105,50 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
     });
 
     return Array.from(playerStatsMap.values())
-        .map((stats) => ({
-            id: stats.id,
-            name: stats.name,
-            totalGoals: stats.totalGoals,
-            totalAssists: stats.totalAssists,
-            totalSaves: stats.totalSaves,
-            totalShots: stats.totalShots,
-            totalDemos: stats.totalDemos,
-            totalScore: stats.totalScore,
-            avgBoost: stats.gamesPlayed > 0 ? stats.totalBoost / stats.gamesPlayed : 0,
-            gamesPlayed: stats.gamesPlayed,
-            wins: stats.wins,
-            losses: stats.losses,
-            avgPointsPerGame: stats.avgPointsPerGame,
-            firstSeen: playerFirstSeen.get(stats.id) || new Date(),
-            latestGame: playerLatestGame.get(stats.id) || new Date()
-        }))
+        .map((stats) => {
+            const results = playerGameResults.get(stats.id) || [];
+            let currentStreak = 0;
+            let isWinningStreak = false;
+
+            if (results.length > 0) {
+                const mostRecentResult = results[0];
+                isWinningStreak = mostRecentResult.won;
+                currentStreak = 1;
+
+                for (let i = 1; i < results.length; i++) {
+                    if (results[i].won === isWinningStreak) {
+                        currentStreak++;
+                    } else {
+                        break;
+                    }
+                }
+
+                if (!isWinningStreak) {
+                    currentStreak = -currentStreak;
+                }
+            }
+
+            return {
+                id: stats.id,
+                name: stats.name,
+                totalGoals: stats.totalGoals,
+                totalAssists: stats.totalAssists,
+                totalSaves: stats.totalSaves,
+                totalShots: stats.totalShots,
+                totalDemos: stats.totalDemos,
+                totalScore: stats.totalScore,
+                avgBoost: stats.gamesPlayed > 0 ? stats.totalBoost / stats.gamesPlayed : 0,
+                gamesPlayed: stats.gamesPlayed,
+                wins: stats.wins,
+                losses: stats.losses,
+                avgPointsPerGame: stats.avgPointsPerGame,
+                firstSeen: playerFirstSeen.get(stats.id) || new Date(),
+                latestGame: playerLatestGame.get(stats.id) || new Date(),
+                currentStreak,
+                isWinningStreak
+            };
+        })
         .sort((a, b) => b.totalScore - a.totalScore);
-}
-
-// Get all stats at once
-export async function getAllStats() {
-    const [
-        best3sTeam,
-        best2sTeam,
-        worst3sTeam,
-        worst2sTeam,
-        biggestWinDeficit,
-        longestGame,
-        highestScoringGame,
-        highestPoints,
-        lowestPoints,
-        mostDemos,
-        mostForfeits,
-        longestWinStreak,
-        longestLossStreak
-    ] = await Promise.all([
-        getBest3sTeam(),
-        getBest2sTeam(),
-        getWorst3sTeam(),
-        getWorst2sTeam(),
-        getBiggestWinDeficit(),
-        getLongestGame(),
-        getHighestScoringGame(),
-        getHighestPoints(),
-        getLowestPoints(),
-        getMostDemos(),
-        getMostForfeits(),
-        getLongestWinStreak(),
-        getLongestLossStreak()
-    ]);
-
-    // Add placeholder values for stats we don't calculate yet
-    const fastestGoal: StatValue = {
-        value: '0 mph',
-        players: ['N/A'],
-        isTeamVsTeam: false
-    };
-
-    const slowestGoal: StatValue = {
-        value: '0 mph',
-        players: ['N/A'],
-        isTeamVsTeam: false
-    };
-
-    return {
-        best3sTeam,
-        best2sTeam,
-        worst3sTeam,
-        worst2sTeam,
-        biggestWinDeficit,
-        longestGame,
-        highestScoringGame,
-        highestPoints,
-        lowestPoints,
-        mostDemos,
-        mostForfeits,
-        fastestGoal,
-        slowestGoal,
-        longestWinStreak,
-        longestLossStreak
-    };
 }
 
 export async function getGameHistory(playerId?: string): Promise<GameHistoryResult[]> {
