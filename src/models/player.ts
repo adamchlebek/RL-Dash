@@ -11,6 +11,8 @@ export interface Player {
     demos: number;
     avgPointsPerGame: number;
     gamesPlayed: number;
+    currentStreak: number;
+    isWinningStreak: boolean;
     totalGoals?: number;
     totalAssists?: number;
     totalSaves?: number;

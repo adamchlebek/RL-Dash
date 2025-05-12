@@ -30,7 +30,9 @@ type SortField =
     | 'shots'
     | 'shootingPct'
     | 'demos'
-    | 'avgPointsPerGame';
+    | 'avgPointsPerGame'
+    | 'currentStreak'
+    | 'isWinningStreak';
 type SortDirection = 'asc' | 'desc';
 
 export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
@@ -91,6 +93,12 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
             case 'avgPointsPerGame':
                 comparison = a.avgPointsPerGame - b.avgPointsPerGame;
                 break;
+            case 'currentStreak':
+                comparison = a.currentStreak - b.currentStreak;
+                break;
+            case 'isWinningStreak':
+                comparison = a.isWinningStreak ? 1 : 0 - (b.isWinningStreak ? 1 : 0);
+                break;
         }
 
         return sortDirection === 'asc' ? comparison : -comparison;
@@ -129,6 +137,15 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                                 <div className="flex items-center gap-1">
                                     <Trophy className="h-4 w-4" />
                                     <span>W/L {getSortIndicator('winRate')}</span>
+                                </div>
+                            </th>
+                            <th
+                                className="text-foreground cursor-pointer pb-4 font-medium"
+                                onClick={() => handleSort('currentStreak')}
+                            >
+                                <div className="flex items-center gap-1">
+                                    <TrendingUp className="h-4 w-4" />
+                                    <span>Streak {getSortIndicator('currentStreak')}</span>
                                 </div>
                             </th>
                             <th
@@ -172,7 +189,7 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                                 onClick={() => handleSort('assistsPerGame')}
                             >
                                 <div className="flex items-center gap-1">
-                                    <Crosshair className="h-4 w-4" />
+                                    <TrendingUp className="h-4 w-4" />
                                     <span>APG {getSortIndicator('assistsPerGame')}</span>
                                 </div>
                             </th>
@@ -246,6 +263,13 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                                         <span className="text-muted mx-1">/</span>
                                         <span className="text-red-400">{player.losses}</span>
                                         <span className="text-muted ml-2">({winRate}%)</span>
+                                    </td>
+                                    <td className="px-4 py-4">
+                                        {player.currentStreak !== 0 && (
+                                            <span className={`font-medium ${player.isWinningStreak ? 'text-green-400' : 'text-red-400'}`}>
+                                                {player.isWinningStreak ? 'W' : 'L'} {Math.abs(player.currentStreak)}
+                                            </span>
+                                        )}
                                     </td>
                                     <td className="px-4 py-4">
                                         {player.avgPointsPerGame?.toFixed(2)}

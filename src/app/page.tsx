@@ -49,6 +49,8 @@ type PlayerStatsType = {
     wins: number;
     losses: number;
     avgPointsPerGame: number;
+    currentStreak: number;
+    isWinningStreak: boolean;
 };
 
 export default function Home(): React.ReactElement {
@@ -326,7 +328,9 @@ export default function Home(): React.ReactElement {
                                 gamesPlayed: player.gamesPlayed,
                                 wins: player.wins,
                                 losses: player.losses,
-                                avgPointsPerGame: player.avgPointsPerGame
+                                avgPointsPerGame: player.avgPointsPerGame,
+                                currentStreak: player.currentStreak,
+                                isWinningStreak: player.isWinningStreak
                             }))}
                         />
                     ) : (
