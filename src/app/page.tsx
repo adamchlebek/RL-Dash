@@ -51,6 +51,7 @@ type PlayerStatsType = {
     avgPointsPerGame: number;
     currentStreak: number;
     isWinningStreak: boolean;
+    nukes: number;
 };
 
 export default function Home(): React.ReactElement {
@@ -143,7 +144,7 @@ export default function Home(): React.ReactElement {
 
     return (
         <div className="bg-background text-foreground min-h-screen p-8">
-            <div className="mx-auto max-w-7xl space-y-12">
+            <div className="mx-auto max-w-[90rem] space-y-12">
                 <div className="flex items-center justify-between">
                     <h1 className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-4xl font-bold text-transparent">
                         Stats
@@ -330,7 +331,8 @@ export default function Home(): React.ReactElement {
                                 losses: player.losses,
                                 avgPointsPerGame: player.avgPointsPerGame,
                                 currentStreak: player.currentStreak,
-                                isWinningStreak: player.isWinningStreak
+                                isWinningStreak: player.isWinningStreak,
+                                nukes: player.nukes
                             }))}
                         />
                     ) : (

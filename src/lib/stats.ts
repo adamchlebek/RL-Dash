@@ -138,27 +138,26 @@ function getBestTeam(teamStats: Map<string, TeamStat>): TeamResult {
     return bestTeam;
 }
 
-function getWorstTeam(teamStats: Map<string, TeamStat>): TeamResult {
+function getWorstTeam(teamStats: Map<string, TeamStat>, teamSize: number): TeamResult {
     let worstTeam: TeamResult = {
         key: '',
-        winRate: 0,
+        winRate: 1,
         wins: 0,
         losses: 0,
         playerIds: [],
         goalDiff: 0
     };
 
+    const minGames = teamSize === 2 ? 10 : 5;
+
     for (const [key, stats] of teamStats.entries()) {
-        const winRate = stats.wins / (stats.wins + stats.losses);
+        const totalGames = stats.wins + stats.losses;
+        if (totalGames < minGames) continue;
+
+        const winRate = stats.wins / totalGames;
         const goalDiff = stats.goalsScored - stats.goalsConceded;
 
-        if (
-            stats.losses > worstTeam.losses ||
-            (stats.losses === worstTeam.losses && stats.wins < worstTeam.wins) ||
-            (stats.losses === worstTeam.losses &&
-                stats.wins === worstTeam.wins &&
-                goalDiff < worstTeam.goalDiff)
-        ) {
+        if (winRate < worstTeam.winRate) {
             worstTeam = {
                 key,
                 winRate,
@@ -201,7 +200,7 @@ export async function getBest2sTeam(): Promise<StatValue> {
 export async function getWorst3sTeam(): Promise<StatValue> {
     const matches = await getTeamMatches(3);
     const teamStats = processMatches(matches);
-    const worstTeam = getWorstTeam(teamStats);
+    const worstTeam = getWorstTeam(teamStats, 3);
 
     return {
         value: `${worstTeam.wins}/${worstTeam.losses}`,
@@ -213,7 +212,7 @@ export async function getWorst3sTeam(): Promise<StatValue> {
 export async function getWorst2sTeam(): Promise<StatValue> {
     const matches = await getTeamMatches(2);
     const teamStats = processMatches(matches);
-    const worstTeam = getWorstTeam(teamStats);
+    const worstTeam = getWorstTeam(teamStats, 2);
 
     return {
         value: `${worstTeam.wins}/${worstTeam.losses}`,
@@ -1009,7 +1008,8 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
                 gamesPlayed: 0,
                 wins: 0,
                 losses: 0,
-                avgPointsPerGame: 0
+                avgPointsPerGame: 0,
+                nukes: 0
             };
 
             if (!playerFirstSeen.has(player.globalPlayer.id)) {
@@ -1029,6 +1029,7 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
                 stats.gamesPlayed > 0 ? stats.totalScore / stats.gamesPlayed : 0;
             if (blueWon) stats.wins++;
             else stats.losses++;
+            if ((player.score || 0) >= 1000) stats.nukes++;
 
             playerStatsMap.set(player.globalPlayer.id, stats);
 
@@ -1053,7 +1054,8 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
                 gamesPlayed: 0,
                 wins: 0,
                 losses: 0,
-                avgPointsPerGame: 0
+                avgPointsPerGame: 0,
+                nukes: 0
             };
 
             if (!playerFirstSeen.has(player.globalPlayer.id)) {
@@ -1073,6 +1075,7 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
                 stats.gamesPlayed > 0 ? stats.totalScore / stats.gamesPlayed : 0;
             if (!blueWon) stats.wins++;
             else stats.losses++;
+            if ((player.score || 0) >= 1000) stats.nukes++;
 
             playerStatsMap.set(player.globalPlayer.id, stats);
 
@@ -1096,7 +1099,8 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
             gamesPlayed: 0,
             wins: 0,
             losses: 0,
-            avgPointsPerGame: 0
+            avgPointsPerGame: 0,
+            nukes: 0
         };
 
         stats.gamesPlayed += player.forfeitCount || 0;
@@ -1145,7 +1149,8 @@ export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
                 firstSeen: playerFirstSeen.get(stats.id) || new Date(),
                 latestGame: playerLatestGame.get(stats.id) || new Date(),
                 currentStreak,
-                isWinningStreak
+                isWinningStreak,
+                nukes: stats.nukes
             };
         })
         .sort((a, b) => b.totalScore - a.totalScore);

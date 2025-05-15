@@ -69,6 +69,7 @@ export interface PlayerStats {
     wins: number;
     losses: number;
     avgPointsPerGame: number;
+    nukes: number;
 }
 
 export type PlayerStatsResult = {
@@ -89,6 +90,7 @@ export type PlayerStatsResult = {
     latestGame: Date;
     currentStreak: number;
     isWinningStreak: boolean;
+    nukes: number;
 };
 
 export interface GameHistoryResult {

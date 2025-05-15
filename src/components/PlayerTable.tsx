@@ -10,7 +10,8 @@ import {
     Gamepad2,
     Percent,
     TrendingUp,
-    Star
+    Star,
+    Rocket
 } from 'lucide-react';
 import { useState } from 'react';
 import Link from 'next/link';
@@ -30,6 +31,8 @@ type SortField =
     | 'shots'
     | 'shootingPct'
     | 'demos'
+    | 'demosPerGame'
+    | 'nukes'
     | 'avgPointsPerGame'
     | 'currentStreak'
     | 'isWinningStreak';
@@ -89,6 +92,14 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                 break;
             case 'demos':
                 comparison = a.demos - b.demos;
+                break;
+            case 'demosPerGame':
+                const dpgA = a.gamesPlayed > 0 ? a.demos / a.gamesPlayed : 0;
+                const dpgB = b.gamesPlayed > 0 ? b.demos / b.gamesPlayed : 0;
+                comparison = dpgA - dpgB;
+                break;
+            case 'nukes':
+                comparison = a.nukes - b.nukes;
                 break;
             case 'avgPointsPerGame':
                 comparison = a.avgPointsPerGame - b.avgPointsPerGame;
@@ -220,6 +231,24 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                                     <span>Demos {getSortIndicator('demos')}</span>
                                 </div>
                             </th>
+                            <th
+                                className="text-foreground cursor-pointer pb-4 font-medium"
+                                onClick={() => handleSort('demosPerGame')}
+                            >
+                                <div className="flex items-center gap-1">
+                                    <TrendingUp className="h-4 w-4" />
+                                    <span>DPG {getSortIndicator('demosPerGame')}</span>
+                                </div>
+                            </th>
+                            <th
+                                className="text-foreground cursor-pointer pb-4 font-medium"
+                                onClick={() => handleSort('nukes')}
+                            >
+                                <div className="flex items-center gap-1">
+                                    <Rocket className="h-4 w-4" />
+                                    <span>Nukes {getSortIndicator('nukes')}</span>
+                                </div>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -243,6 +272,11 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                                 player.shots > 0
                                     ? ((player.goals / player.shots) * 100).toFixed(1)
                                     : '0.0';
+
+                            const demosPerGame =
+                                player.gamesPlayed > 0
+                                    ? (player.demos / player.gamesPlayed).toFixed(2)
+                                    : '0.00';
 
                             return (
                                 <tr
@@ -281,6 +315,8 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                                     <td className="px-4 py-4">{player.shots}</td>
                                     <td className="px-4 py-4">{shootingPercentage}%</td>
                                     <td className="px-4 py-4">{player.demos}</td>
+                                    <td className="px-4 py-4">{demosPerGame}</td>
+                                    <td className="px-4 py-4">{player.nukes}</td>
                                 </tr>
                             );
                         })}

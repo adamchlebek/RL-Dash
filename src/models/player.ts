@@ -9,6 +9,7 @@ export interface Player {
     assists: number;
     shots: number;
     demos: number;
+    nukes: number;
     avgPointsPerGame: number;
     gamesPlayed: number;
     currentStreak: number;

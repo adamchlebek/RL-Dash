@@ -31,10 +31,10 @@ export default async function PlayersPage(): Promise<React.ReactElement> {
                                     Games Played
                                 </th>
                                 <th className="text-muted px-6 py-4 text-left text-xs font-semibold tracking-wider uppercase">
-                                    First Seen
+                                    Latest Game
                                 </th>
                                 <th className="text-muted px-6 py-4 text-left text-xs font-semibold tracking-wider uppercase">
-                                    Latest Game
+                                    First Seen
                                 </th>
                             </tr>
                         </thead>
