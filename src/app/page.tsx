@@ -323,6 +323,7 @@ export default function Home(): React.ReactElement {
                                 id: player.id,
                                 name: player.name,
                                 goals: player.totalGoals,
+                                saves: player.totalSaves,
                                 assists: player.totalAssists,
                                 shots: player.totalShots,
                                 demos: player.totalDemos,

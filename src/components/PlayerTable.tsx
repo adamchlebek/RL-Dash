@@ -26,6 +26,8 @@ type SortField =
     | 'winRate'
     | 'goals'
     | 'goalsPerGame'
+    | 'saves'
+    | 'savesPerGame'
     | 'assists'
     | 'assistsPerGame'
     | 'shots'
@@ -73,6 +75,14 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                 const gpgA = a.gamesPlayed > 0 ? a.goals / a.gamesPlayed : 0;
                 const gpgB = b.gamesPlayed > 0 ? b.goals / b.gamesPlayed : 0;
                 comparison = gpgA - gpgB;
+                break;
+            case 'saves':
+                comparison = a.saves - b.saves;
+                break;
+            case 'savesPerGame':
+                const spgA = a.gamesPlayed > 0 ? a.saves / a.gamesPlayed : 0;
+                const spgB = b.gamesPlayed > 0 ? b.saves / b.gamesPlayed : 0;
+                comparison = spgA - spgB;
                 break;
             case 'assists':
                 comparison = a.assists - b.assists;
@@ -188,6 +198,24 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                             </th>
                             <th
                                 className="text-foreground cursor-pointer pb-4 font-medium"
+                                onClick={() => handleSort('saves')}
+                            >
+                                <div className="flex items-center gap-1">
+                                    <TrendingUp className="h-4 w-4" />
+                                    <span>Saves {getSortIndicator('saves')}</span>
+                                </div>
+                            </th>
+                            <th
+                                className="text-foreground cursor-pointer pb-4 font-medium"
+                                onClick={() => handleSort('savesPerGame')}
+                            >
+                                <div className="flex items-center gap-1">
+                                    <TrendingUp className="h-4 w-4" />
+                                    <span>SPG {getSortIndicator('savesPerGame')}</span>
+                                </div>
+                            </th>
+                            <th
+                                className="text-foreground cursor-pointer pb-4 font-medium"
                                 onClick={() => handleSort('assists')}
                             >
                                 <div className="flex items-center gap-1">
@@ -263,6 +291,11 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                                     ? (player.goals / player.gamesPlayed).toFixed(2)
                                     : '0.00';
 
+                            const savesPerGame =
+                                player.gamesPlayed > 0
+                                    ? (player.saves / player.gamesPlayed).toFixed(2)
+                                    : '0.00';
+
                             const assistsPerGame =
                                 player.gamesPlayed > 0
                                     ? (player.assists / player.gamesPlayed).toFixed(2)
@@ -310,6 +343,8 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                                     </td>
                                     <td className="px-4 py-4">{player.goals}</td>
                                     <td className="px-4 py-4">{goalsPerGame}</td>
+                                    <td className="px-4 py-4">{player.saves}</td>
+                                    <td className="px-4 py-4">{savesPerGame}</td>
                                     <td className="px-4 py-4">{player.assists}</td>
                                     <td className="px-4 py-4">{assistsPerGame}</td>
                                     <td className="px-4 py-4">{player.shots}</td>

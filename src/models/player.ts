@@ -8,6 +8,7 @@ export interface Player {
     losses: number;
     assists: number;
     shots: number;
+    saves: number;
     demos: number;
     nukes: number;
     avgPointsPerGame: number;
