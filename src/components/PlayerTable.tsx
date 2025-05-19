@@ -7,7 +7,6 @@ import {
     Crosshair,
     Target,
     Bomb,
-    Gamepad2,
     Percent,
     TrendingUp,
     Star,
@@ -43,6 +42,7 @@ type SortDirection = 'asc' | 'desc';
 export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
     const [sortField, setSortField] = useState<SortField>('gamesPlayed');
     const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+    const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
     const handleSort = (field: SortField) => {
         if (field === sortField) {
@@ -130,6 +130,10 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
         return sortDirection === 'asc' ? '↑' : '↓';
     };
 
+    const toggleExpand = (id: string) => {
+        setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+    };
+
     return (
         <div className="border-border bg-background/50 rounded-xl border p-6 backdrop-blur-sm">
             <div className="overflow-x-auto">
@@ -144,29 +148,11 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                             </th>
                             <th
                                 className="text-foreground cursor-pointer pb-4 font-medium"
-                                onClick={() => handleSort('gamesPlayed')}
-                            >
-                                <div className="flex items-center gap-1">
-                                    <Gamepad2 className="h-4 w-4" />
-                                    <span>Games {getSortIndicator('gamesPlayed')}</span>
-                                </div>
-                            </th>
-                            <th
-                                className="text-foreground cursor-pointer pb-4 font-medium"
                                 onClick={() => handleSort('winRate')}
                             >
                                 <div className="flex items-center gap-1">
                                     <Trophy className="h-4 w-4" />
                                     <span>W/L {getSortIndicator('winRate')}</span>
-                                </div>
-                            </th>
-                            <th
-                                className="text-foreground cursor-pointer pb-4 font-medium"
-                                onClick={() => handleSort('currentStreak')}
-                            >
-                                <div className="flex items-center gap-1">
-                                    <TrendingUp className="h-4 w-4" />
-                                    <span>Streak {getSortIndicator('currentStreak')}</span>
                                 </div>
                             </th>
                             <th
@@ -277,6 +263,7 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                                     <span>Nukes {getSortIndicator('nukes')}</span>
                                 </div>
                             </th>
+                            <th className="text-foreground pb-4 font-medium"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -312,47 +299,58 @@ export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
                                     : '0.00';
 
                             return (
-                                <tr
-                                    key={player.name}
-                                    className="border-border hover:bg-background/70 border-b transition-colors last:border-0"
-                                >
-                                    <td className="px-4 py-4 font-medium">
-                                        <Link
-                                            href={`/players/${player.id}`}
-                                            className="hover:text-foreground transition-colors"
-                                        >
-                                            {player.name}
-                                        </Link>
-                                    </td>
-                                    <td className="px-4 py-4">{player.gamesPlayed}</td>
-                                    <td className="px-4 py-4">
-                                        <span className="text-green-400">{player.wins}</span>
-                                        <span className="text-muted mx-1">/</span>
-                                        <span className="text-red-400">{player.losses}</span>
-                                        <span className="text-muted ml-2">({winRate}%)</span>
-                                    </td>
-                                    <td className="px-4 py-4">
-                                        {player.currentStreak !== 0 && (
-                                            <span className={`font-medium ${player.isWinningStreak ? 'text-green-400' : 'text-red-400'}`}>
-                                                {player.isWinningStreak ? 'W' : 'L'} {Math.abs(player.currentStreak)}
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td className="px-4 py-4">
-                                        {player.avgPointsPerGame?.toFixed(2)}
-                                    </td>
-                                    <td className="px-4 py-4">{player.goals}</td>
-                                    <td className="px-4 py-4">{goalsPerGame}</td>
-                                    <td className="px-4 py-4">{player.saves}</td>
-                                    <td className="px-4 py-4">{savesPerGame}</td>
-                                    <td className="px-4 py-4">{player.assists}</td>
-                                    <td className="px-4 py-4">{assistsPerGame}</td>
-                                    <td className="px-4 py-4">{player.shots}</td>
-                                    <td className="px-4 py-4">{shootingPercentage}%</td>
-                                    <td className="px-4 py-4">{player.demos}</td>
-                                    <td className="px-4 py-4">{demosPerGame}</td>
-                                    <td className="px-4 py-4">{player.nukes}</td>
-                                </tr>
+                                <>
+                                    <tr
+                                        key={player.name}
+                                        className="border-border hover:bg-background/70 border-b transition-colors last:border-0"
+                                    >
+                                        <td className="px-4 py-4 font-medium">
+                                            <Link
+                                                href={`/players/${player.id}`}
+                                                className="hover:text-foreground transition-colors"
+                                            >
+                                                {player.name}
+                                            </Link>
+                                        </td>
+                                        <td className="px-4 py-4">
+                                            <span className="text-green-400">{player.wins}</span>
+                                            <span className="text-muted mx-1">/</span>
+                                            <span className="text-red-400">{player.losses}</span>
+                                            <span className="text-muted ml-2">({winRate}%)</span>
+                                        </td>
+                                        <td className="px-4 py-4">{player.avgPointsPerGame?.toFixed(2)}</td>
+                                        <td className="px-4 py-4">{player.goals}</td>
+                                        <td className="px-4 py-4">{goalsPerGame}</td>
+                                        <td className="px-4 py-4">{player.saves}</td>
+                                        <td className="px-4 py-4">{savesPerGame}</td>
+                                        <td className="px-4 py-4">{player.assists}</td>
+                                        <td className="px-4 py-4">{assistsPerGame}</td>
+                                        <td className="px-4 py-4">{player.shots}</td>
+                                        <td className="px-4 py-4">{shootingPercentage}%</td>
+                                        <td className="px-4 py-4">{player.demos}</td>
+                                        <td className="px-4 py-4">{demosPerGame}</td>
+                                        <td className="px-4 py-4">{player.nukes}</td>
+                                        <td className="px-4 py-4 text-right">
+                                            <button className="text-xs underline text-muted-foreground" onClick={() => toggleExpand(player.name)}>
+                                                {expanded[player.name] ? 'Hide' : 'More'}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {expanded[player.name] && (
+                                        <tr className="bg-background/80">
+                                            <td colSpan={15} className="px-4 py-3 text-sm">
+                                                <div className="flex gap-8">
+                                                    <div><span className="font-medium">Games Played:</span> {player.gamesPlayed}</div>
+                                                    <div><span className="font-medium">Current Streak:</span> {player.currentStreak !== 0 ? (
+                                                        <span className={`font-medium ${player.isWinningStreak ? 'text-green-400' : 'text-red-400'}`}>
+                                                            {player.isWinningStreak ? 'W' : 'L'} {Math.abs(player.currentStreak)}
+                                                        </span>
+                                                    ) : '-'}</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </>
                             );
                         })}
                     </tbody>
