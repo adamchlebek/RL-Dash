@@ -103,7 +103,7 @@ function processMatches(matches: ReplayData[]): Map<string, TeamStat> {
     return teamStats;
 }
 
-function getBestTeam(teamStats: Map<string, TeamStat>): TeamResult {
+function getBestTeam(teamStats: Map<string, TeamStat>, teamSize: number): TeamResult {
     let bestTeam: TeamResult = {
         key: '',
         winRate: 0,
@@ -114,16 +114,16 @@ function getBestTeam(teamStats: Map<string, TeamStat>): TeamResult {
     };
 
     for (const [key, stats] of teamStats.entries()) {
-        const winRate = stats.wins / (stats.wins + stats.losses);
+        const minGames = teamSize === 2 ? 10 : 5;
+
+        const totalGames = stats.wins + stats.losses;
+        
+        if (totalGames < minGames) continue;
+        
+        const winRate = stats.wins / totalGames;
         const goalDiff = stats.goalsScored - stats.goalsConceded;
 
-        if (
-            stats.wins > bestTeam.wins ||
-            (stats.wins === bestTeam.wins && stats.losses < bestTeam.losses) ||
-            (stats.wins === bestTeam.wins &&
-                stats.losses === bestTeam.losses &&
-                goalDiff > bestTeam.goalDiff)
-        ) {
+        if (winRate > bestTeam.winRate || (winRate === bestTeam.winRate && totalGames > (bestTeam.wins + bestTeam.losses))) {
             bestTeam = {
                 key,
                 winRate,
@@ -176,7 +176,7 @@ function getWorstTeam(teamStats: Map<string, TeamStat>, teamSize: number): TeamR
 export async function getBest3sTeam(): Promise<StatValue> {
     const matches = await getTeamMatches(3);
     const teamStats = processMatches(matches);
-    const bestTeam = getBestTeam(teamStats);
+    const bestTeam = getBestTeam(teamStats, 3);
 
     return {
         value: `${bestTeam.wins}/${bestTeam.losses}`,
@@ -188,7 +188,7 @@ export async function getBest3sTeam(): Promise<StatValue> {
 export async function getBest2sTeam(): Promise<StatValue> {
     const matches = await getTeamMatches(2);
     const teamStats = processMatches(matches);
-    const bestTeam = getBestTeam(teamStats);
+    const bestTeam = getBestTeam(teamStats, 2);
 
     return {
         value: `${bestTeam.wins}/${bestTeam.losses}`,
