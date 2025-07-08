@@ -2,7 +2,8 @@ import Link from 'next/link';
 import { format } from 'date-fns';
 import { getPlayerStats } from '@/lib/stats';
 
-export const revalidate = 3600; // Revalidate every hour
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function PlayersPage(): Promise<React.ReactElement> {
     const players = await getPlayerStats();
