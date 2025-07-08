@@ -57,4 +57,8 @@ export interface Stats {
     mostForfeits: StatValue;
     longestWinStreak: StatValue;
     longestLossStreak: StatValue;
+    mostGoals: StatValue;
+    mostAssists: StatValue;
+    mostSaves: StatValue;
+    mostShots: StatValue;
 }

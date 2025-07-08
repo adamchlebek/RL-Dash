@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { StatCard } from '../components/StatCard';
 import { PlayerTable } from '../components/PlayerTable';
 import { statIcons } from '../data/dummyData';
-import { Trophy, User, Users, RefreshCw, Computer, MapPin, Shield } from 'lucide-react';
+import { Trophy, User, Users, RefreshCw, Computer, MapPin, Shield, Building2 } from 'lucide-react';
 import { useReplaySubscription } from '@/lib/useReplaySubscription';
 import { StatsGrid } from '@/components/StatsGrid';
 import { PositioningTable } from '@/components/PositioningTable';
@@ -24,6 +24,10 @@ type GameStats = {
     biggestWinDeficit: StatValue;
     longestGame: StatValue;
     highestScoringGame: StatValue;
+    mostGoalsInGame: StatValue;
+    mostAssistsInGame: StatValue;
+    mostSavesInGame: StatValue;
+    mostShotsInGame: StatValue;
 };
 
 type Achievements = {
@@ -243,6 +247,51 @@ export default function Home(): React.ReactElement {
                             winningTeam={gameStats?.highestScoringGame.winningTeam}
                             icon={<statIcons.highestScoringGame className="h-6 w-6" />}
                             isMatchup
+                            isLoading={isGameLoading}
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <h2 className="text-foreground mb-6 flex items-center gap-2 text-2xl font-semibold">
+                        <Building2 className="h-6 w-6 text-blue-400" />
+                        Individual Game Stats
+                    </h2>
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+                    <StatCard
+                            label="Most Goals in a Game"
+                            gameId={gameStats?.mostGoalsInGame.gameId}
+                            value={Number(gameStats?.mostGoalsInGame.value || 0).toLocaleString()}
+                            players={gameStats?.mostGoalsInGame.players || []}
+                            icon={<statIcons.mostGoals className="h-6 w-6" />}
+                            color="yellow"
+                            isLoading={isGameLoading}
+                        />
+                        <StatCard
+                            label="Most Assists in a Game"
+                            gameId={gameStats?.mostAssistsInGame.gameId}
+                            value={Number(gameStats?.mostAssistsInGame.value || 0).toLocaleString()}
+                            players={gameStats?.mostAssistsInGame.players || []}
+                            icon={<statIcons.mostAssists className="h-6 w-6" />}
+                            color="yellow"
+                            isLoading={isGameLoading}
+                        />
+                        <StatCard
+                            label="Most Saves in a Game"
+                            gameId={gameStats?.mostSavesInGame.gameId}
+                            value={Number(gameStats?.mostSavesInGame.value || 0).toLocaleString()}
+                            players={gameStats?.mostSavesInGame.players || []}
+                            icon={<statIcons.mostSaves className="h-6 w-6" />}
+                            color="yellow"
+                            isLoading={isGameLoading}
+                        />
+                        <StatCard
+                            label="Most Shots in a Game"
+                            gameId={gameStats?.mostShotsInGame.gameId}
+                            value={Number(gameStats?.mostShotsInGame.value || 0).toLocaleString()}
+                            players={gameStats?.mostShotsInGame.players || []}
+                            icon={<statIcons.mostShots className="h-6 w-6" />}
+                            color="yellow"
                             isLoading={isGameLoading}
                         />
                     </div>

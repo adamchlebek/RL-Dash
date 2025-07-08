@@ -10,7 +10,11 @@ import {
     TrendingUp,
     TrendingDown,
     Bomb,
-    Cat
+    Cat,
+    Goal,
+    Handshake,
+    Shield,
+    Crosshair
 } from 'lucide-react';
 import { Stats } from '../models/player';
 
@@ -29,7 +33,11 @@ export const statIcons: Record<keyof Stats, LucideIcon> = {
     mostDemos: Bomb,
     longestWinStreak: Trophy,
     longestLossStreak: HeartCrack,
-    mostForfeits: Cat
+    mostForfeits: Cat,
+    mostGoals: Goal,
+    mostAssists: Handshake,
+    mostSaves: Shield,
+    mostShots: Crosshair
 };
 
 export interface GameHistory {

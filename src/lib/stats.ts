@@ -906,6 +906,202 @@ export async function getLongestLossStreak(): Promise<StatValue> {
     };
 }
 
+export async function getMostGoalsInGame(): Promise<StatValue> {
+    const player = await prisma.player.findFirst({
+        select: {
+            name: true,
+            goals: true,
+            globalPlayer: {
+                select: {
+                    name: true
+                }
+            },
+            teamId: true
+        },
+        where: {
+            goals: {
+                not: null
+            }
+        },
+        orderBy: {
+            goals: 'desc'
+        }
+    });
+
+    if (!player) {
+        return {
+            value: '0',
+            players: ['Unknown'],
+            isTeamVsTeam: false
+        };
+    }
+
+    const replay = await prisma.replay.findFirst({
+        where: {
+            OR: [{ blueTeamId: player.teamId }, { orangeTeamId: player.teamId }]
+        },
+        select: {
+            id: true
+        }
+    });
+
+    const playerName = player.globalPlayer?.name || player.name;
+
+    return {
+        gameId: replay?.id,
+        value: String(player.goals),
+        players: [playerName],
+        isTeamVsTeam: false
+    };
+}
+
+export async function getMostAssistsInGame(): Promise<StatValue> {
+    const player = await prisma.player.findFirst({
+        select: {
+            name: true,
+            assists: true,
+            globalPlayer: {
+                select: {
+                    name: true
+                }
+            },
+            teamId: true
+        },
+        where: {
+            assists: {
+                not: null
+            }
+        },
+        orderBy: {
+            assists: 'desc'
+        }
+    });
+
+    if (!player) {
+        return {
+            value: '0',
+            players: ['Unknown'],
+            isTeamVsTeam: false
+        };
+    }
+
+    const replay = await prisma.replay.findFirst({
+        where: {
+            OR: [{ blueTeamId: player.teamId }, { orangeTeamId: player.teamId }]
+        },
+        select: {
+            id: true
+        }
+    });
+
+    const playerName = player.globalPlayer?.name || player.name;
+
+    return {
+        gameId: replay?.id,
+        value: String(player.assists),
+        players: [playerName],
+        isTeamVsTeam: false
+    };
+}
+
+export async function getMostSavesInGame(): Promise<StatValue> {
+    const player = await prisma.player.findFirst({
+        select: {
+            name: true,
+            saves: true,
+            globalPlayer: {
+                select: {
+                    name: true
+                }
+            },
+            teamId: true
+        },
+        where: {
+            saves: {
+                not: null
+            }
+        },
+        orderBy: {
+            saves: 'desc'
+        }
+    });
+
+    if (!player) {
+        return {
+            value: '0',
+            players: ['Unknown'],
+            isTeamVsTeam: false
+        };
+    }
+
+    const replay = await prisma.replay.findFirst({
+        where: {
+            OR: [{ blueTeamId: player.teamId }, { orangeTeamId: player.teamId }]
+        },
+        select: {
+            id: true
+        }
+    });
+
+    const playerName = player.globalPlayer?.name || player.name;
+
+    return {
+        gameId: replay?.id,
+        value: String(player.saves),
+        players: [playerName],
+        isTeamVsTeam: false
+    };
+}
+
+export async function getMostShotsInGame(): Promise<StatValue> {
+    const player = await prisma.player.findFirst({
+        select: {
+            name: true,
+            shots: true,
+            globalPlayer: {
+                select: {
+                    name: true
+                }
+            },
+            teamId: true
+        },
+        where: {
+            shots: {
+                not: null
+            }
+        },
+        orderBy: {
+            shots: 'desc'
+        }
+    });
+
+    if (!player) {
+        return {
+            value: '0',
+            players: ['Unknown'],
+            isTeamVsTeam: false
+        };
+    }
+
+    const replay = await prisma.replay.findFirst({
+        where: {
+            OR: [{ blueTeamId: player.teamId }, { orangeTeamId: player.teamId }]
+        },
+        select: {
+            id: true
+        }
+    });
+
+    const playerName = player.globalPlayer?.name || player.name;
+
+    return {
+        gameId: replay?.id,
+        value: String(player.shots),
+        players: [playerName],
+        isTeamVsTeam: false
+    };
+}
+
 // Get player statistics across all games
 export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
     const [replays, globalPlayers] = await Promise.all([
