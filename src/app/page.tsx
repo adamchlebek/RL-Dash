@@ -4,13 +4,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { StatCard } from '../components/StatCard';
 import { PlayerTable } from '../components/PlayerTable';
 import { statIcons } from '../data/dummyData';
-import { Trophy, User, Users, RefreshCw, Computer, MapPin, Shield, Building2 } from 'lucide-react';
+import { Trophy, User, Users, RefreshCw, Computer, MapPin, Shield, Building2, Bomb } from 'lucide-react';
 import { useReplaySubscription } from '@/lib/useReplaySubscription';
 import { StatsGrid } from '@/components/StatsGrid';
 import { PositioningTable } from '@/components/PositioningTable';
 import { RocketField } from '@/components/RocketField';
 import { LastDefenderStats } from '@/components/LastDefenderStats';
 import { GameStatsBadges } from '@/components/GameStatsBadges';
+import { DemoStats } from '@/components/DemoStats';
 import { StatValue } from '@/models/stats';
 
 type TeamStats = {
@@ -392,6 +393,14 @@ export default function Home(): React.ReactElement {
                             </div>
                         </div>
                     )}
+                </div>
+
+                <div className="w-full">
+                    <h2 className="text-foreground mb-6 flex items-center gap-2 text-2xl font-semibold">
+                        <Bomb className="h-6 w-6 text-orange-400" />
+                        Demo Statistics
+                    </h2>
+                    <DemoStats />
                 </div>
 
                 <PositioningTable />

@@ -1102,6 +1102,98 @@ export async function getMostShotsInGame(): Promise<StatValue> {
     };
 }
 
+export async function getPlayerDemoStats(): Promise<{ playerName: string; demosGiven: number; demosReceived: number }[]> {
+    const replays = await prisma.replay.findMany({
+        where: {
+            status: 'completed',
+            date: { not: null },
+            AND: [{ blueTeam: { isNot: null } }, { orangeTeam: { isNot: null } }]
+        },
+        select: {
+            id: true,
+            ballchasingId: true,
+            blueTeam: {
+                select: {
+                    players: {
+                        select: {
+                            name: true,
+                            demoInflicted: true,
+                            demoTaken: true,
+                            globalPlayer: {
+                                select: {
+                                    name: true
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            orangeTeam: {
+                select: {
+                    players: {
+                        select: {
+                            name: true,
+                            demoInflicted: true,
+                            demoTaken: true,
+                            globalPlayer: {
+                                select: {
+                                    name: true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        orderBy: {
+            date: 'desc'
+        }
+    });
+
+    const uniqueReplays = Array.from(
+        new Map(replays.map((replay) => [replay.ballchasingId, replay])).values()
+    );
+
+    const demoStatsMap = new Map<string, { demosGiven: number; demosReceived: number }>();
+
+    uniqueReplays.forEach((replay) => {
+        if (!replay.blueTeam || !replay.orangeTeam) return;
+
+        replay.blueTeam.players.forEach((player) => {
+            if (!player.globalPlayer) return;
+
+            const playerName = player.globalPlayer.name;
+            const currentStats = demoStatsMap.get(playerName) || { demosGiven: 0, demosReceived: 0 };
+            
+            currentStats.demosGiven += player.demoInflicted || 0;
+            currentStats.demosReceived += player.demoTaken || 0;
+            
+            demoStatsMap.set(playerName, currentStats);
+        });
+
+        replay.orangeTeam.players.forEach((player) => {
+            if (!player.globalPlayer) return;
+
+            const playerName = player.globalPlayer.name;
+            const currentStats = demoStatsMap.get(playerName) || { demosGiven: 0, demosReceived: 0 };
+            
+            currentStats.demosGiven += player.demoInflicted || 0;
+            currentStats.demosReceived += player.demoTaken || 0;
+            
+            demoStatsMap.set(playerName, currentStats);
+        });
+    });
+
+    return Array.from(demoStatsMap.entries())
+        .map(([playerName, stats]) => ({
+            playerName,
+            demosGiven: stats.demosGiven,
+            demosReceived: stats.demosReceived
+        }))
+        .filter((stats) => stats.demosGiven > 0 || stats.demosReceived > 0)
+        .sort((a, b) => (b.demosGiven + b.demosReceived) - (a.demosGiven + a.demosReceived));
+}
+
 // Get player statistics across all games
 export async function getPlayerStats(): Promise<PlayerStatsResult[]> {
     const [replays, globalPlayers] = await Promise.all([
