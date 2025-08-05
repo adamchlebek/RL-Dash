@@ -5,6 +5,7 @@ import { createOrUpdateTeam } from '@/lib/teams';
 import { TeamData, ProcessingResult } from '@/models/ballchaser';
 import { createOrUpdateGroup } from '@/lib/groups';
 import { createOrUpdateUploader } from '@/lib/uploaders';
+import { ReplayStatus } from '@/types';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -49,6 +50,24 @@ export async function GET(): Promise<NextResponse> {
                     if (status === 'ok') {
                         try {
                             const fullReplayData = await fetchFullReplayData(replay.ballchasingId);
+
+                            // Check if match is private, delete if not
+                            if (fullReplayData.match_type !== 'Private') {
+                                console.log(`Deleting non-private match: ${replay.ballchasingId} (${fullReplayData.match_type})`);
+                                
+                                await withRetry(() =>
+                                    prisma.replay.delete({
+                                        where: { id: replay.id }
+                                    })
+                                );
+
+                                return {
+                                    id: replay.id,
+                                    ballchasingId: replay.ballchasingId,
+                                    status: 'failed' as ReplayStatus,
+                                    message: `Deleted non-private match: ${fullReplayData.match_type}`
+                                };
+                            }
 
                             // Process Blue Team
                             const blueTeam = await createOrUpdateTeam(
