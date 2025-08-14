@@ -2,9 +2,12 @@ import React, { useEffect, useState } from 'react';
 
 interface PlayerPosition {
     name: string;
-    behindBallPercent: number;
-    lastBackPercent: number;
-    closestToBallPercent: number;
+    defensiveThirdPercent: number;
+    neutralThirdPercent: number;
+    offensiveThirdPercent: number;
+    avgDistanceToBall: number;
+    avgSpeed: number;
+    timeSupersonic: number;
 }
 
 export function RocketField(): React.ReactElement {
@@ -58,31 +61,40 @@ export function RocketField(): React.ReactElement {
 
                             {/* Positioning Zones */}
                             <div className="absolute inset-0 grid grid-cols-3 gap-px">
-                                <div className="relative bg-orange-500/40">
+                                <div className="relative bg-blue-500/40">
                                     <div className="absolute inset-x-0 top-1/4 flex items-center justify-center">
                                         <div className="rounded-full bg-black/60 px-2 py-0.5">
-                                            <span className="font-mono text-xs text-orange-400">
-                                                {player.behindBallPercent}%
+                                            <span className="font-mono text-xs text-blue-400">
+                                                {player.defensiveThirdPercent}%
                                             </span>
                                         </div>
                                     </div>
+                                    <div className="absolute inset-x-0 bottom-2 flex items-center justify-center">
+                                        <span className="text-xs font-medium text-blue-300">Defensive</span>
+                                    </div>
                                 </div>
-                                <div className="relative bg-orange-400/35">
+                                <div className="relative bg-yellow-500/40">
                                     <div className="absolute inset-x-0 top-1/4 flex items-center justify-center">
                                         <div className="rounded-full bg-black/60 px-2 py-0.5">
-                                            <span className="font-mono text-xs text-orange-400">
-                                                {player.lastBackPercent}%
+                                            <span className="font-mono text-xs text-yellow-400">
+                                                {player.neutralThirdPercent}%
                                             </span>
                                         </div>
                                     </div>
+                                    <div className="absolute inset-x-0 bottom-2 flex items-center justify-center">
+                                        <span className="text-xs font-medium text-yellow-300">Neutral</span>
+                                    </div>
                                 </div>
-                                <div className="relative bg-orange-300/30">
+                                <div className="relative bg-red-500/40">
                                     <div className="absolute inset-x-0 top-1/4 flex items-center justify-center">
                                         <div className="rounded-full bg-black/60 px-2 py-0.5">
-                                            <span className="font-mono text-xs text-orange-400">
-                                                {player.closestToBallPercent}%
+                                            <span className="font-mono text-xs text-red-400">
+                                                {player.offensiveThirdPercent}%
                                             </span>
                                         </div>
+                                    </div>
+                                    <div className="absolute inset-x-0 bottom-2 flex items-center justify-center">
+                                        <span className="text-xs font-medium text-red-300">Offensive</span>
                                     </div>
                                 </div>
                             </div>
@@ -91,7 +103,7 @@ export function RocketField(): React.ReactElement {
                             <div
                                 className="absolute top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)] transition-all duration-500"
                                 style={{
-                                    left: `${100 - player.behindBallPercent}%`,
+                                    left: `${(player.defensiveThirdPercent * 16.5 + player.neutralThirdPercent * 50 + player.offensiveThirdPercent * 83.5) / 100}%`,
                                     transform: 'translate(-50%, -50%)'
                                 }}
                             ></div>

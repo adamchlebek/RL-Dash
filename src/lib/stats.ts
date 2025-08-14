@@ -1102,6 +1102,270 @@ export async function getMostShotsInGame(): Promise<StatValue> {
     };
 }
 
+export async function getMostTotalShotsInGame(): Promise<StatValue> {
+    const replays = await prisma.replay.findMany({
+        select: {
+            id: true,
+            blueTeam: {
+                select: {
+                    goals: true,
+                    players: {
+                        select: {
+                            shots: true,
+                            name: true,
+                            globalPlayer: {
+                                select: {
+                                    name: true
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            orangeTeam: {
+                select: {
+                    goals: true,
+                    players: {
+                        select: {
+                            shots: true,
+                            name: true,
+                            globalPlayer: {
+                                select: {
+                                    name: true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        where: {
+            blueTeam: { isNot: null },
+            orangeTeam: { isNot: null }
+        }
+    });
+
+    let bestGame = {
+        id: '',
+        maxShots: 0,
+        blueShots: 0,
+        orangeShots: 0,
+        blueGoals: 0,
+        orangeGoals: 0,
+        bluePlayers: [] as string[],
+        orangePlayers: [] as string[]
+    };
+
+    for (const replay of replays) {
+        if (!replay.blueTeam || !replay.orangeTeam) continue;
+
+        const blueShots = replay.blueTeam.players.reduce((sum, player) => sum + (player.shots || 0), 0);
+        const orangeShots = replay.orangeTeam.players.reduce((sum, player) => sum + (player.shots || 0), 0);
+        const maxTeamShots = Math.max(blueShots, orangeShots);
+
+        if (maxTeamShots > bestGame.maxShots) {
+            bestGame = {
+                id: replay.id,
+                maxShots: maxTeamShots,
+                blueShots,
+                orangeShots,
+                blueGoals: replay.blueTeam.goals || 0,
+                orangeGoals: replay.orangeTeam.goals || 0,
+                bluePlayers: replay.blueTeam.players.map(p => p.globalPlayer?.name || p.name),
+                orangePlayers: replay.orangeTeam.players.map(p => p.globalPlayer?.name || p.name)
+            };
+        }
+    }
+
+    const blueTeamDisplay = bestGame.bluePlayers.join(' & ');
+    const orangeTeamDisplay = bestGame.orangePlayers.join(' & ');
+    const winningTeam = bestGame.blueGoals > bestGame.orangeGoals ? 0 : 1;
+
+    return {
+        gameId: bestGame.id,
+        value: String(bestGame.maxShots),
+        players: [blueTeamDisplay, orangeTeamDisplay],
+        winningTeam,
+        isTeamVsTeam: true
+    };
+}
+
+export async function getMostTotalSavesInGame(): Promise<StatValue> {
+    const replays = await prisma.replay.findMany({
+        select: {
+            id: true,
+            blueTeam: {
+                select: {
+                    goals: true,
+                    players: {
+                        select: {
+                            saves: true,
+                            name: true,
+                            globalPlayer: {
+                                select: {
+                                    name: true
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            orangeTeam: {
+                select: {
+                    goals: true,
+                    players: {
+                        select: {
+                            saves: true,
+                            name: true,
+                            globalPlayer: {
+                                select: {
+                                    name: true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        where: {
+            blueTeam: { isNot: null },
+            orangeTeam: { isNot: null }
+        }
+    });
+
+    let bestGame = {
+        id: '',
+        maxSaves: 0,
+        blueSaves: 0,
+        orangeSaves: 0,
+        blueGoals: 0,
+        orangeGoals: 0,
+        bluePlayers: [] as string[],
+        orangePlayers: [] as string[]
+    };
+
+    for (const replay of replays) {
+        if (!replay.blueTeam || !replay.orangeTeam) continue;
+
+        const blueSaves = replay.blueTeam.players.reduce((sum, player) => sum + (player.saves || 0), 0);
+        const orangeSaves = replay.orangeTeam.players.reduce((sum, player) => sum + (player.saves || 0), 0);
+        const maxTeamSaves = Math.max(blueSaves, orangeSaves);
+
+        if (maxTeamSaves > bestGame.maxSaves) {
+            bestGame = {
+                id: replay.id,
+                maxSaves: maxTeamSaves,
+                blueSaves,
+                orangeSaves,
+                blueGoals: replay.blueTeam.goals || 0,
+                orangeGoals: replay.orangeTeam.goals || 0,
+                bluePlayers: replay.blueTeam.players.map(p => p.globalPlayer?.name || p.name),
+                orangePlayers: replay.orangeTeam.players.map(p => p.globalPlayer?.name || p.name)
+            };
+        }
+    }
+
+    const blueTeamDisplay = bestGame.bluePlayers.join(' & ');
+    const orangeTeamDisplay = bestGame.orangePlayers.join(' & ');
+    const winningTeam = bestGame.blueGoals > bestGame.orangeGoals ? 0 : 1;
+
+    return {
+        gameId: bestGame.id,
+        value: String(bestGame.maxSaves),
+        players: [blueTeamDisplay, orangeTeamDisplay],
+        winningTeam,
+        isTeamVsTeam: true
+    };
+}
+
+export async function getMostTotalDemosInGame(): Promise<StatValue> {
+    const replays = await prisma.replay.findMany({
+        select: {
+            id: true,
+            blueTeam: {
+                select: {
+                    goals: true,
+                    players: {
+                        select: {
+                            demoInflicted: true,
+                            name: true,
+                            globalPlayer: {
+                                select: {
+                                    name: true
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            orangeTeam: {
+                select: {
+                    goals: true,
+                    players: {
+                        select: {
+                            demoInflicted: true,
+                            name: true,
+                            globalPlayer: {
+                                select: {
+                                    name: true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        where: {
+            blueTeam: { isNot: null },
+            orangeTeam: { isNot: null }
+        }
+    });
+
+    let bestGame = {
+        id: '',
+        maxDemos: 0,
+        blueDemos: 0,
+        orangeDemos: 0,
+        blueGoals: 0,
+        orangeGoals: 0,
+        bluePlayers: [] as string[],
+        orangePlayers: [] as string[]
+    };
+
+    for (const replay of replays) {
+        if (!replay.blueTeam || !replay.orangeTeam) continue;
+
+        const blueDemos = replay.blueTeam.players.reduce((sum, player) => sum + (player.demoInflicted || 0), 0);
+        const orangeDemos = replay.orangeTeam.players.reduce((sum, player) => sum + (player.demoInflicted || 0), 0);
+        const maxTeamDemos = Math.max(blueDemos, orangeDemos);
+
+        if (maxTeamDemos > bestGame.maxDemos) {
+            bestGame = {
+                id: replay.id,
+                maxDemos: maxTeamDemos,
+                blueDemos,
+                orangeDemos,
+                blueGoals: replay.blueTeam.goals || 0,
+                orangeGoals: replay.orangeTeam.goals || 0,
+                bluePlayers: replay.blueTeam.players.map(p => p.globalPlayer?.name || p.name),
+                orangePlayers: replay.orangeTeam.players.map(p => p.globalPlayer?.name || p.name)
+            };
+        }
+    }
+
+    const blueTeamDisplay = bestGame.bluePlayers.join(' & ');
+    const orangeTeamDisplay = bestGame.orangePlayers.join(' & ');
+    const winningTeam = bestGame.blueGoals > bestGame.orangeGoals ? 0 : 1;
+
+    return {
+        gameId: bestGame.id,
+        value: String(bestGame.maxDemos),
+        players: [blueTeamDisplay, orangeTeamDisplay],
+        winningTeam,
+        isTeamVsTeam: true
+    };
+}
+
 export async function getPlayerDemoStats(): Promise<{ playerName: string; demosGiven: number; demosReceived: number }[]> {
     const replays = await prisma.replay.findMany({
         where: {

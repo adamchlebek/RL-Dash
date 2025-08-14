@@ -29,6 +29,9 @@ type GameStats = {
     mostAssistsInGame: StatValue;
     mostSavesInGame: StatValue;
     mostShotsInGame: StatValue;
+    mostTotalShotsInGame: StatValue;
+    mostTotalSavesInGame: StatValue;
+    mostTotalDemosInGame: StatValue;
 };
 
 type Achievements = {
@@ -247,6 +250,36 @@ export default function Home(): React.ReactElement {
                             players={gameStats?.highestScoringGame.players || []}
                             winningTeam={gameStats?.highestScoringGame.winningTeam}
                             icon={<statIcons.highestScoringGame className="h-6 w-6" />}
+                            isMatchup
+                            isLoading={isGameLoading}
+                        />
+                        <StatCard
+                            label="Highest Total Shots in a Game"
+                            gameId={gameStats?.mostTotalShotsInGame.gameId}
+                            value={gameStats?.mostTotalShotsInGame.value || '0'}
+                            players={gameStats?.mostTotalShotsInGame.players || []}
+                            winningTeam={gameStats?.mostTotalShotsInGame.winningTeam}
+                            icon={<statIcons.mostShots className="h-6 w-6" />}
+                            isMatchup
+                            isLoading={isGameLoading}
+                        />
+                        <StatCard
+                            label="Highest Total Saves in a Game"
+                            gameId={gameStats?.mostTotalSavesInGame.gameId}
+                            value={gameStats?.mostTotalSavesInGame.value || '0'}
+                            players={gameStats?.mostTotalSavesInGame.players || []}
+                            winningTeam={gameStats?.mostTotalSavesInGame.winningTeam}
+                            icon={<statIcons.mostSaves className="h-6 w-6" />}
+                            isMatchup
+                            isLoading={isGameLoading}
+                        />
+                        <StatCard
+                            label="Highest Total Demos in a Game"
+                            gameId={gameStats?.mostTotalDemosInGame.gameId}
+                            value={gameStats?.mostTotalDemosInGame.value || '0'}
+                            players={gameStats?.mostTotalDemosInGame.players || []}
+                            winningTeam={gameStats?.mostTotalDemosInGame.winningTeam}
+                            icon={<statIcons.mostDemos className="h-6 w-6" />}
                             isMatchup
                             isLoading={isGameLoading}
                         />

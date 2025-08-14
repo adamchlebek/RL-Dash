@@ -6,7 +6,10 @@ import {
     getMostGoalsInGame,
     getMostAssistsInGame,
     getMostSavesInGame,
-    getMostShotsInGame
+    getMostShotsInGame,
+    getMostTotalShotsInGame,
+    getMostTotalSavesInGame,
+    getMostTotalDemosInGame
 } from '@/lib/stats';
 
 export async function GET(): Promise<NextResponse> {
@@ -18,7 +21,10 @@ export async function GET(): Promise<NextResponse> {
             mostGoalsInGame,
             mostAssistsInGame,
             mostSavesInGame,
-            mostShotsInGame
+            mostShotsInGame,
+            mostTotalShotsInGame,
+            mostTotalSavesInGame,
+            mostTotalDemosInGame
         ] = await Promise.all([
             getBiggestWinDeficit(),
             getLongestGame(),
@@ -26,7 +32,10 @@ export async function GET(): Promise<NextResponse> {
             getMostGoalsInGame(),
             getMostAssistsInGame(),
             getMostSavesInGame(),
-            getMostShotsInGame()
+            getMostShotsInGame(),
+            getMostTotalShotsInGame(),
+            getMostTotalSavesInGame(),
+            getMostTotalDemosInGame()
         ]);
 
         return NextResponse.json({
@@ -36,7 +45,10 @@ export async function GET(): Promise<NextResponse> {
             mostGoalsInGame,
             mostAssistsInGame,
             mostSavesInGame,
-            mostShotsInGame
+            mostShotsInGame,
+            mostTotalShotsInGame,
+            mostTotalSavesInGame,
+            mostTotalDemosInGame
         });
     } catch (error) {
         console.error('Error fetching game stats:', error);

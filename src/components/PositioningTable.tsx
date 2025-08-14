@@ -3,9 +3,9 @@ import { useEffect, useState } from 'react';
 
 interface PlayerPositioningStats {
     name: string;
-    behindBallPercent: number;
-    lastBackPercent: number;
-    closestToBallPercent: number;
+    defensiveThirdPercent: number;
+    neutralThirdPercent: number;
+    offensiveThirdPercent: number;
     avgDistanceToBall: number;
     avgSpeed: number;
     timeSupersonic: number;
@@ -73,28 +73,28 @@ export function PositioningTable(): React.ReactElement {
                             </th>
                             <th
                                 className="hover:text-foreground cursor-pointer p-4 text-left"
-                                onClick={() => handleSort('behindBallPercent')}
+                                onClick={() => handleSort('defensiveThirdPercent')}
                             >
                                 <div className="flex items-center gap-2">
-                                    Behind Ball %
+                                    Defensive Third %
                                     <ArrowUpDown className="h-4 w-4" />
                                 </div>
                             </th>
                             <th
                                 className="hover:text-foreground cursor-pointer p-4 text-left"
-                                onClick={() => handleSort('lastBackPercent')}
+                                onClick={() => handleSort('neutralThirdPercent')}
                             >
                                 <div className="flex items-center gap-2">
-                                    Last Back %
+                                    Neutral Third %
                                     <ArrowUpDown className="h-4 w-4" />
                                 </div>
                             </th>
                             <th
                                 className="hover:text-foreground cursor-pointer p-4 text-left"
-                                onClick={() => handleSort('closestToBallPercent')}
+                                onClick={() => handleSort('offensiveThirdPercent')}
                             >
                                 <div className="flex items-center gap-2">
-                                    Closest to Ball %
+                                    Offensive Third %
                                     <ArrowUpDown className="h-4 w-4" />
                                 </div>
                             </th>
@@ -143,9 +143,9 @@ export function PositioningTable(): React.ReactElement {
                                     }`}
                                 >
                                     <td className="p-4 font-medium">{stat.name}</td>
-                                    <td className="p-4">{stat.behindBallPercent}%</td>
-                                    <td className="p-4">{stat.lastBackPercent}%</td>
-                                    <td className="p-4">{stat.closestToBallPercent}%</td>
+                                    <td className="p-4">{stat.defensiveThirdPercent}%</td>
+                                    <td className="p-4">{stat.neutralThirdPercent}%</td>
+                                    <td className="p-4">{stat.offensiveThirdPercent}%</td>
                                     <td className="p-4">{stat.avgDistanceToBall}</td>
                                     <td className="p-4">{stat.avgSpeed}</td>
                                     <td className="p-4">{stat.timeSupersonic}%</td>

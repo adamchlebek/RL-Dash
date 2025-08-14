@@ -88,9 +88,9 @@ export const getPlayerPositioningStats = async (): Promise<PlayerPosition[]> => 
         const stats = await prisma.player.groupBy({
             by: ['platformId', 'platform'],
             _avg: {
-                positioningPercentBehindBall: true,
-                positioningPercentMostBack: true,
-                positioningPercentClosestToBall: true,
+                positioningPercentDefensiveThird: true,
+                positioningPercentNeutralThird: true,
+                positioningPercentOffensiveThird: true,
                 positioningAvgDistanceToBall: true,
                 movementAvgSpeed: true,
                 movementPercentSupersonicSpeed: true
@@ -111,13 +111,21 @@ export const getPlayerPositioningStats = async (): Promise<PlayerPosition[]> => 
                     }
                 });
 
+                const defensiveThird = stat._avg.positioningPercentDefensiveThird || 0;
+                const neutralThird = stat._avg.positioningPercentNeutralThird || 0;
+                const offensiveThird = stat._avg.positioningPercentOffensiveThird || 0;
+                
+                const total = defensiveThird + neutralThird + offensiveThird;
+                
+                const normalizedDefensive = total > 0 ? (defensiveThird / total) * 100 : 0;
+                const normalizedNeutral = total > 0 ? (neutralThird / total) * 100 : 0;
+                const normalizedOffensive = total > 0 ? (offensiveThird / total) * 100 : 0;
+
                 return {
                     name: globalPlayer?.name || stat.platformId,
-                    behindBallPercent: Math.round(stat._avg.positioningPercentBehindBall || 0),
-                    lastBackPercent: Math.round(stat._avg.positioningPercentMostBack || 0),
-                    closestToBallPercent: Math.round(
-                        stat._avg.positioningPercentClosestToBall || 0
-                    ),
+                    defensiveThirdPercent: Math.round(normalizedDefensive),
+                    neutralThirdPercent: Math.round(normalizedNeutral),
+                    offensiveThirdPercent: Math.round(normalizedOffensive),
                     avgDistanceToBall: Math.round(stat._avg.positioningAvgDistanceToBall || 0),
                     avgSpeed: Math.round(stat._avg.movementAvgSpeed || 0),
                     timeSupersonic: Math.round(stat._avg.movementPercentSupersonicSpeed || 0)
