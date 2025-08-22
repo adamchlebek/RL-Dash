@@ -48,3 +48,5 @@ apps/server/target/
 prisma/.env
 
 /server/target/
+
+/replays

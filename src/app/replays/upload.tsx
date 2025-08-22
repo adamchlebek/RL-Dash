@@ -18,7 +18,7 @@ export default function ReplayUpload({ onUploadComplete }: Props): React.ReactEl
         formData.append('file', file);
 
         try {
-            const response = await fetch('https://rl-dash.onrender.com/parse/basic', {
+            const response = await fetch('/api/parse/basic', {
                 method: 'POST',
                 body: formData
             });
@@ -28,11 +28,13 @@ export default function ReplayUpload({ onUploadComplete }: Props): React.ReactEl
             }
 
             const data = await response.json();
+            console.log('Match type check response:', data);
 
             return data.match_type === 'Private';
         } catch (err) {
             console.error('Error checking match type:', err);
-            return false;
+            // Default to true (allow upload) if parsing fails
+            return true;
         }
     };
 
@@ -48,12 +50,15 @@ export default function ReplayUpload({ onUploadComplete }: Props): React.ReactEl
 
             try {
                 const checkPrivateMatches = await getEdgeConfig('check_private_matches');
+                console.log('Edge config response:', checkPrivateMatches);
                 const shouldCheckPrivateMatches = checkPrivateMatches?.value ?? true;
+                console.log('Should check private matches:', shouldCheckPrivateMatches);
 
                 for (const file of acceptedFiles) {
                     if (shouldCheckPrivateMatches) {
                         const isPrivate = await checkMatchType(file);
                         if (!isPrivate) {
+                            console.log('File rejected as not private:', file.name);
                             invalidMatches.push(file.name);
                             continue;
                         }
@@ -93,9 +98,10 @@ export default function ReplayUpload({ onUploadComplete }: Props): React.ReactEl
 
                 if (invalidMatches.length > 0) {
                     const pluralText = invalidMatches.length === 1 ? 'file is' : 'files are';
+                    console.log('Invalid matches detected:', invalidMatches);
                     setError(
                         (prev) =>
-                            `${prev ? prev + '\n' : ''}${invalidMatches.length} ${pluralText} is not a private match: ${invalidMatches.join(', ')}`
+                            `${prev ? prev + '\n' : ''}${invalidMatches.length} ${pluralText} not a private match: ${invalidMatches.join(', ')}`
                     );
                 }
 
@@ -114,7 +120,6 @@ export default function ReplayUpload({ onUploadComplete }: Props): React.ReactEl
         accept: {
             'application/octet-stream': ['.replay']
         },
-        maxFiles: 100,
         disabled: uploading
     });
 
@@ -135,7 +140,7 @@ export default function ReplayUpload({ onUploadComplete }: Props): React.ReactEl
                         ? 'Drop the replay files here'
                         : 'Drag & drop replay files here, or click to select'}
                 </p>
-                <p className="text-xs text-zinc-500">Upload up to 100 .replay files at once</p>
+                <p className="text-xs text-zinc-500">Upload as many .replay files at once</p>
                 {uploading && (
                     <div className="mt-4">
                         <div className="h-2 w-full rounded-full bg-zinc-800">

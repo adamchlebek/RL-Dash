@@ -1,19 +1,34 @@
-import { supabase } from './supabase';
-
 export async function getEdgeConfig<T>(key: string): Promise<{ value: T } | null> {
-    const { data, error } = await supabase.functions.invoke('edge-config', {
-        body: { action: 'get', key }
-    });
+    try {
+        const response = await fetch('/api/edge-config', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ action: 'get', key })
+        });
 
-    if (error) throw error;
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-    return data;
+        return await response.json();
+    } catch (error) {
+        console.error('Error getting edge config:', error);
+        return null;
+    }
 }
 
 export async function setEdgeConfig<T>(key: string, value: T): Promise<void> {
-    const { error } = await supabase.functions.invoke('edge-config', {
-        body: { action: 'set', key, value }
+    const response = await fetch('/api/edge-config', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ action: 'set', key, value })
     });
 
-    if (error) throw error;
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
 }
