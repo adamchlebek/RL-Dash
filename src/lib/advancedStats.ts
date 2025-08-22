@@ -1,10 +1,10 @@
 import { prisma } from './prisma';
 
-interface PlayerPosition {
+interface PlayerPositioningStats {
     name: string;
-    behindBallPercent: number;
-    lastBackPercent: number;
-    closestToBallPercent: number;
+    defensiveThirdPercent: number;
+    neutralThirdPercent: number;
+    offensiveThirdPercent: number;
     avgDistanceToBall: number;
     avgSpeed: number;
     timeSupersonic: number;
@@ -83,7 +83,7 @@ export const getLastDefenderStats = async (): Promise<PlayerLastDefenderStats[]>
     }
 };
 
-export const getPlayerPositioningStats = async (): Promise<PlayerPosition[]> => {
+export const getPlayerPositioningStats = async (): Promise<PlayerPositioningStats[]> => {
     try {
         const stats = await prisma.player.groupBy({
             by: ['platformId', 'platform'],

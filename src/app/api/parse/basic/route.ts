@@ -26,7 +26,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 }
 
-function parseReplayHeader(buffer: Buffer): { match_type: string; [key: string]: any } {
+function parseReplayHeader(buffer: Buffer): { match_type: string; [key: string]: string | Record<string, string> } {
     try {
         // Rocket League replay files are structured with a header containing metadata
         // The file starts with a length-prefixed string section containing properties
@@ -61,7 +61,7 @@ function parseReplayHeader(buffer: Buffer): { match_type: string; [key: string]:
         // Now we're at the properties section
         // Properties are stored as key-value pairs with length prefixes
         
-        const properties: Record<string, any> = {};
+        const properties: Record<string, string> = {};
         
         // Read properties until we find MatchType or reach reasonable limit
         let attempts = 0;
@@ -106,7 +106,7 @@ function parseReplayHeader(buffer: Buffer): { match_type: string; [key: string]:
                 }
                 
                 // Read property value based on type
-                let value: any = null;
+                let value: string | null = null;
                 if (propertyType === 'StrProperty' || propertyType === 'NameProperty') {
                     // String property
                     if (offset + 4 <= buffer.length) {
@@ -134,7 +134,7 @@ function parseReplayHeader(buffer: Buffer): { match_type: string; [key: string]:
                     };
                 }
                 
-            } catch (e) {
+            } catch {
                 // If we hit an error parsing a property, try to continue
                 offset += 1;
                 continue;

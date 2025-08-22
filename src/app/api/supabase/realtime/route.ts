@@ -21,7 +21,7 @@ export async function POST(): Promise<NextResponse> {
         const replayCount = await prisma.replay.count();
         
         // Also test Supabase auth (which should work with service role)
-        const { data: authTest, error: authError } = await supabaseAdmin.auth.getUser();
+        const { error: authError } = await supabaseAdmin.auth.getUser();
         
         return NextResponse.json({
             success: true,
