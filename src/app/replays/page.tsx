@@ -11,6 +11,7 @@ import Link from 'next/link';
 export default function ReplayPage(): React.ReactElement {
     const [replays, setReplays] = useState<Replay[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [isReprocessingAll, setIsReprocessingAll] = useState<boolean>(false);
 
     const fetchReplays = async (): Promise<void> => {
         const response = await fetch('/api/replays/all');
@@ -46,6 +47,32 @@ export default function ReplayPage(): React.ReactElement {
         }
     };
 
+    const handleReprocessAll = async (): Promise<void> => {
+        try {
+            setIsReprocessingAll(true);
+            const response = await fetch('/api/replays/reprocess-all', {
+                method: 'POST'
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to reprocess all replays');
+            }
+
+            const result = await response.json();
+            console.log('Reprocess all result:', result);
+
+            setReplays((prev) =>
+                prev.map((replay) => ({ ...replay, status: 'processing' }))
+            );
+
+            await fetchReplays();
+        } catch (error) {
+            console.error('Error reprocessing all replays:', error);
+        } finally {
+            setIsReprocessingAll(false);
+        }
+    };
+
     useEffect(() => {
         fetchReplays();
     }, []);
@@ -75,7 +102,16 @@ export default function ReplayPage(): React.ReactElement {
                 <ReplayUpload onUploadComplete={fetchReplays} />
 
                 <div className="mt-8">
-                    <h2 className="text-foreground mb-4 text-2xl font-semibold">All Replays</h2>
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-foreground text-2xl font-semibold">All Replays</h2>
+                        <button
+                            onClick={handleReprocessAll}
+                            disabled={true}
+                            className="bg-orange-600 hover:bg-orange-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md transition-colors"
+                        >
+                            {isReprocessingAll ? 'Reprocessing...' : 'Reprocess All'}
+                        </button>
+                    </div>
                     <ReplayList
                         replays={replays}
                         isLoading={isLoading}

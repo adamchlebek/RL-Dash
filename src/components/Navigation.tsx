@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Boxes, Contrast, Home, Users } from 'lucide-react';
+import { Boxes, Contrast, Home, Users, Files } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { useTheme } from '../providers/ThemeProvider';
 
@@ -49,6 +49,13 @@ export function Navigation(): React.ReactElement {
                             >
                                 <Boxes className="mr-2 h-4 w-4" />
                                 Teams
+                            </Link>
+                            <Link
+                                href="/replays"
+                                className="text-muted hover:text-foreground inline-flex items-center px-1 pt-1 text-sm font-medium"
+                            >
+                                <Files className="mr-2 h-4 w-4" />
+                                Replays
                             </Link>
                         </div>
                     </div>

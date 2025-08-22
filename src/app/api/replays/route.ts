@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { uploadReplay } from '@/lib/ballchasing';
 import { prisma, checkDatabaseConnection } from '@/lib/prisma';
+import { uploadReplayToStorage, createStorageBucket, getStorageFileUrl } from '@/lib/storage';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
     try {
@@ -17,6 +18,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         // Upload to Ballchasing API
         const ballchasingResponse = await uploadReplay(buffer, file.name);
 
+        // Upload to Supabase Storage
+        let storageFilePath: string | null = null;
+        try {
+            // Ensure bucket exists before uploading
+            await createStorageBucket();
+            storageFilePath = await uploadReplayToStorage(buffer, file.name, ballchasingResponse.id);
+            console.log(`Successfully uploaded replay to storage: ${storageFilePath}`);
+        } catch (storageError) {
+            console.error('Failed to upload to storage:', storageError);
+        }
+
         // Check database connection
         const isDbConnected = await checkDatabaseConnection();
 
@@ -29,8 +41,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             });
 
             if (existingReplay) {
-                // Return the existing replay record
-                replayRecord = existingReplay;
+                // Update existing replay with storage file path if not already present
+                if (!existingReplay.storageFilePath && storageFilePath) {
+                    replayRecord = await prisma.replay.update({
+                        where: { id: existingReplay.id },
+                        data: { storageFilePath: storageFilePath }
+                    });
+                    console.log(`Updated existing replay with storage file path: ${storageFilePath}`);
+                } else {
+                    replayRecord = existingReplay;
+                }
                 console.log(
                     `Replay with ballchasingId ${ballchasingResponse.id} already exists in database`
                 );
@@ -40,7 +60,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                     data: {
                         ballchasingId: ballchasingResponse.id,
                         fileName: file.name,
-                        status: 'processing'
+                        status: 'processing',
+                        storageFilePath: storageFilePath
                     }
                 });
             }
@@ -52,7 +73,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 fileName: file.name,
                 status: 'processing',
                 uploadedAt: new Date(),
-                processedAt: null
+                processedAt: null,
+                storageFilePath: storageFilePath
             };
             console.warn('Database connection failed, using in-memory record');
         }
@@ -63,6 +85,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             fileName: replayRecord.fileName,
             status: replayRecord.status,
             uploadedAt: replayRecord.uploadedAt,
+            storageFilePath: replayRecord.storageFilePath,
+            storageUrl: replayRecord.storageFilePath ? getStorageFileUrl(replayRecord.storageFilePath) : null,
             isDuplicate: ballchasingResponse.isDuplicate || false
         });
     } catch (error) {

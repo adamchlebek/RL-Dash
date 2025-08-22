@@ -40,10 +40,18 @@ export function DemoStats(): React.ReactElement {
         );
     }
 
+    const sortedDemoStats = [...demoStats].sort((a, b) => {
+        const totalA = a.demosGiven + a.demosReceived;
+        const totalB = b.demosGiven + b.demosReceived;
+        const givenPercentageA = totalA > 0 ? (a.demosGiven / totalA) * 100 : 0;
+        const givenPercentageB = totalB > 0 ? (b.demosGiven / totalB) * 100 : 0;
+        return givenPercentageB - givenPercentageA;
+    });
+
     return (
         <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {demoStats.map((player) => {
+                {sortedDemoStats.map((player) => {
                     const total = player.demosGiven + player.demosReceived;
                     const givenPercentage = total > 0 ? (player.demosGiven / total) * 100 : 0;
                     const receivedPercentage = total > 0 ? (player.demosReceived / total) * 100 : 0;

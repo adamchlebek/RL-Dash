@@ -15,6 +15,7 @@ model Replay {
   status          String
   uploadedAt      DateTime      @default(now())
   processedAt     DateTime?
+  storageFilePath String?       @map("storage_file_path")
   rocketLeagueId  String?       @map("rocket_league_id")
   matchGuid       String?       @map("match_guid")
   title           String?
