@@ -40,7 +40,7 @@ type SortField =
 type SortDirection = 'asc' | 'desc';
 
 export function PlayerTable({ players }: PlayerTableProps): React.ReactElement {
-    const [sortField, setSortField] = useState<SortField>('gamesPlayed');
+    const [sortField, setSortField] = useState<SortField>('winRate');
     const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
     const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
